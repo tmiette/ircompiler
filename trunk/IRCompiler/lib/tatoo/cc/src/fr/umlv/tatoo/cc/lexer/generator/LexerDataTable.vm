@@ -1,0 +1,68 @@
+package ${lexerDataTable.packageName};
+
+import ${ruleEnum.name};
+import fr.umlv.tatoo.runtime.lexer.LexerTable;
+import fr.umlv.tatoo.runtime.lexer.rules.RuleData;
+import fr.umlv.tatoo.runtime.regex.CharRegexTable;
+import java.util.EnumMap;
+
+/** 
+ *  This class is generated - please do not edit it 
+ */
+public class ${lexerDataTable.simpleName} {
+
+  public static LexerTable<${ruleEnum.simpleName}> createTable() {
+    return new ${lexerDataTable.simpleName}().table;
+  }
+
+  private ${lexerDataTable.simpleName}() {
+#foreach($rule in $rules)
+    init${rule.id}MainAccepts();
+    init${rule.id}MainTransitions();
+    CharRegexTable ${rule.id}Main = new CharRegexTable(${rule.mainRegex.firstState}, ${rule.id}MainTransitions, ${rule.id}MainAccepts);
+#if ($rule.followRegex)
+    init${rule.id}FollowAccepts();
+    init${rule.id}FollowTransitions();
+    CharRegexTable ${rule.id}Follow = new CharRegexTable(${rule.followRegex.firstState}, ${rule.id}FollowTransitions, ${rule.id}FollowAccepts);
+    RuleData ${rule.id} = new RuleData(${rule.id}Main, ${rule.id}Follow, ${rule.beginningOfLineRequired});
+#else
+    RuleData ${rule.id} = new RuleData(${rule.id}Main, null, ${rule.beginningOfLineRequired});
+#end
+#end
+    EnumMap<${ruleEnum.simpleName},RuleData> datas = new EnumMap<${ruleEnum.simpleName},RuleData>(${ruleEnum.simpleName}.class);
+#foreach ($rule in $rules)
+    datas.put(${ruleEnum.simpleName}.${rule.id}, ${rule.id});
+#end
+    table = new LexerTable<${ruleEnum.simpleName}>(datas);
+  }
+  
+#foreach($rule in $rules)
+  private boolean[] ${rule.id}MainAccepts;
+  private void init${rule.id}MainAccepts() {
+    ${rule.id}MainAccepts = new boolean[] {#foreach ($v in $rule.mainRegex.accepts)#if ($velocityCount!=1), #end${v}#end};
+  }
+    
+  private int[][] ${rule.id}MainTransitions;
+  private void init${rule.id}MainTransitions() {
+    ${rule.id}MainTransitions = new int[][] {#foreach ($transition in $rule.mainRegex.transitions)#if ($velocityCount!=1),#end
+
+        {#foreach ($v in $transition)#if ($velocityCount!=1),#end${v}#end}#end};
+  }
+#if ($rule.followRegex)
+  private boolean[] ${rule.id}FollowAccepts;
+  private void init${rule.id}FollowAccepts() {
+    ${rule.id}FollowAccepts = new boolean[] {#foreach ($v in $rule.followRegex.accepts)#if ($velocityCount!=1), #end${v}#end};
+  }
+    
+  private int[][] ${rule.id}FollowTransitions;
+  private void init${rule.id}FollowTransitions() {
+    ${rule.id}FollowTransitions = new int[][] {#foreach ($transition in $rule.followRegex.transitions)#if ($velocityCount!=1),#end
+        
+      {#foreach ($v in $transition)#if ($velocityCount!=1),#end${v}#end}#end};
+  }
+#end
+#end
+  
+  private final LexerTable<${ruleEnum.simpleName}> table;
+  
+}

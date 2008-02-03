@@ -1,0 +1,136 @@
+package ${lexerSwitch.packageName};
+
+import ${ruleEnum.name};
+import fr.umlv.tatoo.runtime.lexer.LexerTable;
+import fr.umlv.tatoo.runtime.lexer.rules.RuleData;
+import fr.umlv.tatoo.runtime.lexer.rules.RegexTable;
+import java.util.EnumMap;
+
+/** 
+ *  This class is generated - please do not edit it 
+ */
+public class ${lexerSwitch.simpleName} {
+
+  public static LexerTable<${ruleEnum.simpleName}> createTable() {
+    return new ${lexerSwitch.simpleName}().table;
+  }
+
+  private ${lexerSwitch.simpleName}() {
+#foreach($rule in $rules)
+    RegexTable ${rule.id}Main = new RegexTable() {
+      public int getTransition(int state,int next) {
+      	switch(state) {
+#set ( $last = $rule.mainRegex.StateNb - 1 )
+#foreach($state in [0..$last])
+          case $state:
+            switch(next) {
+#foreach($trans in $rule.mainRegex.getTransitions($state))
+#if($trans.default )
+              default:
+                return $trans.state;
+#else
+              #foreach($label in $trans.getLabels())case $label:#end
+
+              	return $trans.state;
+#end
+#end	       
+            }
+#end     	
+      	}
+      	return -1;
+      }
+      public boolean accept(int i) {
+        switch(i) {
+          #foreach($v in $rule.mainRegex.accepts)#set($n = $velocityCount - 1)#if($v)case $n:#end#end
+
+            return true;
+          default:
+            return false;
+        }
+      }
+      public int getStateNumber() {
+        return ${rule.mainRegex.stateNb};
+      }
+      public boolean noOut(int currentState) {
+        switch(currentState) {
+#if($rule.mainRegex.noOut.size != 0)
+#foreach($state in $rule.mainRegex.noOut)
+          case ${state}:
+#end
+            return true;
+#end            
+          default:
+            return false;
+        }
+      }
+      public int getStart() {
+        return ${rule.mainRegex.firstState};
+      }
+      
+    };
+#if ($rule.followRegex)
+    init${rule.id}FollowAccepts();
+    init${rule.id}FollowTransitions();
+    RegexTable ${rule.id}Follow = new RegexTable() {
+      public int getTransition(int state,int next) {
+      	switch(state) {
+#set ( $last = $rule.followRegex.stateNb - 1 )
+#foreach($state in [0..$last])
+          case $state:
+            switch(next) {
+#foreach($trans in $rule.followRegex.getTransitions($state))
+#if($trans.default )
+              default:
+                return $trans.state;
+#else
+              #foreach($label in $trans.getLabels())case $label:#end
+       
+              	return $trans.state;
+#end
+#end	       
+            }
+#end     	
+      	}
+      	return -1;
+      }
+      public boolean accept(int i) {
+        switch(i) {
+          #foreach($v in $rule.followRegex.accepts)#set($n = $velocityCount - 1)#if($v)case $n:#end#end
+
+            return true;
+          default:
+            return false;
+        }
+      }
+      public int getStateNumber() {
+        return ${rule.followRegex.stateNb};
+      }
+      public boolean noOut(int currentState) {
+        switch(currentState) {
+#if( $rule.followRegex.noOut.size !=0 )
+#foreach($state in $rule.followRegex.noOut)
+          case ${state}:
+#end
+            return true;
+#end
+          default:
+            return false;
+        }
+      }
+      public int getStart() {
+        return ${rule.followRegex.firstState};
+      }      
+    };
+    RuleData ${rule.id} = new RuleData(${rule.id}Main, ${rule.id}Follow, ${rule.beginningOfLineRequired});
+#else
+    RuleData ${rule.id} = new RuleData(${rule.id}Main, null, ${rule.beginningOfLineRequired});
+#end
+#end
+    EnumMap<${ruleEnum.simpleName},RuleData> datas = new EnumMap<${ruleEnum.simpleName},RuleData>(${ruleEnum.simpleName}.class);
+#foreach ($rule in $rules)
+    datas.put(${ruleEnum.simpleName}.${rule.id}, ${rule.id});
+#end
+    table = new LexerTable<${ruleEnum.simpleName}>(datas);
+  }  
+  private final LexerTable<${ruleEnum.simpleName}> table;
+}

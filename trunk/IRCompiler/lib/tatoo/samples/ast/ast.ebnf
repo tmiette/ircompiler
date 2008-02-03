@@ -1,0 +1,56 @@
+
+imports:
+ 
+priorities:
+equals= 0 nonassoc
+plus_minus= 1 left
+star= 2 left
+
+tokens:
+  $number= "[0-9]+"
+  $id= "([a-z][A-Z])+"
+  $space= "( |\t)*"
+ 
+  value:int= '{number}'
+  id='{id}'
+  plus= '\+'      [plus_minus]
+  minus= '-'      [plus_minus]
+  star= '\*'      [star]
+  equals= '='     [equals]
+  lpar= '\('
+  rpar= '\)'
+  comma=','
+  semicolon=';'
+ 
+blanks:
+ space= "{space}"
+
+error:
+ error
+
+versions:
+
+starts:
+ start
+
+productions:
+start = line*                {start_def}
+      | 'comma'              {start_comma}
+      ;
+      
+line = expr 'semicolon'      {line_expr}
+     | 'error' 'semicolon'   {line_error}
+     ;
+ 
+expr:int = 'value'                              {expr_value}
+         | expr 'plus' expr        [plus_minus] {expr_plus}   
+         | expr 'minus' expr       [plus_minus] {expr_minus}  
+         | expr 'star' expr        [star]       {expr_star_zzz}   
+         | expr 'equals' expr      [equals]     {expr_equals} 
+         | 'lpar' expr 'rpar'                   {expr_par}
+         | 'id' 'lpar' arguments 'rpar'         {expr_call}
+         | 'lpar' 'error' 'rpar'                {expr_error}
+         ;
+
+arguments:int = expr/'comma'*                 {arguments_expr}
+              ;

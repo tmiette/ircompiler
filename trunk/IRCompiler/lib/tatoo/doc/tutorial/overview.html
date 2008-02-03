@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+      "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <title>overview of usage of Tatoo</title>
+  <meta name="generator" content="Amaya, see http://www.w3.org/Amaya/" />
+  <link href="../../web-files/tatoo.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<h1>Overview of Tatoo usage</h1>
+
+<p>The easiest way to write an analyzer specification file for Tatoo is to
+use the new Tatoo ebnf file format. An eclipse plugin for these file is
+available.</p>
+
+<p>Throught the writing of a specification file one can:</p>
+<ul>
+  <li>build a lexer</li>
+  <li>build a complete lexer+parser analyzer</li>
+  <li>produce an html document that describe the parser table (useful among
+    other for teaching and students)</li>
+</ul>
+
+<p>The ebnf file is a made of <em>sections</em> which consist of the line
+<code><em>name</em>:</code> followed by its content. The valid sections
+are:</p>
+<ul>
+  <li><code>tokens</code> and <code>blanks</code> where the lexical part is
+    given</li>
+  <li><code>starts</code>, <code>error</code>, <code>versions</code> and
+    <code>productions</code> which describe the grammar</li>
+</ul>
+
+<p>From the content of the ebnf file, Tatoo generates a lexer, a parser or
+both.</p>
+
+<p>Though the generated lexer and parser can be used directly (which is
+advised if the analyzer is used in a small device), the glue between them,
+semantic stack managment or AST generation can be generated using the tools
+module of Tatoo. Its specification is given with an XML file or putting types
+in the ebnf file (the latter is dicouraged since it prevents clean separation
+between semantic and syntax).</p>
+
+<p>The tools XML file consists in three kinds of directives:</p>
+<ul>
+  <li>the tag <code>rule</code> which links a lexer rule (regular expression)
+    to a terminal; these directives are usually not needed with the ebnf
+    format. They can also specify which rules bypass the rule selection
+    system (this is the case by default for blanks) or rules that are only
+    part of a token (for instance strings or comments)</li>
+  <li>the tag <code>terminal</code> gives the type of terminal attributes
+    (which is void by default);</li>
+  <li>the tag <code>non-terminal</code> gives the type of non-terminal
+    attributes (which is also void by default).</li>
+</ul>
+</body>
+</html>

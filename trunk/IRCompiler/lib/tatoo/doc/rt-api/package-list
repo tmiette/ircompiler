@@ -1,0 +1,10 @@
+fr.umlv.tatoo.runtime.ast
+fr.umlv.tatoo.runtime.buffer
+fr.umlv.tatoo.runtime.buffer.impl
+fr.umlv.tatoo.runtime.lexer
+fr.umlv.tatoo.runtime.lexer.rules
+fr.umlv.tatoo.runtime.parser
+fr.umlv.tatoo.runtime.regex
+fr.umlv.tatoo.runtime.tools
+fr.umlv.tatoo.runtime.tools.builder
+fr.umlv.tatoo.runtime.util

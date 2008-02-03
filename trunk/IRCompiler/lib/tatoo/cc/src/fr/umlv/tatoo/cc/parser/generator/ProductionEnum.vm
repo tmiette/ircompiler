@@ -1,0 +1,9 @@
+package ${productionEnum.packageName};
+
+/** 
+ *  This class is generated - please do not edit it 
+ */
+public enum ${productionEnum.simpleName} {
+#set ($it=$productions.iterator())
+  #foreach ($prod in $it)${prod.id}#if ($it.hasNext()), #else;#end#end
+}

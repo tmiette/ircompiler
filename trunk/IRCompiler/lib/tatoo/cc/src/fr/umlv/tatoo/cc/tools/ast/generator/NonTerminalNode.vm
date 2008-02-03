@@ -1,0 +1,23 @@
+package ${package};
+
+#foreach($type in $imports)
+import $type.rawName;
+#end
+
+public interface ${node.type.simpleName} extends Node {
+  #if(${node.elementSuperType})
+  /** 
+   * {@inheritDoc}
+   */
+  public List<? extends ${node.elementSuperType.simpleName}> nodeList();
+  #end
+  
+  #if (${node.parentSuperType})
+  /** 
+   * {@inheritDoc}
+   */
+  public ${node.parentSuperType.simpleName} getParent();
+  #end
+  
+  public <_R,_P,_D,_E extends Throwable> _R accept(Visitor<_R,_P,_D,_E> visitor,_P param) throws _E;
+}

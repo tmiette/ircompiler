@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<project name="tatoo-runtime" default="all" basedir=".">
+	<!-- global properties -->
+	<property name="lib" location="../lib"/>
+	<property name="jar-runtime" value="tatoo-runtime.jar"/>
+	<property name="target" value="1.5"/>
+	<property name="debug" value="true"/>
+	<property name="flat-src-zip" value="flat-src.zip"/>
+	
+	<!-- local properties -->
+	<property name="source" value="1.5"/>
+	<property name="src" location="src"/>
+	<property name="classes" location="classes"/>
+	<property name="jar-path" value="${lib}/${jar-runtime}"/>
+	
+	<target name="all" depends="jar"/>
+	<target name="compile">
+		<mkdir dir="${classes}"/>
+		<javac target="${target}" source="${source}" debug="${debug}" srcdir="${src}" destdir="${classes}">
+			<compilerarg value="-Xlint:deprecation"/>
+		</javac>
+		<copy todir="${classes}">
+			<fileset dir="${src}">
+				<exclude name="**/*.java"/>
+				<exclude name="**/.svn"/>
+			</fileset>
+		</copy>
+	</target>
+	<target name="jar" depends="compile,jar-nocompile"/>
+	<target name="jar-nocompile">
+		<zip basedir="${classes}" destfile="${jar-path}"/>
+	</target>
+	<target name="clean">
+		<delete dir="${classes}"/>
+	</target>
+	
+	<target name="flat-src">
+		<zip basedir="${src}" destfile="${lib}/${flat-src-zip}" update="true"/>
+	</target>
+</project>

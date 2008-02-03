@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Tatoo NetBeans Project
+-->
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.ant.freeform</type>
+    <configuration>
+        <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
+            <!-- Do not use Project Properties customizer when editing this file manually. -->
+            <name>Tatoo</name>
+            <properties/>
+            <folders>
+                <source-folder>
+                    <label>cc/src</label>
+                    <type>java</type>
+                    <location>cc/src</location>
+                </source-folder>
+                <source-folder>
+                    <label>runtime/src</label>
+                    <type>java</type>
+                    <location>runtime/src</location>
+                </source-folder>
+                <source-folder>
+                    <label>regex/src</label>
+                    <type>java</type>
+                    <location>regex/src</location>
+                </source-folder>
+                <source-folder>
+				    <label>regex/gen-src</label>
+				    <type>java</type>
+				    <location>regex/gen-src</location>
+                </source-folder>
+                <source-folder>
+                    <label>ebnf/src</label>
+                    <type>java</type>
+                    <location>ebnf/src</location>
+                </source-folder>
+                <source-folder>
+				    <label>ebnf/gen-src</label>
+				    <type>java</type>
+				    <location>ebnf/gen-src</location>
+                </source-folder>
+            </folders>
+            <ide-actions>
+                <action name="build">
+                    <target>all</target>
+                </action>
+                <action name="clean">
+                    <target>clean</target>
+                </action>
+                <action name="javadoc">
+                    <target>distrib-javadoc</target>
+                </action>
+                <action name="rebuild">
+                    <target>clean</target>
+                    <target>all</target>
+                </action>
+                <action name="test">
+                    <!-- no target yet -->
+                </action>
+            </ide-actions>
+            <view>
+                <items>
+                    <source-folder style="packages">
+                        <label>cc/src</label>
+                        <location>cc/src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>runtime/src</label>
+                        <location>runtime/src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>regex/src</label>
+                        <location>regex/src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+					    <label>regex/gen-src</label>
+					    <location>regex/gen-src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>ebnf/src</label>
+                        <location>ebnf/src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+					    <label>ebnf/gen-src</label>
+					    <location>ebnf/gen-src</location>
+                    </source-folder>
+                    <source-file>
+                        <location>build.xml</location>
+                    </source-file>
+                </items>
+                <context-menu>
+                    <ide-action name="build"/>
+                    <ide-action name="clean"/>
+                    <!-- ide-action name="javadoc"/ -->
+                    <ide-action name="rebuild"/>
+                </context-menu>
+            </view>
+            <subprojects/>
+        </general-data>
+        <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/1">
+            <compilation-unit>
+                <package-root>cc/src</package-root>
+                <classpath mode="compile">lib/velocity/velocity-dep-1.4.jar</classpath>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>runtime/src</package-root>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>regex/src</package-root>
+                <package-root>regex/gen-src</package-root>
+                <classpath mode="compile">cc/classes;runtime/classes</classpath>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>ebnf/src</package-root>
+                <package-root>ebnf/gen-src</package-root>
+                <classpath mode="compile">cc/classes;runtime/classes;regex/classes</classpath>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+        </java-data>
+    </configuration>
+</project>

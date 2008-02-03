@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+ "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../../../tatoo.css" rel="stylesheet"/>
+  <title>Compilation du fichier .xlex</title>
+ </head>
+ <body>
+  <h1>Compilation du fichier <tt>.xlex</tt></h1>
+   <p>Pour générer les <a href="generate.xhtml">implantations des automates</a> qui correspondent à un ensemble de règles
+   décrites dans un fichier <tt>.xlex</tt> il y a deux possibilités&nbsp;: utiliser <a href="#ant">une tâche 
+   <tt>ant</tt></a> ou compiler le fichier en <a href="#command">ligne de commande</a>. Ces deux
+   possibilités reposent sur la disponibilité du fichier Jar&nbsp;: <a href="../../../../files/tatoo.jar"><tt>tatoo.jar</tt></a>.   
+   Par défaut, elles produisent dans le répertoire courant&nbsp;:</p>
+  <ul>
+   <li>une énumération <tt>lexer.RuleEnum</tt> pour les règles&nbsp;;</li>
+   <li>une classe <tt>lexer.LexerDataTable</tt> pour la table des automates des règles.</li>
+  </ul>
+  <p><a href = "javascript:history.back()">Back</a></p>
+   <h2 id="ant">Compilation par une tâche <tt>ant</tt></h2>
+   <p>La tâche <tt>fr.umlv.tatoo.cc.lexer.main.LexerTask</tt> qui se trouve dans le Jar 
+    <tt><a href="../../../../files/tatoo.jar">tatoo.jar</a></tt> permet de générer les implantations 
+    des automates qui correspondent à un ensemble de règles.</p>
+   <p>Dans le fichier <tt>build.xml</tt> cette tâche est définie comme suit&nbsp;:</p><pre><![CDATA[<taskdef name="lexer" classname="fr.umlv.tatoo.cc.lexer.main.LexerTask" classpath="tatoo.jar:velocity-dep.jar"/>]]></pre>
+  <p>Ses attributs sont&nbsp;:</p>
+  <ul>
+   <li><tt>lexerFile</tt> qui précise le fichier <tt>.xlex</tt> à utiliser&nbsp;;</li>
+   <li><tt>destination</tt> qui précise le répertoire dans lequel placer les fichiers générés&nbsp;;</li>
+	  <li><tt>packagePrefix</tt> qui précise le préfixe à ajouter au paquetage <tt>lexer</tt> des fichiers générés&nbsp;;</li>
+   <li><tt>validating</tt> qui précise si l'analyseur XML doit valider le fichier <tt>.xlex</tt> en fonction
+   de sa DTD.</li>
+  </ul>
+  <p>D'autre part, il existe des <a href="../ant/internal.xhtml">éléments internes</a> communs aux autres 
+   tâches <tt>ant</tt> de Tatoo qui permettent de changer précisément le comportement de la tâche.</p>
+  <p>Par exemple, la tâche suivante génère, à partir des règles décrites dans le fichier <a
+    href="../../../../samples/tutorial/calc.xlex"><tt>calc.xlex</tt></a> les implantations des automates et les place
+   dans le paquetage <tt>fr.umlv.tatoo.samples.tutorial.lexer</tt>. Les fichiers sont générés
+   dans le répertoire <tt>gen-src</tt> du répertoire courant et le fichier <tt>.xlex</tt> est validé avec sa DTD.</p>
+  <pre><![CDATA[  <target name="lexer">
+   <lexer destination="./gen-src/" lexerFile="calc.xlex" validating="true">
+     <package lexer="fr.umlv.tatoo.samples.tutorial.lexer"/>
+   </lexer>
+  </target>]]></pre>
+  <h3>Un exemple complet</h3>
+  <pre><![CDATA[ <?xml version="1.0"?>
+ <project name="tatoo" default="lexer" basedir=".">
+  <taskdef name="lexer" classname="fr.umlv.tatoo.cc.lexer.main.LexerTask" classpath="tatoo.jar:velocity-dep.jar"/>
+  <target name="lexer">
+   <lexer destination="./gen-src/" lexerFile="calc.xlex" validating="true">
+     <package lexer="fr.umlv.tatoo.samples.tutorial.lexer"/>
+   </lexer>
+  </target>
+ </project>]]></pre>
+  <p><a href = "javascript:history.back()">Back</a></p>
+   <h2 id="command">Compilation en ligne de commande</h2>
+   <p>L'application Tatoo est contenue dans le fichier Jar exécutable 
+    <a href="../../../../files/tatoo.jar"><tt>tatoo.jar</tt></a>. </p>
+  <p id="tatoo-options">Diverses options permettent de changer le comportement par défaut de Tatoo. Elles sont 
+   décrites succinctement en lançant <tt>java -jar tatoo.jar</tt>. Parmi les options disponibles on trouve
+   en particulier&nbsp;:</p>
+  <ul>
+   <li><tt>-d</tt> pour préciser le répertoire où placer les fichiers générés&nbsp;;</li>
+   <li><tt>-p</tt> pour préfixer le nom du paquetage <tt>lexer</tt> avec un autre nom de paquetage&nbsp;;</li>
+   <li><tt>-v</tt> pour préciser que la DTD du fichier <tt>.xlex</tt> doit être utilisée pour le valider.</li>
+  </ul>
+  
+  <p>Par exemple, la commande suivante génère, à partir des règles décrites dans le fichier <a
+    href="../../../../samples/tutorial/calc.xlex"><tt>calc.xlex</tt></a> les implantations des automates et les place
+   dans le paquetage <tt>fr.umlv.tatoo.samples.tutorial.lexer</tt>. Les fichiers sont générés
+   dans le répertoire <tt>gen-src</tt> du répertoire courant et le fichier <tt>.xlex</tt> est validé avec sa DTD.</p>
+  
+  <pre>java -jar tatoo.jar -v true -d ./gen-src/ -p:lexer fr.umlv.tatoo.samples.tutorial.lexer calc.xlex</pre>
+  <p><a href = "javascript:history.back()">Back</a></p>
+ </body>
+</html>

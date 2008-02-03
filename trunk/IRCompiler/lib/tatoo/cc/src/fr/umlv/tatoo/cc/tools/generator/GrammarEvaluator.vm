@@ -1,0 +1,41 @@
+package ${grammarEvaluator.packageName};
+
+#foreach($import in  $variableImports)
+import ${import.rawName};
+#end
+#macro (paramList $var)
+#foreach($param in $params.get($var))#if ($velocityCount!=1), #end${param.type.simpleName} ${param.name}#end
+#end
+
+/** 
+ *  This class is generated - please do not edit it 
+ */
+public interface ${grammarEvaluator.simpleName} {
+#foreach ($prod in $productions)
+#set($starType="NO_STAR")#set($starType=${ebnfSupport.get($prod)})
+#if($starType=="NO_STAR")
+#set ($rt = false)#set ($rt = $variableTypeMap.get($prod.getLeft()))
+#if ($rt||$params.notAllNull($prod.right))
+  /** This methods is called after the reduction of the non terminal $prod.left
+   *  by the grammar production ${prod.id}.
+   *  <code>$prod.left.id := #foreach($right in $prod.right)$right #end</code>
+   */
+  public #if ($rt) ${rt.simpleName}#else void#end ${prod.id}(#paramList($prod.right));
+#end
+#end
+#end
+
+#foreach ($nt in $starts)
+#set($type=false)#set($type=$variableTypeMap.get($nt))
+#set($acceptName=$upperCaser.toUpperCase($nt))
+#if ($type)
+  /** Accepts the non-terminal $nt 
+   */
+  public void accept${acceptName}(#paramList($nt));
+#*else
+  /** Accepts the non-terminal $nt
+   */
+  public void accept${acceptName}();*#
+#end
+#end
+}

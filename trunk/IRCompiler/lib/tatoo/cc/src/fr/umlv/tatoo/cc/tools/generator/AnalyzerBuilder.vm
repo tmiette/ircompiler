@@ -1,0 +1,141 @@
+package ${analyzer.packageName};
+
+import ${lexerDataTable.rawName};
+import ${ruleEnum.rawName};
+import ${parserDataTable.rawName};
+import ${nonTerminalEnum.rawName};
+import ${terminalEnum.rawName};
+import ${productionEnum.rawName};
+import ${versionEnum.rawName};
+import ${terminalEvaluator.rawName};
+import ${grammarEvaluator.rawName};
+import ${terminalRulesMap.rawName};
+import ${toolsProcessor.rawName};
+
+import fr.umlv.tatoo.runtime.buffer.LexerBuffer;
+import fr.umlv.tatoo.runtime.buffer.TokenBuffer;
+import fr.umlv.tatoo.runtime.lexer.Lexer;
+import fr.umlv.tatoo.runtime.lexer.LexerListener;
+import fr.umlv.tatoo.runtime.parser.Parser;
+import fr.umlv.tatoo.runtime.parser.ParserTable;
+import fr.umlv.tatoo.runtime.tools.AbstractToolsProcessor;
+import fr.umlv.tatoo.runtime.tools.DataViewer;
+import fr.umlv.tatoo.runtime.tools.GenericStack;
+import fr.umlv.tatoo.runtime.tools.builder.LexerAndParser;
+import fr.umlv.tatoo.runtime.tools.builder.LexerBuilder;
+import fr.umlv.tatoo.runtime.tools.builder.ParserBuilder;
+import fr.umlv.tatoo.runtime.tools.builder.ToolsBuilder;
+
+
+/** Builder for analyzer
+ *
+ *  This class is generated - please do not edit it 
+ */
+public abstract class ${analyzerBuilder.simpleName}<B extends LexerBuffer>
+  extends ToolsBuilder<${ruleEnum.simpleName},B,${terminalEnum.simpleName},${nonTerminalEnum.simpleName},${productionEnum.simpleName},${versionEnum.simpleName},${analyzerBuilder.simpleName}<B>>{
+
+  ${analyzerBuilder.simpleName}(LexerBuilder<${ruleEnum.simpleName},B> lexerBuilder,
+      ParserBuilder<${terminalEnum.simpleName},${nonTerminalEnum.simpleName},${productionEnum.simpleName},${versionEnum.simpleName}> parserBuilder) {
+    super(lexerBuilder,parserBuilder);
+  }
+  
+  abstract AbstractToolsProcessor<B,${ruleEnum.simpleName},${terminalEnum.simpleName},${nonTerminalEnum.simpleName},${productionEnum.simpleName}> createProcessor(GenericStack stack);
+  
+  public static <B extends LexerBuffer,D> ${analyzerBuilder.simpleName}<B> createAnalyzer(
+      B buffer,
+      final TerminalEvaluator<? super D> terminalEvaluator,
+      final GrammarEvaluator grammarEvaluator,
+      final DataViewer<? super B,? extends D> dataViewer) {
+    
+    return ${analyzerBuilder.simpleName}.createAnalyzer(
+      LexerBuilder.createBuilder(${lexerDataTable.simpleName}.createTable(),buffer),
+      ParserBuilder.createParserBuilder(${parserDataTable.simpleName}.createTable()),
+      terminalEvaluator, grammarEvaluator, dataViewer);
+  }
+  
+  public static <B extends LexerBuffer> ${analyzerBuilder.simpleName}<B> createAnalyzer(B buffer,
+      ${terminalEvaluator.simpleName}<? super B> terminalEvaluator,
+      ${grammarEvaluator.simpleName} grammarEvaluator) {
+    return ${analyzerBuilder.simpleName}.createAnalyzer(buffer,terminalEvaluator,grammarEvaluator,DataViewer.<B>getIdentityDataViewer());
+  }
+
+  public static <B extends LexerBuffer&TokenBuffer<D>,D> ${analyzerBuilder.simpleName}<B> createTokenBufferAnalyzer(
+      B buffer,
+      ${terminalEvaluator.simpleName}<? super D> terminalEvaluator,
+      ${grammarEvaluator.simpleName} grammarEvaluator) {
+    return ${analyzerBuilder.simpleName}.createAnalyzer(
+        buffer,terminalEvaluator,grammarEvaluator,
+        DataViewer.<D>getTokenBufferViewer());
+  }
+  
+  public static <B extends LexerBuffer,D> ${analyzerBuilder.simpleName}<B> createAnalyzer(
+      LexerBuilder<${ruleEnum.simpleName},B> lexerBuilder,
+      ParserBuilder<${terminalEnum.simpleName},${nonTerminalEnum.simpleName},${productionEnum.simpleName},${versionEnum.simpleName}> parserBuilder,
+      final ${terminalEvaluator.simpleName}<? super D> terminalEvaluator,
+      final ${grammarEvaluator.simpleName} grammarEvaluator,
+      final DataViewer<? super B,? extends D> dataViewer) {
+    
+    return new ${analyzerBuilder.simpleName}<B>(lexerBuilder,parserBuilder) {
+      @Override
+      AbstractToolsProcessor<B,${ruleEnum.simpleName},${terminalEnum.simpleName},${nonTerminalEnum.simpleName},${productionEnum.simpleName}> createProcessor(GenericStack stack) {
+          return ${toolsProcessor.simpleName}.createToolsProcessor(terminalEvaluator,
+            grammarEvaluator,
+            dataViewer,
+            stack);
+      }
+    };
+  }
+
+  @Override
+  protected ${analyzerBuilder.simpleName}<B> self() {
+    return this;
+  }
+
+  /** Create a new lexer and a new parser.
+   *  The lexer is plugged to the parser so when a rule is recognized by the lexer
+   *  it will call the {@link TerminalEvaluator} and send the corresponding terminal
+   *  (if there is one) to the parser.
+   *  
+   * @return an object containing the new lexer and the new parser.
+   */
+  @Override
+  public LexerAndParser<B,${terminalEnum.simpleName},${nonTerminalEnum.simpleName},${productionEnum.simpleName},${versionEnum.simpleName}> createLexerAndParser() {
+    
+    GenericStack stack=getSemanticStack();
+    if (stack==null) {
+      if (getBranchingParserListener()!=null)
+        throw new IllegalStateException("branching parser must share the same stack: use setSemanticStack()");
+      stack=new GenericStack(20);
+    }
+    
+    AbstractToolsProcessor<B,${ruleEnum.simpleName},${terminalEnum.simpleName},${nonTerminalEnum.simpleName},${productionEnum.simpleName}> processor=createProcessor(stack);
+    
+    // create parser
+    ParserTable<${terminalEnum.simpleName},${nonTerminalEnum.simpleName},${productionEnum.simpleName},${versionEnum.simpleName}> table = getParserTable();
+    setParserListener(processor);
+    //FIXME JDK1.7 beta bug
+    ToolsBuilder.<${terminalEnum.simpleName},${nonTerminalEnum.simpleName},${productionEnum.simpleName},${versionEnum.simpleName},${analyzerBuilder.simpleName}<B>>setEnumLookaheadMap(this);
+    
+    ParserBuilder<${terminalEnum.simpleName},${nonTerminalEnum.simpleName},${productionEnum.simpleName},${versionEnum.simpleName}> parserBuilder = getParserBuilder();
+    if (table.getErrorTerminal()!=null)
+      parserBuilder.setParserErrorRecoveryListener(processor);
+
+    final Parser<${terminalEnum.simpleName},${nonTerminalEnum.simpleName},${productionEnum.simpleName},${versionEnum.simpleName}> parser=parserBuilder.createParser();  
+    
+    // create lexer
+    LexerListener<RuleEnum,B> lexerListener=processor.createLexerListener(parser);  
+    getLexerBuilder().setParser(parser);
+    setActivator(${terminalRulesMap.simpleName}.getActivator(parser));
+    setLexerListener(lexerListener);
+
+    final Lexer<B> lexer = getLexerBuilder().createLexer();
+    return new LexerAndParser<B,${terminalEnum.simpleName},${nonTerminalEnum.simpleName},${productionEnum.simpleName},${versionEnum.simpleName}>() {
+      public Lexer<B> getLexer() {
+        return lexer;
+      }
+      public Parser<${terminalEnum.simpleName},${nonTerminalEnum.simpleName},${productionEnum.simpleName},${versionEnum.simpleName}> getParser() {
+        return parser;
+      }
+    };
+  }
+}

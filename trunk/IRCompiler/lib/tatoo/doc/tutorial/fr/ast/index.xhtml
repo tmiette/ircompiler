@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+ "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../../../tatoo.css" rel="stylesheet"/>
+  <script type="text/javascript" src="../../../../tatoo.js"/>
+  <title>Construction d'un arbre de syntaxe</title>
+ </head>
+ <body>
+  <h1>Construction d'un arbre de syntaxe</h1>
+  
+  <h2>La génération des classes et interfaces</h2>
+  
+  <p>Tatoo permet de générer automatiquement des classes nécessaires
+   à la construction d'un arbre de syntaxe. Plus précisément, Tatoo génére
+   des classes et interfaces qui permettent de représenter en Java les productions
+   et les non-terminaux de la grammaire ainsi qu'un évaluateur les utilisant pour 
+   construire l'arbre correspondant à une suite de caractères en entrée.</p>
+  
+  <p>Pour générer ces classes, il suffit d'ajouter, soit l'attribut 
+   <tt>generateast="true"</tt> à la tâche <tt>tools</tt> si l'on utilise <tt>ant</tt>,
+   soit l'option <tt>-a</tt> si l'on utilise Tatoo en ligne de commande.</p>
+  
+  <h3>Les classes et interfaces de l'arbre</h3>
+  
+  <p>Pour chaque non-terminal, une interface qui hérite de 
+   <a href="../../../../doc/api/fr/umlv/tatoo/runtime/ast/Node.html"><tt>Node</tt></a> est générée.
+  Cette interface permet de manipuler les n&oelig;ud de l'arbre de façon générique : récupérer ses 
+  non-terminaux fils ou parent, récupérer la valeur des terminaux fils ou accepter un visiteur de 
+  n&oelig;uds générique. Chaque interface de non-terminal, précise, si cela est possible, les 
+  types de retour de ces méthodes et ajoute une méthode pour accepter un visiteur spécifique la 
+  à la hierachie générée pour décrire l'arbre de syntaxe.
+  </p>
+  
+  <p>Pour chaque production, une classe spécifique est générée. Elle implante l'interface du 
+  non-terminal en partie gauche et a un champ (accessible par ses <i>getter</i> et <i>setter</i>) 
+  pour chaque terminal et non-terminal en partie droite. Chaque champ est typé le plus précisement
+  possible.</p> 
+  
+  <h3>Les classes de l'analyseur</h3>
+  
+  <p>En plus des classes <tt>Analyzer</tt>, <tt>GrammarEvaluator</tt> et <tt>ToolsParserProcessor</tt>
+  qui sont spécifiques pour la création de l'arbre de syntaxe, Tatoo génère une classe 
+  <tt>ASTEvaluator</tt> qui est une implantation l'interface <tt>GrammarEvaluator</tt>. Cette classe 
+  réalise la construction de l'arbre de syntaxe.</p>
+  
+  <h2>La construction de l'arbre</h2>
+  <p>Pour construire l'arbre de syntaxe, il suffit de lancer l'analyse en utilisant 
+   l'évaluateur généré par Tatoo.</p>   
+  
+  <p>Pour notre exemple, décrit par les fichiers <tt>calc.xlex</tt>, <tt>calc.xpars</tt> et
+  <tt>calc.xtls</tt>, la méthode suivante permet de créer l'arbre de syntaxe : </p>
+  
+  <pre id="PrintIntExprMain.java"/>
+  <script>
+   myInclude("PrintIntExprMain.java","../../../../samples/tutorial/src/fr/umlv/tatoo/samples/tutorial/PrintIntExprTreeMain.java");
+  </script>
+  <h3>Afficher ou sauver l'arbre</h3>
+  <p>La méthode <tt>toString()</tt> des n&oelig;uds de l'arbre a été redéfinie afin
+   de permettre un affichage bien parenthésé de l'arbre. Par exemple&nbsp;: </p>
+  <pre>start-list(slist(calculus-expr(expr-plus(expr-value(value=1),expr-star(expr-value(value=2)))))</pre>
+  <p>Il est aussi possible de sauver et relire l'arbre dans un fichier. En effet, toutes les 
+  classes de l'arbre implantent l'interface <tt>Serializable</tt>.</p>
+  <p>Enfin, parmi les classes générées par Tatoo, la classe <tt>XML</tt> permet de sauver l'arbre 
+  au format XML et le relire.</p>
+  <h2>Écrire et appliquer un visiteur sur l'arbre de syntaxe</h2>
+  <p>Pour implanter un visiteur, il faut hériter de la classe 
+  <tt><![CDATA[Visitor<R,P,D,E>]]></tt>. Cette classe ne fait rien par défaut. 
+  Elle se contente de déléguer la visite d'un type particulier à la visite 
+  de son super type dans la hiérarchie. Au final, l'appel est délégué à la visite du
+  type <tt>Node</tt> qui par défaut lève une exception. Ce mécanisme évite d'implanter
+  la visite pour tous les types de la hiérarchie, s'il existe un comportement
+  commun à plusieurs types ayant un super type commun.</p>
+  <p>Par notre exemple décrit par les fichiers <tt>calc.xlex</tt>, <tt>clac.xpars</tt>
+   et <tt>calc.xtls</tt>, si la visite se contente  de compter le nombre de valeurs
+   entières dans l'arbre, il suffit d'implanter le visiteur pour la classe de la production 
+  correspondant à la valeur (<tt>ExprValue</tt>) et pour le n&oelig;ud générique <tt>Node</tt>.
+  </p>
+  <pre id="IntCounterVisitor.java"/>
+  <script type="text/javascript">
+   myInclude("IntCounterVisitor.java","../../../../samples/tutorial/src/fr/umlv/tatoo/samples/tutorial/IntCounterVisitor.java");
+  </script>
+  <p>Il suffit alors d'appliquer ce visiteur sur l'arbre de syntaxe construit précédemment
+  pour obtenir le résultat :</p>
+  <pre><![CDATA[System.out.println(tree.accept(new IntCounterVisitor(),null));]]></pre>
+  
+  <h3>Les paramètres de type du visiteur</h3>
+  <p>Le visiteur généré par Tatoo est paramétré par quatre types&nbsp;:</p>
+  <ul>
+   <li><tt>R</tt>, le type de la valeur de retour du visiteur&nbsp;;</li>
+   <li><tt>P</tt>, le type d'un paramètre passé en argument de chaque visite&nbsp;;</li>
+   <li><tt>D</tt>, le type des valeurs d'une table association de type 
+    <tt><![CDATA[Map<Node,D>]]></tt> qui peut être passée en argument 
+    lors de la création du visiteur et qui permet ensuite d'associer des valeurs à chaque 
+    n&oelig;ud de l'arbre&nbsp;;</li>
+   <li><tt>E</tt>, le type d'une exception qui est succeptible d'être levée 
+    par le visiteur.</li>
+  </ul>
+  <h3>Un autre exemple de visiteur</h3>
+  <p>Dans ce nouvel exemple, le visiteur va modifier l'arbre de syntaxe de notre grammaire
+   d'exemple pour supprimer les expressions complexes et les remplacer par les 
+   valeurs correspondantes, ou <tt>-1</tt> en cas d'erreur de syntaxe&nbsp;:</p>
+  <pre id="IntExprVisitor.java"/>
+  <script type="text/javascript">
+   myInclude("IntExprVisitor.java","../../../../samples/tutorial/src/fr/umlv/tatoo/samples/tutorial/IntExprVisitor.java");
+  </script>
+ <p>La portion de code suivante, utilise ce nouveau visiteur&nbsp;:</p>
+  <pre><![CDATA[    tree.accept(new IntExprVisitor(),null);
+    System.out.println(tree);]]></pre>
+ <p><a href="javascript:history.back()">Back</a></p>
+  
+ </body>
+</html>

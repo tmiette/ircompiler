@@ -1,0 +1,36 @@
+
+tokens:
+  $letter= "([a-z]|[A-Z])"
+  $space= "( |\t|(\r?\n))+"
+ 
+  grammar ="grammar"
+  link= "link"
+  identifier:String ="{letter}({letter}|[0-9])*"
+  quotedstring:String = '\"[^"]*\"'
+  colon= ':'
+  assign= '='
+  dot= '.'
+  lbracket ='\{'
+  rbracket ='\}'
+
+{}{}
+ space= "{space}"
+ 
+starts:
+ start
+
+productions:
+start = 'grammar' 'colon' grammarDef+ 'link' 'colon' linkDef+ {start_def}
+      ;
+            
+grammarDef = 'identifier' 'assign' 'quotedstring' {grammar_def}
+           ;
+ 
+linkDef = 'identifier' 'dot' 'identifier' 'assign' 'identifier' linkStart? linkVersion? {link_def} 
+        ;
+        
+linkStart:String = 'dot' 'identifier' {linkStart_def}
+                 ;
+         
+linkVersion:String = 'lbracket' 'identifier' 'rbracket' {linkVersion_def}
+                   ;

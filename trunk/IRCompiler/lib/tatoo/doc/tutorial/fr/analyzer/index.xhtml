@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+ "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../../../tatoo.css" rel="stylesheet"/>
+  <title>Écrire un analyseur</title>
+ </head>
+ <body>
+  <h1>Écrire un analyseur</h1>
+  <p>La construction d'un compilateur  ou d'un interpréteur avec Tatoo s'effectue en plusieurs
+   étapes&nbsp;:</p>
+  <ol>
+   <li><a href="../lexer/xlex.xhtml">écriture d'un fichier <tt>.xlex</tt></a> décrivant les règles de reconnaissance
+    des lexèmes de l'analyseur syntaxique&nbsp;;</li>
+   <li><a href="../lexer/compile.xhtml">génération des classes de l'analyseur lexical</a>&nbsp;;</li>
+   <li><a href="../parser/xpars.xhtml">construction d'un fichier <tt>.xpars</tt></a> décrivant la grammaire du langage
+    reconnu par l'analyseur syntaxique&nbsp;;</li>
+   <li><a href="../parser/compile.xhtml">génération des classes de l'analyseur syntaxique</a>&nbsp;;</li>
+   <li><a href="../tools/xtls.xhtml">construction d'un fichier <tt>.xtls</tt></a> décrivant comment s'effectue la liaison
+    entre les parties lexicale, syntaxique et code utilisateur du compilateur/interpréteur&nbsp;;</li>
+   <li><a href="../tools/compile.xhtml">génération des fichiers de liaison</a> entre l'analyseur lexicale, l'analyse syntaxique
+      et le code utilisateur&nbsp;;</li>
+   <li><a href="../tools/semantics.xhtml">implantation de la sémantique</a> du compilateur/interpréteur&nbsp;;</li>
+   <li><a href="analyzer-main.xhtml">utilisation de l'analyseur</a> du langage.</li>
+  </ol>
+ <p><a href = "javascript:history.back()">Back</a></p>
+ </body>
+</html>

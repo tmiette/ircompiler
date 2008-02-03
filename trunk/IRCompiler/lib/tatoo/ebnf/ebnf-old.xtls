@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE tools SYSTEM "http://tatoo.univ-mlv.fr/dtd/1.1/tools.dtd">
+<tools>
+    <rule id="lbracket" terminal="lbracket"/>
+    <rule id="rbracket" terminal="rbracket"/>
+    <rule id="lpar" terminal="lpar"/>
+    <rule id="rpar" terminal="rpar"/>
+    <rule id="lsqbracket" terminal="lsqbracket"/>
+    <rule id="rsqbracket" terminal="rsqbracket"/>
+    <rule id="assign" terminal="assign"/>
+    <rule id="pipe" terminal="pipe"/>
+    <rule id="dollar" terminal="dollar"/>
+    <rule id="slash" terminal="slash"/>
+    <rule id="quote" terminal="quote"/>
+    <rule id="doublequote" terminal="doublequote"/>
+    <rule id="star" terminal="star"/>
+    <rule id="plus" terminal="plus"/>
+    <rule id="qmark" terminal="qmark"/>
+    <rule id="colon" terminal="colon"/>
+    <rule id="semicolon" terminal="semicolon"/>
+    
+    <rule id="assoc" terminal="assoc"/>
+    
+    <rule id="id" terminal="id"/>
+    <rule id="number" terminal="number"/>
+    <rule id="qualifiedid" terminal="qualifiedid"/>
+    <rule id="eof" terminal="eof"/>
+    <rule id="regexquote" terminal="regexquote"/>
+    <rule id="regexdoublequote" terminal="regexdoublequote"/>
+    
+    <rule id="space"/>
+    
+    <rule id="importsdecl" terminal="importsdecl"/>
+    <rule id="prioritiesdecl" terminal="prioritiesdecl"/>
+    <rule id="tokensdecl" terminal="tokensdecl"/>
+    <rule id="blanksdecl" terminal="blanksdecl"/>
+    <rule id="magicsdecl" terminal="magicsdecl"/>
+    <rule id="errordecl" terminal="errordecl"/>
+    <rule id="versionsdecl" terminal="versionsdecl"/>
+    <rule id="startsdecl" terminal="startsdecl"/>
+    <rule id="productionsdecl" terminal="productionsdecl"/>
+
+    <import type="java.util.List"/>
+    <import type="fr.umlv.tatoo.cc.ebnf.EBNFProduction"/>
+    <import type="fr.umlv.tatoo.cc.parser.grammar.VariableDecl"/>
+    <import type="fr.umlv.tatoo.cc.parser.grammar.NonTerminalDecl"/>
+    <import type="fr.umlv.tatoo.cc.parser.grammar.VersionDecl"/>
+    <import type="fr.umlv.tatoo.cc.parser.grammar.Priority"/>
+    <import type="fr.umlv.tatoo.cc.lexer.lexer.RuleDecl"/>
+    <import type="fr.umlv.tatoo.cc.common.generator.Type"/>
+    
+	<terminal id="id" type="String"/>
+	<terminal id="qualifiedid" type="String"/>
+	<terminal id="number" type="double"/>
+	<terminal id="regexquote" type="String"/>
+	<terminal id="regexdoublequote" type="String"/>
+	<terminal id="assoc" type="String"/>
+	<terminal id="qmark" type="boolean"/>
+    
+    <non-terminal id="type" type="Type"/>
+    
+    <non-terminal id="regex" type="String"/>
+    <non-terminal id="regex_terminal_decl" type="String"/>
+    <non-terminal id="var" type="VariableDecl"/>
+    <non-terminal id="startid" type="NonTerminalDecl"/>
+    
+    <non-terminal id="priority_decl" type="Priority"/>
+    <non-terminal id="id_production_decl" type="String"/>
+    <non-terminal id="version_decl" type="VersionDecl"/>
+    <non-terminal id="parent_version" type="VersionDecl"/>
+    <non-terminal id="start_non_terminals" type="List&lt;NonTerminalDecl&gt;"/>
+	<non-terminal id="prod" type="EBNFProduction"/>
+	<non-terminal id="separator" type="VariableDecl"/>
+</tools>
+     

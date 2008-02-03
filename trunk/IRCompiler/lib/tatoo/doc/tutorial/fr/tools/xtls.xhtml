@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+ <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../../../tatoo.css" rel="stylesheet"/>
+  <script type="text/javascript" src="../../../../tatoo.js"/>
+  <title>Écrire un fichier .xtls</title>
+ </head>
+ <body>
+  <h1>Écrire le fichier <tt>.xtls</tt></h1>
+  <p>La liaison entre les parties lexicale, syntaxique et code utilisateur de l'analyseur
+   syntaxique est décrite dans un fichier XML, <tt>.xtls</tt>, dont la syntaxe est précisée
+   par la DTD, <a href="http://tatoo.univ-mlv.fr/dtd/1.1/tools.dtd">
+   tools.dtd</a>.</p>
+  <p>La liaison est décrite dans un élément <tt><![CDATA[<tools>...</tools>]]></tt>. Cet
+   élément peut contenir&nbsp;:</p>
+  <ul>
+   <li>une description du lien entre une règle reconnue par l'analyseur lexical et un
+    terminal attendu par l'analyseur syntaxique&nbsp;;</li>
+   <li>un ensemble de règles <tt>import</tt> pour les types Java utilisés dans le fichier
+    <tt>.xtls</tt>&nbsp;;</li>
+   <li>une description du lien entre un terminal et le type Java d'une valeur qui lui est
+    associée par l'analyseur lexical&nbsp;; </li>
+   <li>une description du lien entre un non-terminal et le type Java d'un valeur qui lui est
+    associée par l'analyseur syntaxique au moment de sa reconnaissance (<i>reduce</i>).</li>
+  </ul>
+  <h2 id="tls-rule">L'élément <tt><![CDATA[<rule/>]]></tt></h2>
+  <p>L'élément <tt><![CDATA[<rule/>]]></tt> permet de décrire le lien entre une règle
+   reconnue par l'analyseur lexical et un terminal attendu par l'analyseur syntaxique. Les
+   attributs de cet élément sont&nbsp;:</p>
+  <ul>
+   <li><tt>id</tt> qui précise le nom de la règle de l'analyseur concernée&nbsp;;</li>
+   <li><tt>terminal</tt> qui précise le nom du terminal qui est généré lors de la
+    reconnaissance de la règle&nbsp;;</li>
+   <li><tt>terminal-part</tt> qui précise le nom du terminal auquel la règle est associée
+    sans que le terminal ne soit généré par la reconnaissance de la règle&nbsp;;</li>
+   <li><tt>discard</tt> qui précise que la méthode <tt>discard()</tt> doit être appelée
+    sur le tampon après reconnaissance de la règle&nbsp;;</li>
+   <li><tt>always-active</tt> qui précise que la règle doit être toujours active, 
+    même si elle n'est pas dans le <i>lookahead</i> courant de l'analyseur syntaxique.</li>
+  </ul>
+  <p>Par exemple&nbsp;:</p>
+  <pre><![CDATA[ <rule id="plus" terminal="plus" discard="true"/>]]></pre>
+  <p>Les attributs <tt>terminal</tt> et <tt>terminal-part</tt> sont optionnels et
+   exclusifs l'un de l'autre. Par défaut, la règle n'est associée à aucun terminal et
+   l'attribut <tt>discard</tt> vaut <tt>true</tt>.</p>
+  <h2>L'élément <tt><![CDATA[<import/>]]></tt></h2>
+  <p>L'élément <tt><![CDATA[<import/>]]></tt> permet de préciser les types Java (non
+   primitifs) utilisés dans la suite du fichier <tt>.xtls</tt>. Il dispose d'un seul
+   attribut <tt>type</tt> qui précise le nom du type concerné.</p>
+  <p>Par exemple&nbsp;:</p>
+  <pre><![CDATA[<import type="fr.umlv.tatoo.samples.tutorial.Expr"/>]]></pre>
+  <h2>L'élément <tt><![CDATA[<terminal/>]]></tt></h2>
+  <p>L'élément <tt><![CDATA[<terminal/>]]></tt> décrit le lien entre un terminal et le
+   type Java d'une valeur qui lui est associé. L'attribut <tt>id</tt> précise le nom du
+   terminal et l'attribut <tt>type</tt> le type.</p>
+  <p>Par exemple&nbsp;:</p>
+  <pre><![CDATA[<terminal id="value" type="int"/>]]></pre>
+  <h2>L'élément <tt><![CDATA[<non-terminal/>]]></tt></h2>
+  <p>L'élément <tt><![CDATA[<non-terminal/>]]></tt> décrit le lien entre un
+   non-terminal et le type Java d'une valeur qui lui est associée par l'analyseur syntaxique
+   au moment de sa reconnaissance (<i>reduce</i>). L'attribut <tt>id</tt> précise le nom du
+   non-terminal et l'attribut <tt>type</tt> le type.</p>
+  <p>Par exemple&nbsp;:</p>
+  <pre><![CDATA[<non-terminal id="expr" type="int"/>]]></pre>
+
+  <h2>Un exemple complet</h2>
+  <p>L'exemple suivant (<a href="../../../../samples/tutorial/calc.xtls">calc.xtls</a>) décrit la liaison
+   entre les analyseurs lexical et syntaxique des expressions arithmétiques&nbsp;:</p>
+  <pre id="calc.xtls"/>
+  <script type="text/javascript">
+  myInclude("calc.xtls","../../../../samples/tutorial/calc.xtls");
+  </script>
+  <p><a href="javascript:history.back()">Back</a></p>
+ </body>
+</html>

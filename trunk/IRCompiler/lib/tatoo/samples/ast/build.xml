@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<project name="ast" default="all" basedir=".">
+	
+  <property name="tatoo.dir" location="../../lib"/>
+  <property name="tatoo.jar" location="${tatoo.dir}/tatoo.jar"/>
+  <property name="tatoo-runtime.jar" location="${tatoo.dir}/tatoo-runtime.jar"/>
+	
+  <property name="src" value="src"/>
+  <property name="classes" value="classes"/>
+  <property name="gen-src" value="gen-src"/>
+  <property name="ebnf.file" value="${ant.project.name}.ebnf"/>
+  	
+  <property name="lexer.package" value="fr.umlv.tatoo.samples.${ant.project.name}.lexer"/>
+  <property name="parser.package" value="fr.umlv.tatoo.samples.${ant.project.name}.parser"/>
+  <property name="tools.package" value="fr.umlv.tatoo.samples.${ant.project.name}.tools"/>
+  
+  
+  <target name="ebnf">
+  	 <taskdef name="ebnf" classname="fr.umlv.tatoo.cc.ebnf.main.EBNFTask" classpath="${tatoo.jar}"/>
+	 <ebnf generateast="true" destination="${gen-src}" ebnfFile="${ebnf.file}">
+	  <package lexer="${lexer.package}"/>
+	  <package parser="${parser.package}"/>
+	  <package tools="${tools.package}"/>
+	 </ebnf>
+  </target>
+	
+  <target name="all" depends="ebnf"/>
+  
+  <target name="compile">
+		<mkdir dir="${classes}"/>
+	  <javac srcdir="${src}:${gen-src}" destdir="${classes}">
+		  <classpath path="${tatoo.jar}"/>
+		  <compilerarg value="-Xlint:deprecation"/>
+	  </javac>
+	</target>
+  
+  <target name="clean">
+		<delete dir="${classes}"/>
+		<delete dir="${gen-src}"/>
+		<!-- not to break eclipse source folders -->
+		<mkdir dir="${gen-src}"/>
+	</target>
+</project>

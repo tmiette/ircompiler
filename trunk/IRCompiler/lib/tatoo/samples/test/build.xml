@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<project name="calc" default="all" basedir=".">
+	
+  <!-- property name="tatoo.dir" location="../../lib"/>
+  <property name="tatoo.jar" location="${tatoo.dir}/tatoo.jar"/>
+  <property name="tatoo-runtime.jar" location="${tatoo.dir}/tatoo-runtime.jar"/ -->
+  <property name="tatoo.jar" value="../../cc/classes:../../runtime/classes:../../ebnf/classes:../../regex/classes:../../lib/velocity/velocity-dep-1.4.jar"/>
+	
+  <property name="src" value="src"/>
+  <property name="classes" value="classes"/>
+  <property name="gen-src" value="gen-src"/>
+  <property name="ebnf.file" value="test.ebnf"/>
+  		
+  <target name="tasks">
+  <taskdef name="lexer" classname="fr.umlv.tatoo.cc.lexer.main.LexerTask" classpath="${tatoo.jar}"/> 
+  <taskdef name="parser" classname="fr.umlv.tatoo.cc.parser.main.ParserTask" classpath="${tatoo.jar}"/>
+  <taskdef name="tools" classname="fr.umlv.tatoo.cc.tools.main.ToolsTask" classpath="${tatoo.jar}"/>
+  <taskdef name="ebnf" classname="fr.umlv.tatoo.cc.ebnf.main.EBNFTask" classpath="${tatoo.jar}"/>
+  </target>
+  	
+  <target name="all" depends="ebnf">
+  </target>
+	
+  <target name="ebnf" depends="tasks">
+	<ebnf destination="${gen-src}" ebnfFile="${ebnf.file}"  parserType="lalr"
+			logfile="log.xml" loglevel="ALL"/>
+  </target>
+	
+	
+	<target name="compile">
+	  <mkdir dir="${classes}"/>
+		
+	  <javac srcdir="${src}:${gen-src}" destdir="${classes}">
+		  <classpath path="${tatoo-runtime.jar}"/>
+		  <compilerarg value="-Xlint:deprecation"/>
+	  </javac>
+	</target>
+	
+	
+	<target name="clean">
+		<delete dir="${classes}"/>
+		<delete dir="${gen-src}"/>
+		<!-- not to break eclipse source folders -->
+		<mkdir dir="${gen-src}"/>
+	</target>
+
+</project>

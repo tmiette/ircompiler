@@ -1,0 +1,8 @@
+package ${nonTerminalEnum.packageName};
+
+/** 
+ *  This class is generated - please do not edit it 
+ */
+public enum ${nonTerminalEnum.simpleName} {
+  #foreach ($nt in $nonTerminals)#if($velocityCount!=1), #end${nt.id}#end;
+}

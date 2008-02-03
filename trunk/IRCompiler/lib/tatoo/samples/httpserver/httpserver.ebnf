@@ -1,0 +1,45 @@
+
+imports:
+ java.util.Map
+ fr.umlv.tatoo.samples.httpserver.Service
+ 
+priorities:
+
+tokens:
+  $space= "( |\t)+"
+
+  get:Service='GET'
+  post:Service= 'POST'    
+  url:String= '\/([a-z]|[A-Z]|\/|\.)*'
+  httpslash= 'HTTP\/'
+  version:int= '([0-9])'
+  colon= ':'
+  header_key:String= '([^:\r\n])+'
+  header_value:String= '([^\r\n])+'
+  eoln= '(\r)?\n'
+  dot= '\.'
+ 
+blanks:
+ space= "{space}"
+
+versions:
+
+starts:
+ start
+
+productions:
+start = firstline 'eoln' header* 'eoln' {start}
+      ;
+      
+firstline = service 'url' 'httpslash' 'version' 'dot' 'version' {firstline}
+     ;
+ 
+service:Service = 'get'  {service_get}
+                | 'post' {service_post}
+                ;
+ 
+header = header_part 'eoln' {header}
+       ;
+ 
+header_part = 'header_key' 'colon' 'header_value' {header_part}
+       ;

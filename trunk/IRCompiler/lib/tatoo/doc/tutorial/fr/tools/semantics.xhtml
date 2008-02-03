@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+ "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../../../tatoo.css" rel="stylesheet"/>
+  <script type="text/javascript" src="../../../../tatoo.js"/>
+  <title>Implanter la sémantique</title>
+ </head>
+ <body>
+  <h1>Implanter la sémantique</h1>
+  <p>Afin d'implanter la sémantique de l'analyseur, l'utilisateur doit implanter les deux interfaces suivantes, générées par Tatoo&nbsp;:</p>
+  <ul>
+   <li><tt>TerminalAttributeEvaluator&lt;B&gt;</tt></li>
+   <li><tt>ToolsLexerListener</tt></li>
+  </ul>
+  <p>Dans le cas du fichier <tt><a href="../../../../samples/tutorial/calc.xtls">calc.xtls</a></tt> 
+   l'interface <tt>TerminalAttributeEvaluator</tt> générée est la suivante&nbsp;:</p>
+  <pre id="TerminalAttributeEvaluator.java"/>
+  <script type="text/javascript">
+   myInclude("TerminalAttributeEvaluator.java","../../../../samples/tutorial/gen-src/fr/umlv/tatoo/samples/tutorial/tools/TerminalAttributeEvaluator.java");
+  </script>
+  <p>et l'interface <tt>GrammarEvaluator</tt> la suivante&nbsp;:</p>
+  <pre id="GrammarEvaluator.java"/>
+  <script type="text/javascript">
+   myInclude("GrammarEvaluator.java","../../../../samples/tutorial/gen-src/fr/umlv/tatoo/samples/tutorial/tools/GrammarEvaluator.java");
+  </script>
+  
+
+    <h2>Exemple d'implantation de l'interface <tt>TerminalAttributeEvaluator&lt;B&gt;</tt></h2>
+ 
+ 	<p>La classe suivante transforme 
+  les entiers lus sous forme de chaînes de caractères 
+  en valeur de type <tt>int</tt>.</p>
+  <pre id="IntExprAttributeEvaluator.java"/>
+  <script type="text/javascript">
+   myInclude("IntExprAttributeEvaluator","../../../../samples/tutorial/src/fr/umlv/tatoo/samples/tutorial/IntExprAttributeEvaluator.java");
+  </script>
+  <h2>Exemple d'implantation de l'interface <tt>GrammarEvaluator</tt></h2>
+  
+ 	<p>La classe suivante réalise l'évaluation de l'expression arithmétique reconnue par l'analyseur.</p>
+  <pre id="IntExprGrammarEvaluator.java"/>
+  <script type="text/javascript">
+   myInclude("IntExprGrammarEvaluator","../../../../samples/tutorial/src/fr/umlv/tatoo/samples/tutorial/IntExprGrammarEvaluator.java");
+  </script>
+  
+  <p><a href = "javascript:history.back()">Back</a></p>
+ </body>
+</html>
+

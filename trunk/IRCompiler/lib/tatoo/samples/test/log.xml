@@ -1,0 +1,967 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+	<title>Parser Table</title>
+	<style type="text/css">
+		body {font-family: sans-serif; background:white}
+		h1 {border-style: solid;border-width: 1px;background: #E0E0FF;padding: 0.5cm;font: 180% sans-serif;text-align: center;}
+		h2 {font: 150% sans-serif;text-decoration: underline;}
+		h3 {font: 130% sans-serif;}td{background: #EEEEEE;}
+		td.g {background:white}
+		span.terminal { font-style:italic; color:#881122; }
+	</style>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1>Parser Table</h1>
+<h2>Grammar</h2>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="+root+0">+root+0</td> <td class="g" align="center">::=</td>
+<td class="g"><a href="#start">start</a>&#160;<span class="terminal">'__eof__'</span></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="linkDef_plus">linkDef_plus</td> <td class="g" align="center">::=</td>
+<td class="g"><a href="#linkDef">linkDef</a></td>
+<td class="g">all</td>
+</tr>
+<tr><td class="g"></td><td class="g" align="center">|</td>
+<td class="g"><a href="#linkDef_plus">linkDef_plus</a>&#160;<a href="#linkDef">linkDef</a></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="linkVersion_opt_optional1">linkVersion_opt_optional1</td> <td class="g" align="center">::=</td>
+<td class="g">*empty*</td>
+<td class="g">all</td>
+</tr>
+<tr><td class="g"></td><td class="g" align="center">|</td>
+<td class="g"><a href="#linkVersion">linkVersion</a></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="grammarDef_plus">grammarDef_plus</td> <td class="g" align="center">::=</td>
+<td class="g"><a href="#grammarDef">grammarDef</a></td>
+<td class="g">all</td>
+</tr>
+<tr><td class="g"></td><td class="g" align="center">|</td>
+<td class="g"><a href="#grammarDef_plus">grammarDef_plus</a>&#160;<a href="#grammarDef">grammarDef</a></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="linkDef">linkDef</td> <td class="g" align="center">::=</td>
+<td class="g"><span class="terminal">'identifier'</span>&#160;<span class="terminal">'dot'</span>&#160;<span class="terminal">'identifier'</span>&#160;<span class="terminal">'assign'</span>&#160;<span class="terminal">'identifier'</span>&#160;<a href="#linkStart_opt_optional0">linkStart_opt_optional0</a>&#160;<a href="#linkVersion_opt_optional1">linkVersion_opt_optional1</a></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="linkStart">linkStart</td> <td class="g" align="center">::=</td>
+<td class="g"><span class="terminal">'dot'</span>&#160;<span class="terminal">'identifier'</span></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="grammarDef">grammarDef</td> <td class="g" align="center">::=</td>
+<td class="g"><span class="terminal">'identifier'</span>&#160;<span class="terminal">'assign'</span>&#160;<span class="terminal">'quotedstring'</span></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="linkVersion">linkVersion</td> <td class="g" align="center">::=</td>
+<td class="g"><span class="terminal">'lbracket'</span>&#160;<span class="terminal">'identifier'</span>&#160;<span class="terminal">'rbracket'</span></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="linkStart_opt_optional0">linkStart_opt_optional0</td> <td class="g" align="center">::=</td>
+<td class="g">*empty*</td>
+<td class="g">all</td>
+</tr>
+<tr><td class="g"></td><td class="g" align="center">|</td>
+<td class="g"><a href="#linkStart">linkStart</a></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="start">start</td> <td class="g" align="center">::=</td>
+<td class="g"><span class="terminal">'grammar'</span>&#160;<span class="terminal">'colon'</span>&#160;<a href="#grammarDef_plus">grammarDef_plus</a>&#160;<span class="terminal">'link'</span>&#160;<span class="terminal">'colon'</span>&#160;<a href="#linkDef_plus">linkDef_plus</a></td>
+<td class="g">all</td>
+</tr>
+</table>
+
+
+<h2>Non Terminals</h2>
+<table border="1">
+<tr><th>Non terminal</th><th>Epsilon</th><th>First</th><th>Follow</th></tr>
+<tr><td>+root+0</td><td>false</td>
+<td><table border="0">
+ <tr><td>'grammar'</td></tr>
+</table></td>
+</tr>
+<tr><td>linkDef_plus</td><td>false</td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+ <tr><td>'__eof__'</td></tr>
+</table></td>
+</tr>
+<tr><td>linkVersion_opt_optional1</td><td>true</td>
+<td><table border="0">
+ <tr><td>'lbracket'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+ <tr><td>'__eof__'</td></tr>
+</table></td>
+</tr>
+<tr><td>grammarDef_plus</td><td>false</td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+ <tr><td>'link'</td></tr>
+</table></td>
+</tr>
+<tr><td>linkDef</td><td>false</td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+ <tr><td>'__eof__'</td></tr>
+</table></td>
+</tr>
+<tr><td>linkStart</td><td>false</td>
+<td><table border="0">
+ <tr><td>'dot'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+ <tr><td>'lbracket'</td></tr>
+ <tr><td>'__eof__'</td></tr>
+</table></td>
+</tr>
+<tr><td>grammarDef</td><td>false</td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+ <tr><td>'link'</td></tr>
+</table></td>
+</tr>
+<tr><td>linkVersion</td><td>false</td>
+<td><table border="0">
+ <tr><td>'lbracket'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+ <tr><td>'__eof__'</td></tr>
+</table></td>
+</tr>
+<tr><td>linkStart_opt_optional0</td><td>true</td>
+<td><table border="0">
+ <tr><td>'dot'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+ <tr><td>'lbracket'</td></tr>
+ <tr><td>'__eof__'</td></tr>
+</table></td>
+</tr>
+<tr><td>start</td><td>false</td>
+<td><table border="0">
+ <tr><td>'grammar'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'__eof__'</td></tr>
+</table></td>
+</tr>
+</table>
+
+<h2>Start States</h2>
+<table border="1">
+<tr><th>Non terminal</th><th>Start State</th></tr>
+<tr><td>start</td><td><a href="#state0">state0</a></td></tr>
+</table>
+
+<h2>States</h2>
+<h3 id="state0">state0</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>+root+0&#160;::=&#160;&#8226;&#160;start&#160;'__eof__'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>grammar</td><td>:</td>
+<td>shift to <a href="#state1">state1</a>
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>start</td><td>:</td><td>state28</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state1">state1</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>start&#160;::=&#160;'grammar'&#160;&#8226;&#160;'colon'&#160;grammarDef_plus&#160;'link'&#160;'colon'&#160;linkDef_plus</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>colon</td><td>:</td>
+<td>shift to <a href="#state2">state2</a>
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state2">state2</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>start&#160;::=&#160;'grammar'&#160;'colon'&#160;&#8226;&#160;grammarDef_plus&#160;'link'&#160;'colon'&#160;linkDef_plus</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>shift to <a href="#state3">state3</a>
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>grammarDef_plus</td><td>:</td><td>state6</td></tr>
+<tr><td>grammarDef</td><td>:</td><td>state27</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state3">state3</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>grammarDef&#160;::=&#160;'identifier'&#160;&#8226;&#160;'assign'&#160;'quotedstring'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>assign</td><td>:</td>
+<td>shift to <a href="#state4">state4</a>
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state4">state4</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>grammarDef&#160;::=&#160;'identifier'&#160;'assign'&#160;&#8226;&#160;'quotedstring'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>quotedstring</td><td>:</td>
+<td>shift to <a href="#state5">state5</a>
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state5">state5</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>grammarDef&#160;::=&#160;'identifier'&#160;'assign'&#160;'quotedstring'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by grammarDef ::= 'identifier' 'assign' 'quotedstring'
+</td></tr>
+<tr>
+<td>link</td><td>:</td>
+<td>reduce by grammarDef ::= 'identifier' 'assign' 'quotedstring'
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state6">state6</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>start&#160;::=&#160;'grammar'&#160;'colon'&#160;grammarDef_plus&#160;&#8226;&#160;'link'&#160;'colon'&#160;linkDef_plus</b></td></tr>
+<tr><td><b>grammarDef_plus&#160;::=&#160;grammarDef_plus&#160;&#8226;&#160;grammarDef</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>shift to <a href="#state3">state3</a>
+</td></tr>
+<tr>
+<td>link</td><td>:</td>
+<td>shift to <a href="#state7">state7</a>
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>grammarDef</td><td>:</td><td>state26</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state7">state7</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>start&#160;::=&#160;'grammar'&#160;'colon'&#160;grammarDef_plus&#160;'link'&#160;&#8226;&#160;'colon'&#160;linkDef_plus</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>colon</td><td>:</td>
+<td>shift to <a href="#state8">state8</a>
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state8">state8</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>start&#160;::=&#160;'grammar'&#160;'colon'&#160;grammarDef_plus&#160;'link'&#160;'colon'&#160;&#8226;&#160;linkDef_plus</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>shift to <a href="#state9">state9</a>
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>linkDef_plus</td><td>:</td><td>state23</td></tr>
+<tr><td>linkDef</td><td>:</td><td>state25</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state9">state9</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkDef&#160;::=&#160;'identifier'&#160;&#8226;&#160;'dot'&#160;'identifier'&#160;'assign'&#160;'identifier'&#160;linkStart_opt_optional0&#160;linkVersion_opt_optional1</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>dot</td><td>:</td>
+<td>shift to <a href="#state10">state10</a>
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state10">state10</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkDef&#160;::=&#160;'identifier'&#160;'dot'&#160;&#8226;&#160;'identifier'&#160;'assign'&#160;'identifier'&#160;linkStart_opt_optional0&#160;linkVersion_opt_optional1</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>shift to <a href="#state11">state11</a>
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state11">state11</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkDef&#160;::=&#160;'identifier'&#160;'dot'&#160;'identifier'&#160;&#8226;&#160;'assign'&#160;'identifier'&#160;linkStart_opt_optional0&#160;linkVersion_opt_optional1</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>assign</td><td>:</td>
+<td>shift to <a href="#state12">state12</a>
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state12">state12</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkDef&#160;::=&#160;'identifier'&#160;'dot'&#160;'identifier'&#160;'assign'&#160;&#8226;&#160;'identifier'&#160;linkStart_opt_optional0&#160;linkVersion_opt_optional1</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>shift to <a href="#state13">state13</a>
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state13">state13</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkDef&#160;::=&#160;'identifier'&#160;'dot'&#160;'identifier'&#160;'assign'&#160;'identifier'&#160;&#8226;&#160;linkStart_opt_optional0&#160;linkVersion_opt_optional1</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by linkStart_opt_optional0 ::= ɛ
+</td></tr>
+<tr>
+<td>dot</td><td>:</td>
+<td>shift to <a href="#state14">state14</a>
+</td></tr>
+<tr>
+<td>lbracket</td><td>:</td>
+<td>reduce by linkStart_opt_optional0 ::= ɛ
+</td></tr>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by linkStart_opt_optional0 ::= ɛ
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkStart_opt_optional0 ::= ɛ
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>linkStart</td><td>:</td><td>state16</td></tr>
+<tr><td>linkStart_opt_optional0</td><td>:</td><td>state17</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state14">state14</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkStart&#160;::=&#160;'dot'&#160;&#8226;&#160;'identifier'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>shift to <a href="#state15">state15</a>
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkStart_opt_optional0 ::= ɛ
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state15">state15</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkStart&#160;::=&#160;'dot'&#160;'identifier'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by linkStart ::= 'dot' 'identifier'
+</td></tr>
+<tr>
+<td>lbracket</td><td>:</td>
+<td>reduce by linkStart ::= 'dot' 'identifier'
+</td></tr>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by linkStart ::= 'dot' 'identifier'
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkStart ::= 'dot' 'identifier'
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state16">state16</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkStart_opt_optional0&#160;::=&#160;linkStart&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by linkStart_opt_optional0 ::= linkStart
+</td></tr>
+<tr>
+<td>lbracket</td><td>:</td>
+<td>reduce by linkStart_opt_optional0 ::= linkStart
+</td></tr>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by linkStart_opt_optional0 ::= linkStart
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkStart_opt_optional0 ::= linkStart
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state17">state17</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkDef&#160;::=&#160;'identifier'&#160;'dot'&#160;'identifier'&#160;'assign'&#160;'identifier'&#160;linkStart_opt_optional0&#160;&#8226;&#160;linkVersion_opt_optional1</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by linkVersion_opt_optional1 ::= ɛ
+</td></tr>
+<tr>
+<td>lbracket</td><td>:</td>
+<td>shift to <a href="#state18">state18</a>
+</td></tr>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by linkVersion_opt_optional1 ::= ɛ
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkVersion_opt_optional1 ::= ɛ
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>linkVersion_opt_optional1</td><td>:</td><td>state21</td></tr>
+<tr><td>linkVersion</td><td>:</td><td>state22</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state18">state18</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkVersion&#160;::=&#160;'lbracket'&#160;&#8226;&#160;'identifier'&#160;'rbracket'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>shift to <a href="#state19">state19</a>
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkVersion_opt_optional1 ::= ɛ
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state19">state19</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkVersion&#160;::=&#160;'lbracket'&#160;'identifier'&#160;&#8226;&#160;'rbracket'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>rbracket</td><td>:</td>
+<td>shift to <a href="#state20">state20</a>
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkVersion_opt_optional1 ::= ɛ
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state20">state20</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkVersion&#160;::=&#160;'lbracket'&#160;'identifier'&#160;'rbracket'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by linkVersion ::= 'lbracket' 'identifier' 'rbracket'
+</td></tr>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by linkVersion ::= 'lbracket' 'identifier' 'rbracket'
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkVersion ::= 'lbracket' 'identifier' 'rbracket'
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state21">state21</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkDef&#160;::=&#160;'identifier'&#160;'dot'&#160;'identifier'&#160;'assign'&#160;'identifier'&#160;linkStart_opt_optional0&#160;linkVersion_opt_optional1&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by linkDef ::= 'identifier' 'dot' 'identifier' 'assign' 'identifier' linkStart_opt_optional0 linkVersion_opt_optional1
+</td></tr>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by linkDef ::= 'identifier' 'dot' 'identifier' 'assign' 'identifier' linkStart_opt_optional0 linkVersion_opt_optional1
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkDef ::= 'identifier' 'dot' 'identifier' 'assign' 'identifier' linkStart_opt_optional0 linkVersion_opt_optional1
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state22">state22</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkVersion_opt_optional1&#160;::=&#160;linkVersion&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by linkVersion_opt_optional1 ::= linkVersion
+</td></tr>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by linkVersion_opt_optional1 ::= linkVersion
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkVersion_opt_optional1 ::= linkVersion
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state23">state23</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>start&#160;::=&#160;'grammar'&#160;'colon'&#160;grammarDef_plus&#160;'link'&#160;'colon'&#160;linkDef_plus&#160;&#8226;</b></td></tr>
+<tr><td><b>linkDef_plus&#160;::=&#160;linkDef_plus&#160;&#8226;&#160;linkDef</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>shift to <a href="#state9">state9</a>
+</td></tr>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by start ::= 'grammar' 'colon' grammarDef_plus 'link' 'colon' linkDef_plus
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by start ::= 'grammar' 'colon' grammarDef_plus 'link' 'colon' linkDef_plus
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>linkDef</td><td>:</td><td>state24</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state24">state24</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkDef_plus&#160;::=&#160;linkDef_plus&#160;linkDef&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by linkDef_plus ::= linkDef_plus linkDef
+</td></tr>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by linkDef_plus ::= linkDef_plus linkDef
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkDef_plus ::= linkDef_plus linkDef
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state25">state25</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>linkDef_plus&#160;::=&#160;linkDef&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by linkDef_plus ::= linkDef
+</td></tr>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by linkDef_plus ::= linkDef
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkDef_plus ::= linkDef
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state26">state26</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>grammarDef_plus&#160;::=&#160;grammarDef_plus&#160;grammarDef&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by grammarDef_plus ::= grammarDef_plus grammarDef
+</td></tr>
+<tr>
+<td>link</td><td>:</td>
+<td>reduce by grammarDef_plus ::= grammarDef_plus grammarDef
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkDef_plus ::= linkDef
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state27">state27</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>grammarDef_plus&#160;::=&#160;grammarDef&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by grammarDef_plus ::= grammarDef
+</td></tr>
+<tr>
+<td>link</td><td>:</td>
+<td>reduce by grammarDef_plus ::= grammarDef
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by linkDef_plus ::= linkDef
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state28">state28</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>+root+0&#160;::=&#160;start&#160;&#8226;&#160;'__eof__'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>accept
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>exit exit
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state29">state29</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>+root+0&#160;::=&#160;start&#160;'__eof__'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>accept
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>exit exit
+</td></tr>
+</table></td>
+</tr>
+</table>
+  <p>
+    <a href="http://validator.w3.org"><img
+        src="http://www.w3.org/Icons/valid-xhtml11"
+        alt="Valid XHTML 1.1" height="31" width="88" /></a>
+  </p>
+</body>
+</html>

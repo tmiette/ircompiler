@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="cc/classes" path="cc/src"/>
+	<classpathentry kind="src" output="runtime/classes" path="runtime/src"/>
+	<classpathentry kind="src" output="regex/classes" path="regex/src"/>
+	<classpathentry kind="src" output="regex/classes" path="regex/gen-src"/>
+	<classpathentry kind="src" output="ebnf/classes" path="ebnf/src"/>
+	<classpathentry kind="src" output="ebnf/classes" path="ebnf/gen-src"/>
+	<classpathentry kind="src" output="linker/classes" path="linker/src"/>
+	<classpathentry kind="src" output="linker/classes" path="linker/gen-src"/>
+	<classpathentry kind="src" output="gui/classes" path="gui/src"/>
+	<classpathentry kind="src" output="samples/calc/classes" path="samples/calc/src"/>
+	<classpathentry kind="src" output="samples/calc/classes" path="samples/calc/gen-src"/>
+	<classpathentry kind="src" output="samples/buffers/classes" path="samples/buffers/src"/>
+	<classpathentry kind="src" output="samples/buffers/classes" path="samples/buffers/gen-src"/>
+	<classpathentry kind="src" output="samples/xlex/classes" path="samples/xlex/src"/>
+	<classpathentry kind="src" output="samples/xlex/classes" path="samples/xlex/gen-src"/>
+	<classpathentry kind="src" output="samples/regex/classes" path="samples/regex/src"/>
+	<classpathentry kind="src" output="samples/regex/classes" path="samples/regex/gen-src"/>
+	<classpathentry kind="src" output="samples/scanner/classes" path="samples/scanner/src"/>
+	<classpathentry kind="src" output="samples/scanner/classes" path="samples/scanner/gen-src"/>
+	<classpathentry kind="src" output="samples/latin1/classes" path="samples/latin1/src"/>
+	<classpathentry kind="src" output="samples/latin1/classes" path="samples/latin1/gen-src"/>
+	<classpathentry kind="src" output="samples/editor/classes" path="samples/editor/src"/>
+	<classpathentry kind="src" output="samples/editor/classes" path="samples/editor/gen-src"/>
+	<classpathentry kind="src" output="samples/ext/classes" path="samples/ext/src"/>
+	<classpathentry kind="src" output="samples/ext/classes" path="samples/ext/gen-src"/>
+	<classpathentry kind="src" output="samples/justintime/classes" path="samples/justintime/src"/>
+	<classpathentry kind="src" output="samples/tutorial/classes" path="samples/tutorial/src"/>
+	<classpathentry kind="src" output="samples/tutorial/classes" path="samples/tutorial/gen-src"/>
+	<classpathentry kind="src" output="samples/ll/classes" path="samples/ll/src"/>
+	<classpathentry kind="src" output="samples/ll/classes" path="samples/ll/gen-src"/>
+	<classpathentry kind="src" output="samples/httpserver/classes" path="samples/httpserver/src"/>
+	<classpathentry kind="src" output="samples/httpserver/classes" path="samples/httpserver/gen-src"/>
+	<classpathentry kind="src" output="samples/linker/classes" path="samples/linker/src"/>
+	<classpathentry kind="src" output="samples/linker/classes" path="samples/linker/gen-src"/>
+	<classpathentry kind="src" path="samples/test/gen-src"/>
+	<classpathentry kind="src" output="motocity/classes" path="motocity/src"/>
+	<classpathentry kind="src" output="motocity/classes" path="motocity/gen-src"/>
+	<classpathentry kind="src" output="motocity/classes2" path="motocity/src2"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/velocity/velocity-dep-1.4.jar"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>

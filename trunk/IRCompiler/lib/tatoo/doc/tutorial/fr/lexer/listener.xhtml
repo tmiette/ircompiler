@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+ "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../../../tatoo.css" rel="stylesheet"/>
+  <title>L'observateur de lexèmes</title>
+  <script type="text/javascript" src="../../../../tatoo.js"/>
+ </head>
+ <body><h1>L'observateur de lexèmes</h1>
+  <p>La classe de l'observateur de lexèmes doit implanter
+   l'interface 
+   <tt><a href="../../../api/fr/umlv/tatoo/runtime/lexer/LexerListener.html">LexerListener&lt;R,B&gt;</a></tt>
+   qui contient l'unique méthode 
+   <tt><a href="../../../api/fr/umlv/tatoo/runtime/lexer/LexerListener.html#ruleVerified(R,%20int,%20B)">ruleVerified()</a></tt>. Cette méthode est appelée
+   chaque fois que l'analyseur reconnaît un lexème. Cette méthode reçoit en argument&nbsp;:
+   </p>
+  <ul>
+   <li>une valeur de l'énumération <tt>R</tt> identifiant la règle correspondant au lexème reconnu&nbsp;;</li>
+   <li>la longueur du dernier lexème reconnu&nbsp;;</li>
+   <li>un tampon de type <tt>B</tt> stockant les lexèmes reconnus.</li>
+  </ul>
+  <p>Pour la plupart des classes <a href="../buffer/reader.xhtml">enveloppes de texte</a>,
+   les lexèmes reconnus sont conservés dans un tampon implantant l'interface 
+   <tt><a href="../../../api/fr/umlv/tatoo/runtime/buffer/TokenBuffer.html"><![CDATA[TokenBuffer<D>]]></a></tt>. Pour
+   ces types de tampon, tant que les caractères
+   de tous les lexèmes déjà reconnus n'ont pas été supprimés explicitement avec la méthode 
+   <tt><a href="../../../api/fr/umlv/tatoo/runtime/buffer/TokenBuffer.html#discard()">discard()</a></tt> du tampon,
+   la méthode
+   <tt><a href="../../../api/fr/umlv/tatoo/runtime/buffer/TokenBuffer.html#view()">view()</a></tt> en retourne
+   une vue sous la forme d'un objet implantant l'interface <tt><a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/CharSequence.html">CharSequence</a></tt>.
+   Le contenu de cette vue est susceptible de changer, en particulier lorsque la
+   méthode <tt><a href="../../../api/fr/umlv/tatoo/runtime/buffer/TokenBuffer.html#discard()">discard()</a></tt>
+   est appelée, il faut donc en faire une copie si cela est nécessaire.</p>
+  <p>Par exemple, la classe suivante affiche les entiers trouvés dans une expression
+   arithmétique décrite par les règles du fichier <tt><a href="../../../../samples/tutorial/calc.xlex">calc.xlex</a></tt>&nbsp;:</p>
+  
+  <pre id="SimpleLexerListener.java"/>
+  <script type="text/javascript">
+   myInclude("SimpleLexerListener.java","../../../../samples/tutorial/src/fr/umlv/tatoo/samples/tutorial/SimpleLexerListener.java");
+  </script>
+   
+  <p><a href = "javascript:history.back()">Back</a></p>
+ </body>
+</html>

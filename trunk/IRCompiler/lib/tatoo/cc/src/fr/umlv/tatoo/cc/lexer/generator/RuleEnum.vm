@@ -1,0 +1,10 @@
+package ${ruleEnum.packageName};
+
+/** 
+ *  This class is generated - please do not edit it 
+ */
+public enum ${ruleEnum.simpleName} {
+#set ($it=$rules.iterator())
+  #foreach ($rule in $it)${rule.id}#if($it.hasNext()), #else;#end#end
+
+}

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+ "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../../../tatoo.css" rel="stylesheet"/>
+  <script type="text/javascript" src="../../../../tatoo.js"/>
+  <title>Écrire un fichier .xlex</title>
+ </head>
+ <body>
+  <h1>Écrire un fichier <tt>.xlex</tt></h1>
+  <p> Les règles de l'analyseur lexical sont décrites dans un fichier XML, <tt>.xlex</tt>,
+   dont la syntaxe est précisée par la DTD, <a
+    href="http://tatoo.univ-mlv.fr/dtd/1.1/lexer.dtd">lexer.dtd</a>.</p>
+  <p>Les règles de l'analyseur lexical sont définies dans l'élément <tt><![CDATA[<lexer>...</lexer>]]></tt>.
+   Chaque règle est ensuite définie dans un élément XML <tt>&lt;rule&nbsp;pattern="<i>definition</i>"&nbsp;id="<i>identifier</i>"/&gt;</tt> ou
+   <tt>&lt;rule-xml&nbsp;id="<i>identifier</i>"&gt;<i>definition-xml</i>&lt;/rule-xml&gt;</tt>.
+   Chaque règle est repérée par un identificateur unique précisé au moyen de l'attribut <tt>id</tt> et décrit la règle au moyen d'expressions rationnelles. 
+   Une première expression rationnelle indique la forme du lexème reconnu par la règle et une seconde permet, éventuellement, de préciser la
+   forme d'une chaîne qui doit suivre le lexème. Ces expressions rationnelles sont exprimées soit de façon «&nbsp;classique&nbsp;» (<![CDATA[<rule></rule>]]>),
+   soit en XML (<![CDATA[<rule-xml></rule-xml>]]>). L'attribut <tt>beginning-of-line</tt> des éléments <tt>rule</tt> et <tt>rule-xml</tt> permet,
+   quant à lui, de préciser si la règle doit être reconnue en début de ligne ou non.</p>
+  
+  <h2 id="macros">Les macros</h2>
+  <p>En dehors des règles, il est possible de définir des macro-expressions rationnelles
+   avec l'élément <tt><![CDATA[<define pattern="]]><i>regex</i><![CDATA[" name="name"/>]]></tt>
+   ou l'élément <tt>&lt;define-macro-xml&nbsp;name="<i>name</i>"&gt;<i>regex</i>&lt;/define-macro-xml&gt;</tt>, si l'expression rationnelle est spécifiée en XML. Ces macros peuvent ensuite être utilisées à la place des
+   expressions rationnelles auxquelles elles correspondent.</p>
+  
+  <h2 id="rule">Les règles</h2>
+  <p>Les éléments <tt>rule</tt> ne contiennent pas de sous-éléments. Les deux expressions rationnelles décrivant la règle 
+   sont précisées dans l'attribut <tt>pattern</tt>. L'expression rationnelle décrivant la chaîne de caractères suivant le lexème peut être soit; 
+   dollar ('<tt>$</tt>') pour indiquer que le lexème doit se trouver en fin de ligne, soit être une expression rationnelle générale qui, dans ce cas, est 
+   séparées de l'expression rationnelle du lexème par un <i>slash</i> ('<tt>/</tt>').</p>
+  <h3>Les éléments simples des expressions rationnelles</h3>
+  <p>Les éléments simples des expressions rationnelles qui peuvent constituer la valeur de l'attribut <tt>pattern</tt>
+   sont&nbsp;:</p>
+  <ul>
+   <li><tt>.</tt> pour n'importe quel caractère&nbsp;;</li>
+   <li>des caractères simples sous la forme&nbsp;:<ul>
+    <li>d'un caractère alphabétique&nbsp;;</li>
+    <li>d'un code <tt>\u<i>xxx</i></tt>, où <tt><i>xxx</i></tt> est la valeur hexadécimale du caractère en
+      unicode&nbsp;;</li>
+   </ul></li>
+   <li>des ensembles de caractères sous la forme&nbsp;:
+   <ul>
+    <li><tt>[...]</tt> pour un caractère de l'ensemble&nbsp;;</li>
+    <li><tt>[^...]</tt> pour un caractère ne faisant pas partie de l'ensemble&nbsp;;</li>
+   </ul></li>
+   <li>des chaînes de caractères entre guillemets ('<tt>"</tt>')&nbsp;;</li>
+   <li>des caractères spéciaux classiques&nbsp;: <tt>\n</tt>, <tt>\r</tt>, <tt>\t</tt>, <tt>\b</tt> et <tt>\f</tt></li>
+   <li>des caractères déspécialisés&nbsp;: <tt>\/</tt>, <tt>\*</tt>, <tt>\+</tt>, <tt>\?</tt>,  <tt>\^</tt>, <tt>\.</tt>, <tt>\[</tt>,<tt>\$</tt>, 
+    <tt>\(</tt>, <tt>\)</tt>, <tt>\|</tt>, <tt>\*</tt>, <tt>\{</tt>, <tt>\\</tt>, <tt>\}</tt>, <tt>\]</tt>, <tt>,</tt> et <tt>\&quot;</tt>&nbsp;; </li>
+   <li>des sous-expressions rationnelles entre parenthèses&nbsp;: <tt>(...)</tt>&nbsp;</li>
+   <li>des <a href="#macros">macros</a> sous la forme <tt>{<i>name</i>}</tt>.</li>
+  </ul>
+  <p>À l'intérieur des spécifications d'ensembles (<tt>[...]</tt> ou <tt>[^...]</tt>) il est possible de spécifier des intervalles de caractères sous 
+   la forme <tt><i>x</i>-<i>y</i></tt>&nbsp;; et les seuls caractères déspécialisés valides sont&nbsp;: <tt>\\</tt>, <tt>\]</tt>, <tt>\^</tt> et <tt>\-</tt>.</p>
+  <p>À l'intérieur des chaînes de caractères (<tt>"</tt>...<tt>"</tt>) les seuls caractères déspécialisés valises sont&nbsp;: <tt>\\</tt> et <tt>\"</tt>.</p>
+  <h3>Les opérateurs sur les expressions rationnelles</h3>
+  <p>Les opérateurs classiques sont définis sur les expressions rationnelles&nbsp;:</p>
+  <ul>
+   <li>la concaténation, si rien n'est précisé entre deux expressions&nbsp;</li>
+   <li><tt>|</tt> pour l'alternative&nbsp;;</li>
+   <li><tt>?</tt> pour l'apparition entre <tt>0</tt> et <tt>1</tt> fois&nbsp;;</li>
+   <li><tt>*</tt> pour l'apparition entre <tt>0</tt> et <tt>n</tt> fois&nbsp;;</li>
+   <li><tt>+</tt> pour l'apparition entre <tt>1</tt> et <tt>n</tt> fois&nbsp;;</li>
+   <li><tt>{<i>i</i>}</tt> pour l'apparition exactement <tt><i>i</i></tt> fois&nbsp;</li>
+   <li><tt>{<i>i</i>,}</tt> pour l'apparition au moins <tt><i>i</i></tt> fois&nbsp;;</li>   
+   <li><tt>{<i>from</i>,<i>to</i>}</tt> pour l'apparition entre <tt><i>from</i></tt> 
+    et <tt><i>to</i></tt> fois.</li>   
+  </ul>
+  <h3>Un exemple de règles XML</h3>
+  <p>Un exemple de fichier de règles (<tt><a href="../../../../samples/tutorial/calc.xlex">calc.xlex</a></tt>) est donné ci-dessous. Il décrit les règles des expressions
+   arithmétiques.</p>
+  <pre id="calc.xlex"/>
+  <script type="text/javascript">
+    myInclude("calc.xlex","../../../../samples/tutorial/calc.xlex");
+  </script>
+  
+  <p><a href = "javascript:history.back()">Back</a></p>
+ 
+  <h2 id="rule-xml">Les règles XML</h2>
+  <p>Un élément <tt>rule-xml</tt> contient un sous-élément
+   <tt>&lt;main&gt;<i>expression</i>&lt;/main&gt;</tt> qui précise l'expression
+   rationnelle principale de la règle puis, éventuellement, une contrainte sur ce qui suit.
+   Cette contrainte peut être soit&nbsp;: </p>
+  <ul>
+   <li><tt>&lt;end-of-line&gt;</tt> qui implique que l'expression principale soit
+    suivie d'une fin de ligne&nbsp;;</li>
+   <li><tt>&lt;follow&gt;<i>expression2</i>&lt;/follow&gt;</tt> qui implique que
+    l'expression principale soit suivie de l'expression rationnelle
+    <tt><i>expression2</i></tt>.</li>
+  </ul>
+  <p>Dans tous les cas, la chaîne de caractères correspondant à la contrainte ne fera pas
+   partie du lexème reconnu par cette règle.</p>
+  <h3>Les éléments simples des expressions rationnelles XML</h3>
+  <p>Les éléments simples des expressions rationnelles sont&nbsp;: </p>
+  <ul>
+   <li><tt>&lt;any/&gt;</tt> n'importe quel caractère&nbsp;;</li>
+   <li><tt>&lt;letter value="<i>c</i>"/&gt;</tt> un caractère <tt><i>c</i></tt>
+    &nbsp;;</li>
+   <li><tt>&lt;string value="<i>st</i>"/&gt;</tt> une chaîne de caractères
+    <tt><i>st</i></tt>&nbsp;;</li>
+   <li><tt>&lt;interval from="<i>start</i>" to="<i>end</i>"/&gt;</tt> tous les
+    caractères entre les caractères <tt><i>start</i></tt> et <tt><i>end</i></tt>&nbsp;;</li>
+   <li><tt>&lt;set&gt;<i>letters_or_intervals</i>&lt;/set&gt;</tt> un ensemble
+    contenant les caractères précisés&nbsp;;</li>
+   <li><tt>&lt;set negate ="true"&gt;<i>letters_or_intervals</i>&lt;/set&gt;</tt>
+    un ensemble contenant tous les caractères sauf ceux précisés&nbsp;;</li>
+   <li>des <a href="#macros">macros</a> sous la forme <tt><![CDATA[<macro name="]]><i>name</i><![CDATA["/>]]></tt>.</li>
+  </ul>
+  <p>Les caractères non imprimables sont codés, comme en Java, par un chaîne de caractères
+   commençant par <tt>\u</tt> suivi du code du caractère en hexadécimal.</p>
+  <h3>Les opérateurs XML sur les expressions rationnelles</h3>
+  <p>Les opérateurs classiques sont définis sur les expressions rationnelles&nbsp;: </p>
+  <ul>
+   <li><tt>&lt;cat&gt;<i>expression<b>s</b></i>&lt;/cat&gt;</tt> pour la
+    concaténation de plusieurs expressions rationnelles&nbsp;;</li>
+   <li><tt>&lt;or&gt;<i>expression<b>s</b></i>&lt;/or&gt;</tt> pour l'alternative
+    entre plusieurs expressions rationnelles&nbsp;;</li>
+   <li><tt>&lt;optional&gt;<i>expression</i>&lt;/optional&gt;</tt> pour
+    l'apparition <tt>0</tt> fois ou <tt>1</tt> fois d'une expression
+    rationnelle&nbsp;;</li>
+   <li><tt>&lt;star&gt;<i>expression</i>&lt;/star&gt;</tt> pour l'apparition
+    <tt>0</tt> fois ou plus d'une expression rationnelle&nbsp;;</li>
+   <li><tt>&lt;plus&gt;<i>expression</i>&lt;/plus&gt;</tt> pour l'apparition
+    <tt>1</tt> fois ou plus d'une expression rationnelle&nbsp;;</li>
+   <li><tt>&lt;times value="<i>nb</i>"&gt;<i>expression</i>&lt;/times&gt;</tt>
+    pour l'apparition exactement <tt>nb</tt> fois fois d'une expression
+    rationnelle&nbsp;;</li>
+   <li><tt>&lt;at-least from="<i>from</i>"&gt;<i>expression</i>
+    &lt;/at-least&gt;</tt> pour l'apparition au moins <tt>from</tt> fois d'une
+    expression rationnelle&nbsp;;</li>
+   <li><tt>&lt;range from="<i>from</i>" to="<i>to</i>"&gt;<i>expression</i>
+    &lt;/range&gt;</tt> pour l'apparition entre <tt>from</tt> et <tt>to</tt> fois d'une
+    expression rationnelle.</li>
+  </ul>
+
+  <h3>Un exemple de règles XML</h3>
+  <p>Un exemple de fichier de règles (<tt><a href="../../../../samples/calc/calc-xml.xlex">calc-xml.xlex</a></tt>) est donné ci-dessous. Il décrit les règles des expressions
+   arithmétiques. Dans cet exemple, les règles XML ne sont pas mélangées avec des règles standards bien qu'il soit tout à fait possible de les mélanger.</p>
+  <pre id="calc-xml.xlex"/>
+  <script type="text/javascript">
+    myInclude("calc-xml.xlex","../../../../samples/tutorial/calc-xml.xlex");
+  </script>
+  <p><a href = "javascript:history.back()">Back</a></p>
+ </body>
+</html>

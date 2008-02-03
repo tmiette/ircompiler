@@ -1,0 +1,10 @@
+package ${terminalEnum.packageName};
+
+/** 
+ *  This class is generated - please do not edit it 
+ */
+public enum ${terminalEnum.simpleName} {
+#set ($it=$terminals.iterator())
+  #foreach ($t in $it)${t.id}#if ($it.hasNext()), #else;#end#end
+
+}

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+ "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../../../tatoo.css" rel="stylesheet"/>
+  <script type="text/javascript" src="../../../../tatoo.js"/>
+  <title>Écrire l'analyseur lexical</title>
+ </head>
+ <body>
+  <h1>Écrire l'analyseur lexical</h1>
+  
+  <h2>Construire l'analyseur lexical</h2>
+  
+  <p id="LexerBuilder">La construction de l'analyseur lexical est réalisée en utilisant la méthode 
+   <a href="../../../api/fr/umlv/tatoo/runtime/tools/builder/LexerBuilder.html#createLexer()"><tt>createLexer()</tt></a>
+   d'un objet <i>builder</i> de la classe
+   <a href="../../../api/fr/umlv/tatoo/runtime/tools/builder/LexerBuilder.html"><tt>LexerBuilder</tt></a> ou 
+   <a href="../../../api/fr/umlv/tatoo/runtime/tools/builder/LexerLocationBuilder.html"><tt>LexerLocationBuilder</tt></a>
+   (si l'on souhaite que l'analyseur maintienne la position courante dans le texte, par exemple pour l'indiquer en
+   cas d'erreur).
+   L'objet <i>builder</i> est créé par l'une des méthodes statiques <tt>create*Builder()</tt> de ces deux classes.
+   Elles prennent en argument deux objets&nbsp;:</p>
+  <ul>
+   <li>la <a href="generate.xhtml">table des automates</a> générée par Tatoo&nbsp;;</li>
+   <li>le texte à analyser qui  peut être passé sous différentes formes&nbsp;:
+  <ul>
+  <li>un objet Java standard permettant de récupérer des caractères, 
+   <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/io/InputStream.html?is-external=true"><tt>InputStream</tt></a>,
+   <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/io/Reader.html?is-external=true"><tt>Reader</tt></a>,
+   <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/CharSequence.html?is-external=true"><tt>CharSequence</tt></a>, 
+   <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/nio/channels/ReadableByteChannel.html?is-external=true"><tt>ReadableByteChannel</tt></a>,
+   <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/nio/ByteBuffer.html?is-external=true"><tt>ByteBuffer</tt></a>,
+   <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/nio/CharBuffer.html?is-external=true"> <tt>CharBuffer</tt></a> ou
+   <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/lang/Readable.html?is-external=true"><tt>Readable</tt></a>&nbsp;;</li>
+   <li>un objet <a href="../buffer/reader.xhtml">enveloppe de texte</a>, spécifique à Tatoo</li>  
+  </ul></li>
+  </ul>
+  <pre><![CDATA[LexerLocationBuilder<RuleEnum,? extends LocationTokenBufferFilter<ReaderWrapper, CharSequence>> builder = LexerLocationBuilder.createReaderLocationBuilder(table, reader)]]></pre>
+  <p>Un fois le <i>builder</i> créé, il est possible de créer l'analyseur lexical.
+  Toutefois, l'analyseur ainsi obtenu ne sera qu'un validateur&nbsp;; les lexèmes reconnus 
+   ne seront pas récupérés. Pour récupérer les lexèmes reconnus, il suffit d'affecter au <i>builder</i>, au moyen 
+   de sa méthode <a href="../../../api/fr/umlv/tatoo/runtime/tools/builder/LexerBuilder.html#setListener(fr.umlv.tatoo.runtime.lexer.LexerListener)"><tt>setListener()</tt></a> un 
+   <a href="listener.xhtml">observateur de lexèmes</a> qui est appelé chaque fois
+   qu'un lexème est reconnu dans le texte.</p>
+  <pre>builder.setListener(listener);</pre>
+  <p>Pour modifier, au cours de l'analyse, les règles actives (celles que l'on cherche à reconnaître),
+  il est aussi possible d'affecter au <i>builder</i>, au moyen de sa méthode
+  <a href="../../../api/fr/umlv/tatoo/runtime/tools/builder/LexerBuilder.html#setActivator(fr.umlv.tatoo.runtime.lexer.RuleActivator)"><tt>setActivator()</tt></a>  un <a href="activator.xhtml">activateur de règles</a>
+   qui est appelé après chaque reconnaissance de lexème dans le texte.</p>
+  <pre>builder.setActivator(activator);</pre>
+  <p>Une fois que le <i>builder</i> est complètement précisé, les objets analyseurs lexicaux 
+   sont obtenus au moyen de la méthode <a href="../../../api/fr/umlv/tatoo/runtime/tools/builder/LexerBuilder.html#createLexer()"><tt>createLexer()</tt></a>.</p>
+  <pre><![CDATA[Lexer<? extends LocationTokenBufferFilter<ReaderWrapper, CharSequence>> lexer = builder.createLexer();]]></pre>
+
+  <div style="text-align:center"><img src="lexer.png" alt="architecture de l'analyseur lexical"/></div>
+
+  <h2>Lancer l'analyse lexicale</h2>
+  <p>L'analyse d'un nouveau lexème est réalisé par l'appel à la méthode
+   <tt><a href="../../../api/fr/umlv/tatoo/runtime/lexer/SimpleLexer.html#step()">step()</a></tt> 
+   de l'analyseur lexical. Pour réaliser l'analyse complète d'une séquence, il faut donc l'appeler,
+   tant qu'il y a des caractères dans la séquence&nbsp;; c'est-à-dire tant que la méthode 
+   <tt><a href="../../../api/fr/umlv/tatoo/runtime/buffer/LexerBuffer.html#read()">read()</a></tt>
+   de la classe <tt><a href="../../../api/fr/umlv/tatoo/runtime/buffer/LexerBuffer.html">CharacterBuffer</a></tt>
+   retourne <tt>true</tt>. Pour terminer il faut appeler la méthode 
+  <tt><a href="../../../api/fr/umlv/tatoo/runtime/lexer/SimpleLexer.html#close()">close()</a></tt>.</p>
+  <p>La méthode <tt><a href="../../../api/fr/umlv/tatoo/runtime/lexer/SimpleLexer.html#run()">run()</a></tt> est une méthode
+   de commodité qui appelle <tt><a href="../../../api/fr/umlv/tatoo/runtime/lexer/SimpleLexer.html#step()">step()</a></tt>
+   tant qu'il y a des caractères dans le tampon, puis appelle <tt><a href="../../../api/fr/umlv/tatoo/runtime/lexer/SimpleLexer.html#close()">close()</a></tt>
+   pour terminer.</p>
+  <pre>lexer.run();</pre>
+  
+
+  <h2>Un exemple complet</h2>
+  <p>L'exemple suivant (<tt><a href="../../../../samples/tutorial/src/fr/umlv/tatoo/samples/tutorial/LexerMain.java">LexerMain.java</a></tt>) 
+  reprend les divers éléments de l'utilisation de l'analyseur lexical. On remarquera que tous les 
+  appels de méthodes pour la création de l'analyseur lexical sont chaînées, ce qui évite
+   la création de variables intermédiaires. </p>
+
+  <pre id="i1"/>
+  <script type="text/javascript">
+    myInclude("i1","../../../../samples/tutorial/src/fr/umlv/tatoo/samples/tutorial/LexerMain.java");
+  </script>  
+  <p><a href="javascript:history.back()">Back</a></p>
+ </body>
+</html>
+

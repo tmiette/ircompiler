@@ -1,0 +1,31 @@
+package ${package};
+
+import java.util.Map;
+
+import fr.umlv.tatoo.runtime.ast.Node;
+import fr.umlv.tatoo.runtime.ast.NodeVisitor;
+
+public class Visitor<_R,_P,_D,_E extends Throwable> extends NodeVisitor<_R,_P,_D,_E>{
+  public Visitor() {
+    super();
+  }
+  public Visitor(Map<Node,_D> dataMap) {
+    super(dataMap);
+  }
+#foreach($node in $productions)
+  public _R visit(${node.type.simpleName} ${node.id},_P param) throws _E {
+   #if(${node.isSingleProduction()} || ${node.isComposite()})
+    return visit((Node)${node.id},param);
+   #else
+    return visit((${node.parent.type.simpleName})${node.id},param);
+   #end
+  }
+#end
+#foreach($node in $nonTerminals)
+ #if(!${node.isSingleProduction()})
+  protected _R visit(${node.type.simpleName} ${node.id},_P param) throws _E {
+    return visit((Node)${node.id},param);
+  }
+ #end
+#end
+}

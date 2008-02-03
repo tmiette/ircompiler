@@ -1,0 +1,51 @@
+<project name="tatoo-web-site" default="web">
+
+  <property name="lib" value="lib" />
+  <property name="web-files" value="web-files" />
+  <property name="doc" value="doc" />
+  <property name="dtd" value="dtd" />
+  <property name="samples" value="samples" />
+  <property file="local.properties" />
+
+  <target name="update">
+    <property name="update" value="true" />
+    <antcall target="web" />
+  </target>
+
+  <target name="install" depends="clean,web" />
+
+  <target name="web">
+    <property name="tatoo.zip" location="tatoo.zip"/>
+    <condition property="built">
+      <available file="${tatoo.zip}" />
+    </condition>
+    <fail unless="built" message="${tatoo.zip} not found" />
+
+    <input addproperty="web"
+      message="please indicate the root folder of the web-site" />
+    <condition property="old">
+      <available file="${web}" />
+    </condition>
+    <fail unless="update" if="old"
+      message="old site not cleaned, use update to keep it or install to clean before installing new files" />
+    <mkdir dir="${web}" />
+    <copy todir="${web}/files" file="${tatoo.zip}" />
+    <unzip src="${tatoo.zip}" dest="${web}">
+      <patternset includes="tatoo/${lib}/**" />
+      <globmapper from="tatoo/${lib}/*" to="files/*" />
+    </unzip>
+    <unzip src="${tatoo.zip}" dest="${web}">
+      <patternset
+        includes="tatoo/${doc}/**,tatoo/${dtd}/**,tatoo/${samples}/**" />
+      <globmapper from="tatoo/*" to="*" />
+    </unzip>
+    <unzip src="${tatoo.zip}" dest="${web}">
+      <patternset includes="tatoo/${web-files}/**" />
+      <globmapper from="tatoo/${web-files}/*" to="*" />
+    </unzip>
+  </target>
+
+  <target name="clean">
+    <delete dir="${web}" />
+  </target>
+</project>

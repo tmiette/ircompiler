@@ -1,0 +1,1140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+ "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../../tatoo.css" rel="stylesheet"/>
+  <title>Tutoriel d'utilisation de Tatoo</title>
+ </head>
+ <body>
+  <h1>Tutoriel d'utilisation du générateur de compilateur Tatoo</h1>
+  <h2>Écrire un analyseur lexicale</h2>
+  <p>La construction d'un analyseur lexical avec Tatoo s'effectue en plusieurs
+   étapes&nbsp;:</p>
+  <ol>
+   <li>construction d'un fichier <tt>.xlex</tt> décrivant l'ensemble des règles de
+    reconnaissance des lexèmes&nbsp;;</li>
+   <li>compilation du fichier de règles pour générer l'implantation des automates qui leur
+    correspondent&nbsp;;</li>
+   <li>utilisation de ces automates dans un programme d'analyse pour reconnaître des
+    lexèmes dans une séquence de caractères.</li>
+  </ol>
+  <h3>Écrire le fichier <tt>.xlex</tt></h3>
+  <p> Les règles de l'analyseur lexical sont décrites dans un fichier XML, <tt>.xlex</tt>,
+   dont la syntaxe est précisée par la DTD, <a
+    href="http://tatoo.univ-mlv.fr/dtd/1.1/lexer.dtd">lexer.dtd</a>.</p>
+  <p>Les régles de l'analyseur lexical sont définies dans l'élément <tt><![CDATA[<lexer>...</lexer>]]></tt>.
+   Chaque règle est ensuite définie dans un élément XML <tt>&lt;rule-xml&nbsp;id="<i>idenficateur</i>"&gt;<i>definition</i>&lt;/rule-xml&gt;</tt> dont l'attribut <tt>id</tt> précise
+   l'identificateur unique.</p>
+  <p>Si l'on ajoute à l'élément <tt>rule-xml</tt>, l'attribut
+   <tt>beginning-of-line="true"</tt>, cela indique que la règle doit être reconnue en
+   début de ligne.</p>
+  <h4 id="xlex-rule">Les règles</h4>
+  <p>Un élément <tt>rule-xml</tt> contient un sous-élément
+   <tt>&lt;main&gt;<i>expression</i>&lt;/main&gt;</tt> qui précise l'expression
+   rationnelle principale de la règle puis, éventuellement, une contrainte sur ce qui suit.
+   Cette contrainte peut être soit&nbsp;: </p>
+  <ul>
+   <li><tt>&lt;end-of-line&gt;</tt> qui implique que l'expression principale soit
+    suivie d'une fin de ligne&nbsp;;</li>
+   <li><tt>&lt;follow&gt;<i>expression2</i>&lt;/follow&gt;</tt> qui implique que
+    l'expression principale soit suivie de l'expression rationnelle
+    <tt><i>expression2</i></tt>.</li>
+  </ul>
+  <p>Dans tous les cas, la chaîne de caractères correspondant à la contrainte ne fera pas
+   partie du lexème reconnu par cette règle.</p>
+  <h4>Les éléments simples des expressions rationnelles</h4>
+  <p>Les éléments simples des expressions rationnelles sont&nbsp;: </p>
+  <ul>
+   <li><tt>&lt;any/&gt;</tt> n'importe quel caractère&nbsp;;</li>
+   <li><tt>&lt;letter value="<i>c</i>"/&gt;</tt> un caractère <tt><i>c</i></tt>
+    &nbsp;;</li>
+   <li><tt>&lt;string value="<i>st</i>"/&gt;</tt> une chaîne de caractères
+    <tt><i>st</i></tt>&nbsp;;</li>
+   <li><tt>&lt;interval from="<i>start</i>" to="<i>end</i>"/&gt;</tt> tous les
+    caractères entre les caractères <tt><i>start</i></tt> et <tt><i>end</i></tt>&nbsp;;</li>
+   <li><tt>&lt;set&gt;<i>letters_or_intervals</i>&lt;/set&gt;</tt> un ensemble
+    contenant les caractères précisés&nbsp;;</li>
+   <li><tt>&lt;set negate ="true"&gt;<i>letters_or_intervals</i>&lt;/set&gt;</tt>
+    un ensemble contenant tous les caractères sauf ceux précisés.</li>
+  </ul>
+  <p>Les caractères non imprimables sont codés, comme en Java, par un chaîne de caractères
+   commençant par <tt>\u</tt> suivi du code du caractère en hexadicimal.</p>
+  <h4>Les opérateurs sur les expressions rationnelles</h4>
+  <p>Les opérateurs classiques sont définis sur les expressions rationnelles&nbsp;: </p>
+  <ul>
+   <li><tt>&lt;cat&gt;<i>expression<b>s</b></i>&lt;/cat&gt;</tt> pour la
+    concaténation de plusieurs expressions rationnelles&nbsp;;</li>
+   <li><tt>&lt;or&gt;<i>expression<b>s</b></i>&lt;/or&gt;</tt> pour l'alternative
+    entre plusieurs expressions rationnelles&nbsp;;</li>
+   <li><tt>&lt;times value="<i>nb</i>"&gt;<i>expression</i>&lt;/times&gt;</tt>
+    pour l'apparition exactement <tt>nb</tt> fois fois d'une expression
+    rationnelle&nbsp;;</li>
+   <li><tt>&lt;optional&gt;<i>expression</i>&lt;/optional&gt;</tt> pour
+    l'apparition <tt>0</tt> fois ou <tt>1</tt> fois d'une expression
+    rationnelle&nbsp;;</li>
+   <li><tt>&lt;star&gt;<i>expression</i>&lt;/star&gt;</tt> pour l'apparition
+    <tt>0</tt> fois ou plus d'une expression rationnelle&nbsp;;</li>
+   <li><tt>&lt;plus&gt;<i>expression</i>&lt;/plus&gt;</tt> pour l'apparition
+    <tt>1</tt> fois ou plus d'une expression rationnelle&nbsp;;</li>
+   <li><tt>&lt;at-least from="<i>from</i>"&gt;<i>expression</i>
+    &lt;/at-least&gt;</tt> pour l'apparition au moins <tt>from</tt> fois d'une
+    expression rationnelle&nbsp;;</li>
+   <li><tt>&lt;range from="<i>from</i>" to="<i>to</i>"&gt;<i>expression</i>
+    &lt;/range&gt;</tt> pour l'apparition entre <tt>from</tt> et <tt>to</tt> fois d'une
+    expression rationnelle.</li>
+  </ul>
+  <h4>Les macros</h4>
+  <p>En dehors des règles, il est possible de définir des macro-expressions rationnelles
+   avec l'élément <tt>&lt;define-macro-xml name="<i>name</i>"&gt;<i>expression</i>
+   &lt;/define-macro-xml&gt;</tt>. Ces macros peuvent ensuite être utilisées à la place des
+   expressions rationnelles auxquelles elles correspondent grâce à l'élément
+   <tt>&lt;macro name="<i>name</i>"&gt;</tt></p>
+  <h4>Un exemple</h4>
+  <p>Un exemple de fichier de règles (<tt><a href="../../../samples/calc/calc.xlex">calc.xlex</a></tt>) est donné ci-dessous. Il décrit les règles des expressions
+   arithmétiques.</p>
+  <table border="0" class="two-col">
+   <tr>
+    <td class="half-col">
+     <pre><![CDATA[<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE lexer SYSTEM "http://tatoo.univ-mlv.fr/dtd/1.1/lexer.dtd">
+<lexer>
+ <!-- Macros -->
+ <define-macro-xml name="space">
+  <star>
+   <or>
+    <letter value=" "/>
+    <letter value="\t"/>
+   </or>
+  </star>
+ </define-macro-xml>
+ <define-macro-xml name="number">
+  <plus>
+   <interval from="0" to="9"/>
+  </plus>
+ </define-macro-xml>
+ <define-macro-xml name="eoln">
+  <cat>
+   <optional>
+    <letter value="\r"/>
+   </optional>
+   <letter value="\n"/>
+  </cat>
+ </define-macro-xml>
+ 
+ <!-- Rules-->
+ <rule-xml id="space">
+  <main>
+   <macro name="space"/>
+  </main>
+ </rule-xml>
+ <rule-xml id="value">
+  <main>
+   <macro name="number"/>
+  </main>
+ </rule-xml>
+]]>
+</pre>
+    </td>
+    <td class="half-col">
+     
+     
+     <pre><![CDATA[ <rule-xml id="plus">
+  <main>
+   <letter value="+"/>
+  </main>
+ </rule-xml>
+ <rule-xml id="minus">
+  <main>
+   <letter value="-"/>
+  </main>
+ </rule-xml>
+ <rule-xml id="star">
+  <main>
+   <letter value="*"/>
+  </main>
+ </rule-xml>
+ <rule-xml id="equals">
+  <main>
+   <letter value="="/>
+  </main>
+ </rule-xml>
+ <rule-xml id="semicolon">
+  <main>
+   <letter value=";"/>
+  </main>
+ </rule-xml>
+ <rule-xml id="lpar">
+  <main>
+   <letter value="("/>
+  </main>
+ </rule-xml>
+ <rule-xml id="rpar">
+  <main>
+   <letter value=")"/>
+  </main>
+ </rule-xml>
+ <rule-xml id="eoln">
+  <main>
+   <macro name="eoln"/>
+  </main>
+ </rule-xml>
+</lexer>]]>
+</pre>
+    </td>
+   </tr>
+  </table>
+  <h3>Générer les implantations des automates</h3>
+  <p>Pour générer les implantations des automates qui correspondent à un ensemble de règles
+   décrites dans un fichier <tt>.xlex</tt>, il faut exécuter l'application Tatoo contenue
+   dans le fichier Jar exécutable <a href="../../tatoo.jar"><tt>tatoo.jar</tt></a>.
+   Cette application prend en argument le fichier <tt>.xlex</tt> et produit, dans le
+   répertoire courant&nbsp;:</p>
+  <ul>
+   <li>une énumération qui a pour nom <tt>lexer.RuleEnum</tt>&nbsp;;</li>
+   <li>une classe <tt>lexer.LexerDataTable</tt>.</li>
+  </ul>
+  <p id="tatoo-options">Diverses options permettent de changer le comportement par défaut de Tatoo. Ces options
+   sont&nbsp;:</p>
+  <ul>
+   <li><tt>-d</tt> pour préciser le répertoire où placer les fichiers générés&nbsp;;</li>
+   <li><tt>-p</tt> pour préciser un autre paquetage que <tt>lexer</tt> pour les sources
+    générées&nbsp;;</li>
+   <li><tt>-n</tt> pour changer le nom de l'énumération et/ou de la classe générée.</li>
+  </ul>
+  <p>Par exemple, la commande suivante génère, à partir des règles décrites dans le fichier <a
+    href="../../../samples/calc/calc.xlex"><tt>calc.xlex</tt></a>, une énumération de
+   nom <tt>lexer.RuleEnum</tt> et une classe de nom <tt>lexer.LexerDataTable</tt> avec
+   comme préfixe de paquetage <tt>fr.umlv.tatoo.../samples.calc</tt>. Les sources générées
+   sont placées dans le répertoire <tt>gen-src</tt> du répertoire courant.</p>
+  
+  
+  <pre>java -jar tatoo.jar -d ./gen-src/ -p fr.umlv.tatoo.../samples.calc calc.xlex
+</pre>
+  <p>L'énumération produite est placée dans le fichier <a
+    href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/lexer/RuleEnum.java">
+   <tt>./gen-src/fr/umlv/tatoo/samples/calc/lexer/RuleEnum.java</tt></a> et la
+   classe produite dans le fichier <a
+    href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/lexer/LexerDataTable.java">
+   <tt>./gen-src/fr/umlv/tatoo/samples/calc/lexer/LexerDataTable.java</tt></a>
+   .</p>
+  <p>Les valeurs de l'énumération produite par Tatoo correspondent aux identificateurs des
+   règles spécifiés dans le fichier <tt>.xlex</tt>. Les implantations des automates
+   correspondant aux expressions rationnelles des règles, ainsi que les autres
+   informations, sont associées aux valeurs de l'énumération grâce le champs statique
+   <tt>table</tt> de la classe <tt>LexerDataTable</tt>. Le champs <tt>table</tt> est de type 
+   <tt><a href="../../api/fr/umlv/tatoo/runtime/lexer/LexerTable.html"><![CDATA[LexerTable<RuleEnum>]]></a></tt>. Pour chaque valeur de
+   l'énumération la méthode <tt><a href="../../api/fr/umlv/tatoo/runtime/lexer/LexerTable.html#getRuleData(R)">getRuleData()</a></tt> 
+   de la table retourne un objet de la classe 
+   <a href="../../api/fr/umlv/tatoo/runtime/lexer/RuleData.html"><tt>RuleData</tt></a> 
+   qui contient ces informations&nbsp;:</p>
+  <ul>
+   <li><a href="../../api/fr/umlv/tatoo/runtime/lexer/RuleData.html#getMainRegex()"><tt>getMainRegex()</tt></a>
+    retourne l'automate correspondant à l'expression rationnelle principale&nbsp;;</li>
+   <li><a href="../../api/fr/umlv/tatoo/runtime/lexer/RuleData.html#getFollowRegex()"><tt>getFollowRegex()</tt></a>
+    retourne l'automate correspondant à la contrainte sur ce qui suit l'expression rationnelle principale&nbsp;;</li>
+   <li><a href="../../api/fr/umlv/tatoo/runtime/lexer/RuleData.html#beginningOfLineRequired()"><tt>beginningOfLineRequired()</tt></a>
+   	indique si l'expression rationnelle principale doit se trouver en début de ligne.</li>
+  </ul>
+  <p>Vous ne devriez pas avoir besoin d'utiliser directement ces méthodes.</p>
+  <h3>Utiliser les implantations des automates générés</h3>
+  <p>Les implantations des automates générées utilisent et sont utilisées par des classes de
+   Tatoo 
+   (<a href="../../api/fr/umlv/tatoo/runtime/lexer/RuleData.html"><tt>RuleData</tt></a> en particulier).
+   Il faut donc ajouter le fichier <a href="../../tatoo-runtime.jar"><tt>tatoo-runtime.jar</tt></a> au
+   <i>classpath</i> au moment de la compilation et de l'exécution de tout programme les
+   utilisant.</p>
+  <table class="two-col">
+   <tr>
+    <td class="half">
+     <pre>javac -classpath tatoo-runtime.jar MonProgramme.java   
+</pre>
+    </td>
+    <td class="half">
+     <pre>java -cp tatoo-runtime.jar MonProgramme   
+</pre>
+    </td>
+   </tr>
+  </table>
+  
+  <h4>Le texte à analyser</h4>
+  <p>Le texte à analyser est représenté par un objet qui implante l'interface <a
+    href="../../api/fr/umlv/tatoo/runtime/buffer/CharacterBuffer.html">
+   <tt>CharacterBuffer</tt></a>. Les classes <a
+    href="../../api/fr/umlv/tatoo/runtime/buffer/impl/ReaderWrapper.html">
+   <tt>ReaderWrapper</tt></a> et <a
+    href="../../api/fr/umlv/tatoo/runtime/buffer/impl/CharBufferWrapper.html">
+   <tt>CharBufferWrapper</tt></a> sont deux implantations de cette interface. La classe
+    <a href="../../api/fr/umlv/tatoo/runtime/buffer/impl/ReaderWrapper.html">
+   <tt>ReaderWrapper</tt></a> permet d'envelopper un objet implantant l'interface <a
+    href="http://java.sun.com/j2se/1.5.0/docs/../api/java/io/Reader.html">
+   <tt>Reader</tt></a> pour le passer à l'analyseur lexical. La classe <a
+    href="../../api/fr/umlv/tatoo/runtime/buffer/impl/CharBufferWrapper.html">
+   <tt>CharBufferWrapper</tt></a> permet, quand à elle, d'envelopper un objet implantant
+   l'interface <a
+    href="http://java.sun.com/j2se/1.5.0/docs/../api/java/nio/CharBuffer.html">
+   <tt>CharBuffer</tt></a>. </p>
+  <p>Par exemple, la portion de code suivante construit une enveloppe pour le fichier
+   <tt>calc-test.txt</tt>&nbsp;:</p>
+  
+  <pre>ReaderWrapper buffer = new ReaderWrapper(new FileReader("calc-test.test"));</pre>
+  <h4>L'observateur de lexème</h4>
+  <p>L'observateur de lexèmes implante l'interface 
+   <a href="../../api/fr/umlv/tatoo/runtime/lexer/LexerListener.html"><tt>LexerListener&lt;R,B&gt;</tt></a>
+   qui contient l'unique méthode 
+   <a href="../../api/fr/umlv/tatoo/runtime/lexer/LexerListener.html#ruleVerified(R,%20int,%20B)"><tt>ruleVerified()</tt></a>. Cette méthode est appelée
+   chaque fois que l'analyseur reconnait un lexème. Cette méthode reçoit en argument&nbsp;:
+   </p>
+  <ul>
+   <li>la règle correspondant au lexème de type <tt>R</tt>&nbsp;;</li>
+   <li>la longueur du dernier lexème reconnu&nbsp;;</li>
+   <li>un tampon permettant d'obtenir les lexèmes.</li>
+  </ul>
+  <p>Pour les classes 
+   <a href="../../api/fr/umlv/tatoo/runtime/buffer/impl/ReaderWrapper.html"><tt>ReaderWrapper</tt></a>,
+   et
+   <a href="../../api/fr/umlv/tatoo/runtime/buffer/impl/CharBufferWrapper.html"><tt>CharBufferWrapper</tt></a>,
+   les caractères reconnus sont conservés dans un tampon de type 
+   <a href="../../api/fr/umlv/tatoo/runtime/buffer/impl/TokenBuffer.html"><tt>TokenBuffer</tt></a> tant qu'ils n'ont pas
+   été supprimés explicitement avec sa méthode 
+   <a href="../../api/fr/umlv/tatoo/runtime/buffer/impl/TokenBuffer.html#discard()"><tt>discard()</tt></a>. La méthode
+   <a href="../../api/fr/umlv/tatoo/runtime/buffer/impl/TokenBuffer.html#view()"><tt>view()</tt></a> retourne quand à elle une vue de type de tous les caractères reconnus et non encore
+   supprimés. Cette dernière méthode retourne des valeurs qui sont susceptibles de changer si la
+   méthode <a href="../../api/fr/umlv/tatoo/runtime/buffer/impl/TokenBuffer.html#discard()"><tt>discard()</tt></a> est appelée ultérieurement.</p>
+  <p>Par exemple, la classe suivante affiche les entiers trouvés dans une expression
+   arithmétique décrite dans les règles du fichier <a href="calc.xlex">
+   <tt>calc.xlex</tt></a>&nbsp;:</p>
+  
+  <pre>LexerListener&lt;RuleEnum, TokenBuffer&gt; listener = new LexerListener&lt;RuleEnum, TokenBuffer&gt;() {
+  public void ruleVerified(RuleEnum t, int lastTokenLength,  TokenBuffer buffer) {
+    switch (t) {
+    case value:
+      System.out.println(buffer.view());
+      buffer.discard();
+      break;
+    default:
+      buffer.discard();
+    }
+  }
+};
+</pre>
+  <h4>Construire l'analyseur lexical</h4>
+  <p>Les automates générés sont utilisés au sein d'un analyseur lexical de la classe
+   <a href="../../api/fr/umlv/tatoo/runtime/lexer/Lexer.html"><tt>Lexer&lt;R, B extends CharacterBuffer&gt;</tt></a>.
+   Le type <tt>R</tt> correspond à l'énumération associée aux règles utilisées par l'analyseur lexical et <tt>B</tt> au type du
+   tampon utilisé par l'analyseur.</p>
+  <p> L'analyseur est construit par une des méthodes statiques 
+   <a href="../../api/fr/umlv/tatoo/runtime/lexer/Lexer.html#createLexer(fr.umlv.tatoo.runtime.lexer.LexerTable,%20E,%20fr.umlv.tatoo.runtime.lexer.LexerListener)"><tt>createLexer()</tt></a>
+   de la classe 
+   <a href="../../api/fr/umlv/tatoo/runtime/lexer/Lexer.html"><tt><![CDATA[Lexer<R,B>]]></tt></a>. La méthode la plus simple prend en arguments, au moment de sa
+   construction&nbsp;: </p>
+  <ul>
+   <li>un objet implantant l'interface <a href="../../api/fr/umlv/tatoo/runtime/lexer/LexerTable.html"><tt><![CDATA[LexerTable<R>]]></tt></a>
+   qui contient les automates générés par Tatoo associés à l'énumération <tt>R</tt>&nbsp;;</li>
+   <li>un objet de type <tt>B</tt> implantant l'interface <a
+    href="../../api/fr/umlv/tatoo/runtime/buffer/CharacterBuffer.html"><tt>CharacterBuffer</tt></a> qui représente le texte à
+    analyser&nbsp;;</li>
+   <li>un objet implantant l'interface <a href="../../api/fr/umlv/tatoo/runtime/lexer/LexerListener.html"><tt>LexerListener&lt;R,? super B&gt;</tt></a>
+    qui est appelé chaque fois qu'un lexème est reconnu dans le texte.</li>
+  </ul>
+  <p>Par exemple, la portion de code suivante construit un analyseur lexical, paramétré par
+   les règles de l'énumération <tt>RuleEnum</tt> et le type de tampon <a
+    href="../../api/fr/umlv/tatoo/runtime/buffer/impl/ReaderWrapper.html"><tt>ReaderWrapper</tt></a>&nbsp;:</p>
+  <pre>Lexer&lt;RuleEnum, ReaderWrapper&gt; lexer = Lexer.createLexer(LexerDataTable.table, buffer, listener);
+</pre>
+  <p>Cet analyseur lexical travaille sur un flot de caractères accessible au travers de
+   <tt>buffer</tt>, il informe l'objet <tt>listener</tt> chaque fois qu'il reconnait un
+   lexème et l'ensemble des règles qu'il utilise est l'ensemble des régles définies dans
+   <tt>RuleEnum</tt> dont les automates sont stockées dans le champ <tt>table</tt> la 
+   classe <tt>LexerDataTable</tt>.</p>
+  
+  <h4>Lancer l'analyse</h4>
+  <p>L'analyse d'un nouveau lexème est réalisé par l'appel à la méthode
+   <a href="../../api/fr/umlv/tatoo/runtime/lexer/Lexer.html#step()"><tt>step()</tt></a> 
+   de l'analyseur lexical. Pour réaliser l'analyse total d'une séquence, il faut donc l'appeler,
+   tant qu'il y a des caractères dans la séquence&nbsp;; c'est-à-dire tant que la méthode 
+   <a href="../../api/fr/umlv/tatoo/runtime/buffer/CharacterBuffer.html#read()"><tt>read()</tt></a>
+   de la classe <a href="../../api/fr/umlv/tatoo/runtime/buffer/CharacterBuffer.html"><tt>CharacterBuffer</tt></a>
+   retourne <tt>true</tt>. </p>
+  <p>La méthode <a href="../../api/fr/umlv/tatoo/runtime/lexer/Lexer.html#run()"><tt>run()</tt></a> est une méthode
+   de commodité qui appelle <a href="../../api/fr/umlv/tatoo/runtime/lexer/Lexer.html#step()"><tt>step()</tt></a>
+   tant qu'il y a des caractères dans le tampon.</p>
+  <pre>lexer.run();</pre>
+  
+  <h4>L'activateur de règles</h4>
+  <p>Au moment de la construction de l'analyseur lexical il est possible de passer, un objet implantant l'interface
+   <a href="../../api/fr/umlv/tatoo/runtime/lexer/RuleActivator.html"><tt>RuleActivator&lt;R&gt;</tt></a>.
+    Sa méthode <a href="../../api/fr/umlv/tatoo/runtime/lexer/RuleActivator.html#activateRules(java.lang.Iterable)"><tt>activateRules()</tt></a>
+    est appelée avant de commencer à reconnaître un nouveau lexème. Elle permet de changer l'ensemble des
+   règles actives&nbsp;; c'est-à-dire que l'analyseur tente de reconnaître.</p>
+  <pre>Lexer&lt;RuleEnum, ReaderWrapper&gt; lexer = Lexer.createLexer(LexerDataTable.table, buffer, listener, activator);</pre>
+  <p>Par exemple, l'activateur de règles suivant assure que le texte reconnu commence par une
+   valeur suivie du lexème <tt>=</tt>, puis n'importe quel lexème sauf <tt>=</tt>.</p>
+  <pre><![CDATA[final EnumSet<RuleEnum> valueSingleton = EnumSet.of(RuleEnum.value);
+final EnumSet<RuleEnum> equalsSingleton = EnumSet.of(RuleEnum.equals);
+final EnumSet<RuleEnum> notEqualsSet = EnumSet.complementOf(equalsSingleton);
+      
+final RuleActivator<RuleEnum> activator = new RuleActivator<RuleEnum>() {
+  public Iterable<RuleEnum> activateRules(Iterable<RuleEnum> oldRules) {
+    if (oldRules == null) {
+      return valueSingleton;
+    } 
+    if (oldRules == valueSingleton) {
+      return equalsSingleton;
+    }
+    return notEqualsSet;
+  }
+};]]></pre>
+  <h4>La localisation des erreurs</h4>
+  <p>Par défaut, les classes <a
+    href="../../api/fr/umlv/tatoo/runtime/buffer/impl/ReaderWrapper.html"><tt>ReaderWrapper</tt></a> et 
+  <a href="../../api/fr/umlv/tatoo/runtime/buffer/impl/CharBufferWrapper.html"><tt>CharBufferWrapper</tt></a>
+  ne permettent pas une localisation des erreurs. Afin de permettre cette localisation, il suffit
+  d'utiliser la classe enveloppe 
+   <a href="../../api/fr/umlv/tatoo/runtime/buffer/impl/LocationTokenBufferFilter.html"><tt>LocationTokenBufferFilter</tt></a>.
+  </p>
+<pre><![CDATA[LocationTokenBufferFilter locationBuffer = new LocationTokenBufferFilter(buffer);]]></pre>
+  <h4>Un exemple complet</h4>
+<p>L'exemple suivant (<a href="../../../samples/calc/src/fr/umlv/tatoo/samples/calc/LexerMain.java"><tt>LexerMain.java</tt></a>) 
+ reprend les divers éléments de l'utilisation de l'analyseur lexical.</p>
+<pre><![CDATA[package fr.umlv.tatoo.../samples.calc;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.EnumSet;
+import fr.umlv.tatoo.runtime.buffer.impl.LocationTokenBufferFilter;
+import fr.umlv.tatoo.runtime.buffer.impl.ReaderWrapper;
+import fr.umlv.tatoo.runtime.buffer.impl.TokenBuffer;
+import fr.umlv.tatoo.runtime.lexer.Lexer;
+import fr.umlv.tatoo.runtime.lexer.LexerListener;
+import fr.umlv.tatoo.runtime.lexer.RuleActivator;
+import fr.umlv.tatoo.../samples.calc.lexer.LexerDataTable;
+import fr.umlv.tatoo.../samples.calc.lexer.RuleEnum;
+
+public class LexerMain {
+
+  public static void main(String[] args) throws IOException {
+    if (args.length != 1) {
+      System.err.println("Usage: LexerMain <file>");
+      System.exit(1);
+    }
+    final LexerListener<RuleEnum, TokenBuffer> listener = new LexerListener<RuleEnum, TokenBuffer>() {
+      public void ruleVerified(RuleEnum t, int lastTokenLength, TokenBuffer buffer) {
+        switch (t) {
+        case value:
+          System.out.println(buffer.view());
+          buffer.discard();
+          break;
+        default:
+          buffer.discard();
+        }
+      }
+    };
+    
+    final EnumSet<RuleEnum> valueSingleton = EnumSet.of(RuleEnum.value);
+    final EnumSet<RuleEnum> equalsSingleton = EnumSet.of(RuleEnum.equals);
+    final EnumSet<RuleEnum> notEqualsSet = EnumSet.complementOf(equalsSingleton);
+      
+    final RuleActivator<RuleEnum> activator = new RuleActivator<RuleEnum>() {
+      public Iterable<RuleEnum> activateRules(Iterable<RuleEnum> oldRules) {
+        if (oldRules == null) {
+          return valueSingleton;
+        } 
+        if (oldRules == valueSingleton) {
+          return equalsSingleton;
+        }
+        return notEqualsSet;
+      }
+    };
+    final LocationTokenBufferFilter buffer = 
+      new LocationTokenBufferFilter(
+        new ReaderWrapper(new FileReader(args[0])));
+    Lexer<RuleEnum, LocationTokenBufferFilter> lexer = Lexer.createLexer(LexerDataTable.table, buffer, listener, activator);
+    lexer.run();
+  }
+}]]></pre>
+  <h2>Écrire un compilateur/interpréteur</h2>
+  <p>La construction d'un compilateur  ou d'un interpréteur avec Tatoo s'effectue en plusieurs
+   étapes&nbsp;:</p>
+  <ol>
+   <li>construction d'un fichier <tt>.xlex</tt> décrivant les règles de reconnaissance
+    des lexèmes de l'analyseur syntaxique&nbsp;;</li>
+   <li>génération des classes de l'analyseur lexical&nbsp;;</li>
+   <li>construction d'un fichier <tt>.xpars</tt> décrivant la grammaire du langage
+    reconnu par l'analyseur syntaxique&nbsp;;</li>
+   <li>génération des classes de l'analyseur syntaxique&nbsp;;</li>
+   <li>construction d'un fichier <tt>.xtls</tt> décrivant comment s'effectue la liaison
+    entre les parties lexicale, syntaxique et code utilisateur du compilateur/interpréteur&nbsp;;</li>
+   <li>génération des fichiers de lien entre l'analyseur lexicale, l'analyse syntaxique
+      et le code utilisateur&nbsp;;</li>
+   <li>implantation de visiteurs décrivant le comportement du compilateur/interpréteur&nbsp;;</li>
+   <li>utilisation du programme pour compiler/interpréter un langage.</li>
+  </ol>
+  <h3>Écrire le fichier <tt>.xpars</tt></h3>
+  <p> La grammaire de l'analyseur syntaxique est décrite dans un fichier XML,
+   <tt>.xpars</tt>, dont la syntaxe est précisée par la DTD, <a
+    href="http://tatoo.univ-mlv.fr/dtd/1.1/parser.dtd">parser.dtd</a>.</p>
+  <p> La grammaire est décrite dans un élément <tt><![CDATA[<parser>...</parser>]]></tt>.
+   Cet élément contient une description des terminaux, des non-terminaux racines, du
+   terminal erreur et des productions. </p>
+  <h4 id="xpars-terminal">Les terminaux</h4>
+  <p>Les terminaux de la grammaire sont définis avec l'élément
+   <tt><![CDATA[<terminal/>]]></tt>. Le nom du terminal est précisé au moyen de
+   l'attribut <tt>id</tt>. Il est aussi possible de préciser les attributs
+   <tt>priority</tt> et<tt>associativity</tt> associés au terminal&nbsp;; leurs valeurs
+   possibles et leur sémantique seront décrites plus <a href="#priority">loin</a>. </p>
+  <p>Par exemple&nbsp;:</p> 
+  <pre><![CDATA[<terminal id="plus" priority="1" associativity="left"/>]]>
+</pre>
+  <h4>Les non-terminaux racines</h4>
+  <p>L'élément <tt><![CDATA[<start/>]]></tt> permet de préciser les terminaux ou
+   non-terminaux qui peuvent servir de racine dans la grammaire. Leurs noms sont précisés au
+   moyen de l'attribut <tt>id</tt>. </p>
+  <p>Par exemple&nbsp;:</p>
+  <pre><![CDATA[<start id="expr"/>]]>
+</pre>
+  <h4>Le terminal erreur</h4>
+  <p>Il est possible de préciser un terminal <tt><![CDATA[<error/>]]></tt> qui sera
+   produit en cas d'erreur et qui permettra de préciser des productions de reprise sur erreur.
+   Le nom de ce terminal est précisé au moyen de l'attribut <tt>id</tt>.</p>
+  <p></p>
+  <pre><![CDATA[<error id="error"/>]]>
+</pre>
+  <h4>Les productions</h4>
+  <p>Les productions sont décrites avec des éléments
+   <tt><![CDATA[<production>...</production>]]></tt>. L'attribut <tt>id</tt>
+   précise le nom de chaque production. Il est également de préciser des attributs
+   <tt>priority</tt> et <tt>associativity</tt> qui sont décrits plus <a
+    href="#priority">loin.</a></p>
+  <p>Un élément production doit contenir exactement un élément
+   <tt><![CDATA[<lhs/>]]></tt> (<i>left hand side</i>) et un élément
+   <tt><![CDATA[<rhs>...</rhs>]]></tt> (<i>right hand side</i>). L'élément
+   <tt><![CDATA[<lhs/>]]></tt> précise au moyen de l'attribut <tt>id</tt> le
+   nom-terminal en partie gauche de la production, alors que l'élément
+   <tt><![CDATA[<rhs>...</rhs>]]></tt> contient une suite d'éléments
+   <tt><![CDATA[<right/>]]></tt> qui précisent au moyen de l'attribut <tt>id</tt> les
+   terminaux et non-terminaux en partie droite de la production. </p>
+  <p>Par exemple&nbsp;:</p>
+  <pre><![CDATA[<production id="expr_plus">
+ <lhs id="expr"/>    <rhs> <right id="expr"/> <right id="plus"/> <right id="expr"/> </rhs>
+</production>]]></pre>
+  <p>Les productions qui font apparaître le terminal décrit dans l'élément
+   <tt><![CDATA[<error/>]]></tt> sont uniquement sélectionnées pour la reprise sur
+   erreur.</p>
+  <h4 id="priority">Les priorités et l'associativité</h4>
+  <p>L'attribut <tt>priority</tt> permet d'affecter une priorité à un terminal ou à une
+   production. Une priorité est une valeur de type <tt>double</tt>. La priorité est utilisée
+   pour résoudre les conflits qui peuvent apparaître lors de la construction des tables de
+   l'analyseur. La priorité sur un terminal précise la priorité du <i>shift</i> de ce
+   terminal alors que la priorité sur une production précise la priorité du <i>reduce</i> de
+   cette production. Par défaut, les terminaux de la grammaire n'ont pas de priorité. Les
+   productions n'ont pas non plus de priorité, sauf si un terminal apparaissant en partie
+   droite de la production a une priorité. Dans ce cas, la priorité de la production est celle du
+   dernier terminal ayant une priorité apparaissant en partie droite de la production.</p>
+  <p>L'attribut <tt>associativity</tt> permet d'affecter un type d'associativité à un
+   terminal ou à une production. Les valeurs possibles pour l'associativité sont
+   <tt>left</tt>, <tt>right</tt>, <tt>non-associative</tt> et <tt>none</tt>. Si cet
+   attribut n'est pas précisé, la valeur par défaut est <tt>none</tt>. L'associativité est
+   utilisée pour résoudre les conflits <i>shift</i>/<i>reduce</i>.</p>
+  <p>Pour résoudre les conflits&nbsp;:</p>
+  <ul>
+   <li>si l'un des éléments du conflits n'a pas de priorité&nbsp;:
+    <ul>
+     <li>si c'est un conflit <i>reduce/reduce</i> une exception est levée&nbsp;;</li>
+     <li>si c'est un conflit <i>shift/reduce</i> le <i>shift</i> est choisi avec un message 
+      d'alerte&nbsp;;</li>
+    </ul> </li>
+   <li>si l'un des éléments du conflit a une priorité plus forte que l'autre, il est choisi
+   &nbsp;;</li>
+   <li>si les deux éléments du conflit ont la même priorité, l'associativité est utilisée, il
+    faut dans ce cas (sinon une exception est levée) que les deux éléments aient la même
+    associativité et que l'on soit dans le cas d'un conflit <i>shift/reduce</i>&nbsp;:
+    <ul>
+     <li>si l'associativité est <tt>left</tt>, le <i>reduce</i> est choisi&nbsp;;</li>
+     <li>si l'associativité est <tt>right</tt>, le <i>shift</i> est choisi&nbsp;;</li>
+     <li>si l'associativité est <tt>none</tt>, le <i>shift</i> est choisi avec une alerte
+     &nbsp;;</li>
+     <li>si l'associativité est <tt>non-associtive</tt>, il y aura une exception si l'on
+      rencontre ce conflit à l'exécution.</li>
+    </ul> </li>
+  </ul>
+  <h4>Un exemple complet</h4>
+  <p>L'exemple suivant (<a
+    href="../../../samples/calc/calc.xpars">calc.xpars</a>) donne la grammaire des expressions arithmétiques.</p>
+  <table border="0" class="two-col">
+   <tr>
+    <td class="half-col"><pre><![CDATA[<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE parser SYSTEM 
+    "http://tatoo.univ-mlv.fr/dtd/1.1/parser.dtd">
+<parser>
+ <terminal id="plus" priority="1" associativity="left"/>
+ <terminal id="star" priority="2" associativity="left"/>
+ <terminal id="minus" priority="1" associativity="left"/>
+ <terminal id="equals" priority="0" associativity="non-associative"/>
+ <terminal id="value"/>
+ <terminal id="semicolon"/>
+ <terminal id="eoln"/>
+ <terminal id="rpar"/>
+ <terminal id="lpar"/>
+ <terminal id="error"/>
+
+ <start id="start"/>
+ <start id="expr"/>
+ 
+ <error id="error"/>
+	
+ <production id="error">
+  <lhs id="line"/>
+  <rhs>
+   <right id="error"/>
+   <right id="semicolon"/>
+  </rhs>
+ </production>
+ <production id="start_expr">
+  <lhs id="start"/>
+  <rhs>
+   <right id="start"/>
+   <right id="line"/>
+   <right id="eoln"/>
+  </rhs>
+ </production>
+ <production id="start_empty">
+  <lhs id="start"/>
+  <rhs/>
+ </production>
+ <production id="line">
+  <lhs id="line"/>
+  <rhs>
+   <right id="expr"/>
+   <right id="semicolon"/>
+  </rhs>
+ </production>
+ <production id="expr_value">
+  <lhs id="expr"/>
+  <rhs>
+   <right id="value"/>
+  </rhs>
+ </production>]]></pre>
+    </td>
+    <td class="half-col">
+     <pre><![CDATA[ <production id="expr_plus">
+  <lhs id="expr"/>
+  <rhs>
+   <right id="expr"/>
+   <right id="plus"/>
+   <right id="expr"/>
+  </rhs>
+ </production>
+ <production id="expr_equals">
+  <lhs id="expr"/>
+  <rhs>
+   <right id="expr"/>
+   <right id="equals"/>
+   <right id="expr"/>
+  </rhs>
+ </production>
+ <production id="expr_minus">
+  <lhs id="expr"/>
+  <rhs>
+   <right id="expr"/>
+   <right id="minus"/>
+   <right id="expr"/>
+  </rhs>
+ </production>
+ <production  id="expr_star">
+  <lhs id="expr"/>
+  <rhs>
+   <right id="expr"/>
+   <right id="star"/>
+   <right id="expr"/>
+  </rhs>
+ </production>
+ <production  id="expr_par">
+  <lhs id="expr"/>
+  <rhs>
+   <right id="lpar"/>
+   <right id="expr"/>
+   <right id="rpar"/>
+  </rhs>
+ </production>
+ <production  id="expr_error">
+  <lhs id="expr"/>
+  <rhs>
+   <right id="lpar"/>
+   <right id="error"/>
+   <right id="rpar"/>
+  </rhs>
+ </production>
+</parser>]]></pre></td>
+   </tr>
+  </table>
+		<h3>Générer les classes de l'analyseur syntaxique</h3>
+  <p>Pour générer les classes de l'analyseur syntaxique il faut, comme pour l'analyseur lexical, utiliser l'application Tatoo contenue
+   dans le fichier Jar exécutable <a href="../../tatoo.jar"><tt>tatoo.jar</tt></a>. En plus des
+   <a href="#tatoo-options">options</a> vues lors de la génération des classes de l'analyseur lexical, on 
+   trouve des options spécifiques à la générations de classes de l'analyseur syntaxique&nbsp;:  
+  </p>
+  <ul>
+   <li><tt>-t (slr|lr|lalr)</tt> qui précise le type de la table construite par Tatoo,
+    SLR, LR(1) ou LALR(1) (SLR par défaut)&nbsp;;</li>
+   <li><tt>-l <i>file</i></tt> qui précise que les tables doivent être écrites en format textuel dans le fichier 
+   <tt><i>file</i></tt>.</li>
+  </ul>
+<p>Par exemple&nbsp;:</p>
+<pre>java -jar tatoo.jar -t lr -d ./gen-src/ -p fr.umlv.tatoo.../samples.calc calc.xpars</pre>
+    <p>Cette commande génère trois énumérations 
+  <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/parser/TerminalEnum.java"><tt>fr.umlv.tatoo.../samples.calc.parser.TerminalEnum</tt></a>,
+  <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/parser/NonTerminalEnum.java"><tt>fr.umlv.tatoo.../samples.calc.parser.NonTerminalEnum</tt></a>,
+  et <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/parser/ProductionEnum.java"><tt>fr.umlv.tatoo.../samples.calc.parser.ProductionEnum</tt></a>
+  qui correspondent respectivement aux terminaux,
+  non-terminaux et productions de la grammaire. Elle génère également une classe 
+  <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/parser/ParserDataTable.java"><tt>fr.umlv.tatoo.../samples.calc.parser.ParserDataTable</tt></a>
+  dont le champs <tt>table</tt> contient la table construite par Tatoo. La table construite a pour type
+  <a href="../../api/fr/umlv/tatoo/runtime/parser/ParserTable.html"><tt><![CDATA[ParserTable<TerminalEnum,NonTerminalEnum,ProductionEnum>]]></tt></a>.
+  Pour chaque valeur de l'enumération des terminaux, la méthode <a href="../../api/fr/umlv/tatoo/runtime/parser/ParserTable.html#getActions(T)"><tt>getActions()</tt></a>
+  retourne le tableau des actions qui lui sont associées. Ces objets ne sont pas utilisés directement par le développeur.</p>
+  
+  <p>Les énumérations et classes produites par Tatoo peuvent être utilisées pour créer «&nbsp;à la main&nbsp;» un analyseur syntaxique 
+  comme nous l'avons fait pour l'analyseur lexical. Pour cela il faut, écrire une classe implantant l'interface 
+  <a href="../../api/fr/umlv/tatoo/runtime/parser/ParserListener.html"><tt><![CDATA[ParserListener<T,P>]]></tt></a> dont les méthodes seront appelées
+  pour chaque action de l'analyseur syntaxique, créer un objet 
+  <a href="../../api/fr/umlv/tatoo/runtime/parser/Parser.html"><tt><![CDATA[Parser<T,N,P>]]></tt></a> avec une des méthodes statiques 
+  <a href="../../api/fr/umlv/tatoo/runtime/parser/Parser.html#createParser(java.lang.Class,%20fr.umlv.tatoo.runtime.parser.ParserTable,%20E,%20N)"><tt>createParser()</tt></a>,
+  puis lier l'analyseur syntaxique avec un analyseur lexical afin de produire les terminaux et lancer l'analyse.</p>
+  <p>Toutefois, cette tâche étant fastidieuse, Tatoo propose de la simplifier en utilisant un fichier <tt>.xtls</tt>.</p>
+
+  <h3>Écrire le fichier <tt>.xtls</tt></h3>
+  <p>La liaison entre les parties lexicale, syntaxique et code utilisateur de l'analyseur
+   syntaxique est décrite dans un fichier XML, <tt>.xtls</tt>, dont la syntaxe est précisée
+   par la DTD, <a href="http://tatoo.univ-mlv.fr/dtd/1.1/tools.dtd">
+   tools.dtd</a>.</p>
+  <p>La liaison est décrite dans un élément <tt><![CDATA[<tools>...</tools>]]></tt>. Cet
+   élément peut contenir&nbsp;:</p>
+  <ul>
+   <li>une description du lien entre une règle reconnue par l'analyseur lexical et un
+    terminal attendu par l'analyseur syntaxique&nbsp;;</li>
+   <li>un ensemble de règles <tt>import</tt> pour les types Java utilisés dans le fichier
+    <tt>.xtls</tt>&nbsp;;</li>
+   <li>une description du lien entre un terminal et le type Java d'une valeur qui lui est
+    associée par l'analyseur lexical&nbsp;; </li>
+   <li>une description du lien entre un non-terminal et le type Java d'un valeur qui lui est
+    associée par l'analyseur syntaxique au moment de sa reconnaissance (<i>reduce</i>).</li>
+  </ul>
+  <h4 id="tls-rule">L'élément <tt><![CDATA[<rule/>]]></tt></h4>
+  <p>L'élément <tt><![CDATA[<rule/>]]></tt> permet de décrire le lien entre une règle
+   reconnue par l'analyseur lexical et un terminal attendu par l'analyseur syntaxique. Les
+   attributs de cet élément sont&nbsp;:</p>
+  <ul>
+   <li><tt>id</tt> qui précise le nom de la règle de l'analyseur concernée&nbsp;;</li>
+   <li><tt>terminal</tt> qui précise le nom du terminal qui est généré lors de la
+    reconnaissance de la règle&nbsp;;</li>
+   <li><tt>terminal-part</tt> qui précise le nom du terminal auquel la règle est associée
+    sans que le terminal ne soit généré par la reconnaissance de la règle&nbsp;;</li>
+   <li><tt>discard</tt> qui précise que la méthode <tt>discard()</tt> doit être appelée
+    sur le tampon après reconnaissance de la règle&nbsp;;</li>
+   <li><tt>always-active</tt> qui précise que la règle doit être toujours active, 
+    même si elle n'est pas dans le <i>lookahead</i> courant de l'analyseur syntaxique.</li>
+  </ul>
+  <p>Par exemple&nbsp;:</p>
+  <pre><![CDATA[ <rule id="plus" terminal="plus" discard="true"/>]]></pre>
+  <p>Les attributs <tt>terminal</tt> et <tt>terminal-part</tt> sont optionnels et
+   exclusifs l'un de l'autre. Par défaut, la règle n'est associée à aucun terminal et
+   l'attribut <tt>discard</tt> vaut <tt>true</tt>.</p>
+  <h4>L'élément <tt><![CDATA[<import/>]]></tt></h4>
+  <p>L'élément <tt><![CDATA[<import/>]]></tt> permet de préciser les types Java (non
+   primitifs) utilisés dans la suite du fichier <tt>.xtls</tt>. Il dispose d'un seul
+   attribut <tt>type</tt> qui précise le nom du type concerné.</p>
+  <p>Par exemple&nbsp;:</p>
+  <pre><![CDATA[<import type="fr.umlv.tatoo.../samples.calc.Expr"/>]]></pre>
+  <h4>L'élément <tt><![CDATA[<terminal/>]]></tt></h4>
+  <p>L'élément <tt><![CDATA[<terminal/>]]></tt> décrit le lien entre un terminal et le
+   type Java d'une valeur qui lui est associé. L'attribut <tt>id</tt> précise le nom du
+   terminal et l'attribut <tt>type</tt> le type.</p>
+  <p>Par exemple&nbsp;:</p>
+  <pre><![CDATA[<terminal id="value" type="int"/>]]></pre>
+  <h4>L'élément <tt><![CDATA[<non-terminal/>]]></tt></h4>
+  <p>L'élément <tt><![CDATA[<non-terminal/>]]></tt> décrit le lien entre un
+   non-terminal et le type Java d'une valeur qui lui est associée par l'analyseur syntaxique
+   au moment de sa reconnaissance (<i>reduce</i>). L'attribut <tt>id</tt> précise le nom du
+   non-terminal et l'attribut <tt>type</tt> le type.</p>
+  <p>Par exemple&nbsp;:</p>
+  <pre><![CDATA[<non-terminal id="expr" type="int"/>]]></pre>
+
+  <h4>Un exemple complet</h4>
+  <p>L'exemple suivant (<a href="../../../samples/calc/calc.xtls">calc.xtls</a>) décrit la liaison
+   entre les analyseurs lexical et syntaxique des expressions arihtmétiques&nbsp;:</p>
+  <pre id="calc.xtls"><![CDATA[<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE tools SYSTEM "http://tatoo.univ-mlv.fr/dtd/1.1/tools.dtd">
+<tools>
+ <rule id="plus" terminal="plus"/>
+ <rule id="star" terminal="star" />
+ <rule id="minus" terminal="minus" />
+ <rule id="equals" terminal="equals"/>
+ <rule id="value" terminal="value"/>
+ <rule id="semicolon" terminal="semicolon"/>
+ <rule id="eoln" terminal="eoln"/>
+ <rule id="rpar" terminal="rpar"/>
+ <rule id="lpar" terminal="lpar"/>
+
+ <terminal id="value" type="int"/>
+
+ <non-terminal id="expr" type="int"/>
+</tools>]]></pre>
+
+  <h3>Génération des implantations</h3>
+  <p>Pour générer les classes de lien il faut, comme pour les analyseurs lexical et syntaxique, utiliser
+   l'application Tatoo contenue dans le fichier Jar exécutable <a href="../../tatoo.jar"><tt>tatoo.jar</tt></a>.
+  Il est nécessaire de préciser sur la ligne de commande les noms des fichiers <tt>.xlex</tt> et <tt>.xpars</tt>.
+   Par défaut, les classes associées aux analyseurs ne sont pas générées, mais il est possible de demander leur
+   génération avec les options <tt>-g lexer</tt> et <tt>-g parser</tt>.</p>
+  <pre><![CDATA[java -jar tatoo.jar -d ./gen-src/ -p fr.umlv.tatoo.../samples.calc calc.xlex calc.xpars calc.xtls]]></pre>
+ 	<p>Cette commande génère plusieurs classes dans le répertoire <tt>gen-src</tt>. Ces classes font toutes partie du
+  paquetage <tt>fr.umlv.tatoo.../samples.calc.tools</tt>.</p>
+  <p>Les fichiers générés sont&nbsp;:</p>
+  <ul>
+   <li><a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/ToolsLexerListener.java"><tt>ToolsLexerListener.java</tt></a>&nbsp;;</li>
+   <li><a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/TerminalAttributeEvaluator.java"><tt>TerminalAttributeEvaluator.java</tt></a>&nbsp;;</li>
+   <li><a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/ToolsParserListener.java"><tt>ToolsParserListener.java</tt></a>&nbsp;;</li>
+   <li><a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/ParserVisitor.java"><tt>GrammarEvaluator.java</tt></a>&nbsp;;</li>
+   <li><a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/TerminalRulesMap.java"><tt>TerminalRulesMap.java</tt></a>&nbsp;;</li>
+   <li><a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/Analyzer.java"><tt>Analyzer.java</tt></a>.</li>
+  </ul>
+  <p>La classe <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/ToolsLexerListener.java"><tt>ToolsLexerListener</tt></a>
+     fait le lien entre l'analyseur lexical et l'analyseur syntaxique. Elle implante l'interface 
+   <a href="../../api/fr/umlv/tatoo/runtime/lexer/LexerListener.html"><tt><![CDATA[LexerListener<RuleEnum,TokenBuffer>]]></tt></a>.
+    Elle est construite par Tatoo à partir des éléments <a href="#tls-rule"><tt><![CDATA[<rule>]]></tt></a>, trouvés
+    dans le fichier <tt>.xtls</tt>, qui lient les éléments <a href="#xlex-rule"><tt><![CDATA[<rule>]]></tt></a> du 
+    fichier <tt>.xlex</tt> aux éléments <a href="#xpars-terminal"><tt><![CDATA[<terminal>]]></tt></a> du ficher 
+    <tt>.xpars</tt>.</p>
+  <p>L'interface <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/TerminalAttributeEvaluator.java"><tt>TerminalAttributeEvaluator</tt></a>
+    doit être implantée par l'utilisateur. Elle est utilisée par la classe 
+    <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/ToolsLexerListener.java"><tt>ToolsLexerListener</tt></a>
+   pour initialiser les valeurs des attributs qui seront associés aux terminaux de la grammaire. Dans le cas du fichier <a href="#calc.xtls"><tt>calc.xtls</tt></a> 
+   l'interface générée est la suivante&nbsp;:</p>
+<pre><![CDATA[package fr.umlv.tatoo.../samples.calc.tools;
+
+public interface TerminalAttributeEvaluator {
+  public void space(CharSequence seq);
+  public int value(CharSequence seq);
+  public void plus(CharSequence seq);
+  public void minus(CharSequence seq);
+  public void star(CharSequence seq);
+  public void equals(CharSequence seq);
+  public void semicolon(CharSequence seq);
+  public void lpar(CharSequence seq);
+  public void rpar(CharSequence seq);
+  public void eoln(CharSequence seq);
+}]]></pre>
+  <p>La classe <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/ToolsParserListener.java"><tt>ToolsParserListener</tt></a>
+    est appelée par l'analyseur syntaxique chaque fois qu'il réalise un <i>shift</i>, <i>reduce</i>, etc.</p>
+  <p>L'interface <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/GrammarEvaluator.java"><tt>GrammarEvaluator</tt></a> 
+    doit être implantée par l'utilisateur.
+			 Elle est utilisée par la classe <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/ToolsParserListener.java"><tt>ToolsParserListener</tt></a>
+    après chaque réduction de régle. Dans le cas du fichier <a href="#calc.xtls"><tt>calc.xtls</tt></a> l'interface générée est la suivante&nbsp;:</p>
+<pre><![CDATA[package fr.umlv.tatoo.../samples.calc.tools;
+
+public interface GrammarEvaluator {
+  public void error();
+  public void start_expr();
+  public void start_empty();
+  public void line(int expr);
+  public int expr_value(int value);
+  public int expr_plus(int expr, int expr2);
+  public int expr_equals(int expr, int expr2);
+  public int expr_minus(int expr, int expr2);
+  public int expr_star(int expr, int expr2);
+  public int expr_par(int expr);
+  public int expr_error();
+}]]></pre>
+  <p>La classe <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/TerminalRulesMap.java"><tt>TerminalRulesMap</tt></a> 
+   contient une table qui permet de connaître les 
+    régles de l'analyseur lexicale associées à chaque terminal de l'analyseur syntaxique. Cette classe est utilisée pour
+    définir les régles actives dans chaque état de l'analyseur syntaxique. En effet, l'analyseur syntaxique coonaît dans chaque état les terminaux
+    qui sont succeptibles d'être reconnus (le <i>lookahead</i>) et active uniquement les règles associées à ces terminaux. L'attribut <tt>always-active</tt>
+    de l'élément <tt><![CDATA[<rule>]]></tt> du fichier <tt>.xtls</tt> permet de forcer l'activation d'une règle quelque soit l'état de l'analyseur syntaxique.</p>
+  <p>La classe <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/Analyzer.java"><tt>Analyzer</tt></a> est une classe de patron
+   d'analyseur utilisant les autres classes générées. Elle contient&nbsp;:</p>
+  <ul>
+    <li>une méthode <tt>runParser()</tt> qui permet de lancer une analyse. Elle est paramétrée par un flot en lecture de type 
+     <a href="http://java.sun.com/j2se/1.5.0/docs/../api/java/io/Reader.html"><tt>Reader</tt></a>, un objet implantant
+     <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/TerminalAttributeEvaluator.java"><tt>TerminalAttributeEvaluator</tt></a>, 
+     un objet implantant
+      <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/GrammarEvaluator.java"><tt>GrammarEvaluator</tt></a>
+     et un non-terminal racine pour l'analyse (une valeur de l'énumération <tt>NonTerminalEnum</tt>). </li>
+    <li>une méthode <tt>main()</tt> qui utilise des implantations des interfaces
+     <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/TerminalAttributeEvaluator.java"><tt>TerminalAttributeEvaluator</tt></a>
+     et
+     <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/ParserVisitor.java"><tt>GrammarEvaluator</tt></a> 
+     réalisant des affichages.</li>
+   </ul>
+  <p>Plus précisément, pour le fichier <a href="#calc.xtls"><tt>calc.xtls</tt></a>, la classe <tt>Analyzer</tt> est la suivante&nbsp;:</p>
+<pre id="analyzer"><![CDATA[package fr.umlv.tatoo.../samples.calc.tools;
+
+import fr.umlv.tatoo.runtime.buffer.impl.*;
+import fr.umlv.tatoo.runtime.lexer.*;
+import fr.umlv.tatoo.runtime.parser.Parser;
+import fr.umlv.tatoo.runtime.tools.*;
+import fr.umlv.tatoo.../samples.calc.lexer.*;
+import fr.umlv.tatoo.../samples.calc.parser.*;
+import fr.umlv.tatoo.../samples.calc.tools.*;
+import java.io.*;
+
+public class Analyzer {
+  public static void run(
+    Reader reader,
+    TerminalAttributeEvaluator attributeEvaluator,
+    GrammarEvaluator grammarEvaluator,
+    NonTerminalEnum start) {
+
+    ToolsParserListener parserListener=
+      new ToolsParserListener(grammarEvaluator);
+
+    Parser<TerminalEnum, NonTerminalEnum, ProductionEnum> parser=
+      Parser.createParser(TerminalEnum.class,ParserDataTable.table,parserListener,start);
+
+    LocationTokenBufferFilter buffer=
+      new LocationTokenBufferFilter(new ReaderWrapper(reader));
+
+    LexerListener<RuleEnum,TokenBuffer> lexerListener=
+      new ToolsLexerListener(parser,parserListener.getAttributeHolder(),attributeEvaluator);
+
+    Lexer<RuleEnum,LocationTokenBufferFilter> lexer=Lexer.createLexer(
+      LexerDataTable.table,buffer,lexerListener,TerminalRulesMap.getActivator(parser),
+      ForwardingErrorHandler.createForwardingLocationErrorHandler(parser));
+    lexer.run();
+    parser.close();
+  }
+
+  public static void main(String[] args) throws IOException {
+    Reader reader;
+    if (args.length>0) {
+      reader = new FileReader(args[0]);
+    } else {
+      reader = new InputStreamReader(System.in);
+    }
+    //TODO implements the termninal attribute evaluator here
+    TerminalAttributeEvaluator attributeEvaluator = Debug.createTraceProxy(TerminalAttributeEvaluator.class);
+
+    //TODO implements the grammar evaluator here
+    GrammarEvaluator grammarEvaluator = Debug.createTraceProxy(GrammarEvaluator.class);
+
+    //TODO choose a start non terminal here
+    NonTerminalEnum start = NonTerminalEnum.start;
+
+    run(reader,attributeEvaluator,grammarEvaluator,start);
+  }
+}]]></pre>
+  <h4>Implanter l'interface <tt>TerminalAttributeEvaluator</tt></h4>
+  <p>L'interface 
+   <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/TerminalAttributeEvaluator.java"><tt>TerminalAttributeEvaluator</tt></a>
+   doit être implantée si afin de réaliser un analyseur particulier.</p>
+ 	<p>Par exemple, dans le cas du fichier  <a href="#calc.xtls"><tt>calc.xtls</tt></a>, cette classe va transformer 
+  les entiers lus sous forme de chaînes de caractères en valeur de type <tt>int</tt>.</p>
+<pre id="IntAttributeEvaluator"><![CDATA[package fr.umlv.tatoo.../samples.calc;
+
+import fr.umlv.tatoo.../samples.calc.tools.TerminalAttributeEvaluator;
+
+public class IntAttributeEvaluator implements TerminalAttributeEvaluator {
+  public int value(CharSequence seq) {
+    return Integer.parseInt(seq.toString());
+  }
+  public void eoln(CharSequence seq) {}
+  public void semicolon(CharSequence seq) {}
+  public void equals(CharSequence seq) {}
+  public void star(CharSequence seq) {}
+  public void minus(CharSequence seq) {}
+  public void plus(CharSequence seq) {}
+  public void lpar(CharSequence seq) {}
+  public void rpar(CharSequence seq) {}
+  public void space(CharSequence seq) {}
+}]]></pre>
+  <h4>Implanter l'interface <tt>GrammarEvaluator</tt></h4>
+  <p>L'interface 
+   <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/tools/GrammarEvaluator.java"><tt>GrammarEvaluator</tt></a>
+   doit être implantée afin de réaliser un analyseur particulier.</p>
+ 	<p>Par exemple, dans le cas du fichier <a href="#calc.xtls"><tt>calc.xtls</tt></a>, cette classe va réaliser l'évaluation de 
+   l'expression reconnue par l'analyseur.</p>
+<pre id="IntGrammarEvalutor"><![CDATA[package fr.umlv.tatoo.../samples.calc;
+
+import fr.umlv.tatoo.../samples.calc.tools.GrammarEvaluator;
+
+public class IntGrammarEvalutor implements GrammarEvaluator {
+  public void start_expr() {}
+  public void start_empty() {}
+  public void line(int expr) {
+    System.out.println(expr);
+  }
+  public int expr_value(int value) {
+    return value;
+  }
+  public int expr_plus(int expr, int expr2) {
+    return expr+expr2;
+  }
+  public int expr_equals(int expr, int expr2) {
+    return (expr==expr2)?1:0;
+  }
+  public int expr_minus(int expr, int expr2) {
+    return expr-expr2;
+  }
+  public int expr_star(int expr, int expr2) {
+    return expr*expr2;
+  }
+  public int expr_par(int expr) {
+    return expr;
+  }
+  public void error() {
+    System.out.println("Syntax error");
+  }
+  public int expr_error() {
+    return 0;
+  }
+}]]></pre>
+  <h4>Utiliser l'analyseur</h4>
+  <p>Pour utiliser l'analyseur, la solution la plus simple conciste à appeler la méthode statique <tt>run()</tt> de la classe 
+   <a href="#analyzer"><tt>Analyzer</tt></a> générée par Tatoo. Cette méthode prend en argument
+   une instance de la classe <a href=""><tt>Reader</tt></a>, une instance de la 
+   classe  <a href="#IntAttributeEvaluator"><tt>IntAttributeEvaluator</tt></a>, une de la classe 
+   <a href="#IntGrammarEvalutor"><tt>IntGrammarEvalutor</tt></a> et un 
+   non-terminal racine, valeur de l'énumération 
+   <a href="../../../samples/calc/gen-src/fr/umlv/tatoo/samples/calc/parser/NonTerminalEnum.java"><tt>NonTerminalEnum</tt></a>.</p>
+<pre><![CDATA[package fr.umlv.tatoo.../samples.calc;
+
+import java.io.*;
+import fr.umlv.tatoo.../samples.calc.parser.NonTerminalEnum;
+import fr.umlv.tatoo.../samples.calc.tools.*;
+
+public class Main {
+  public static void main(String[] args) throws FileNotFoundException {
+    Reader reader;
+    if (args.length>0) {
+      reader = new FileReader(args[0]);
+    } else {
+      reader = new InputStreamReader(System.in);
+    }
+    TerminalAttributeEvaluator attributeEvaluator=new IntAttributeEvaluator();
+    GrammarEvaluator grammarEvaluator=new IntGrammarEvalutor();
+    Analyzer.run(reader,attributeEvaluator,grammarEvaluator,NonTerminalEnum.start);
+  }
+}]]></pre>
+ <p>Pour lancer l'analyse, il suffit maintenant de taper, par exemple&nbsp;:</p>
+ <pre><![CDATA[# java -cp .:tatoo-runtime.jar fr.umlv.tatoo.../samples.calc.Main
+2=1+1*2-1;
+1
+3=3*2;
+0]]></pre>
+ <h2>Les tâches <tt>ant</tt></h2>
+  <p>Pour construire les différents classes de l'analyseur, il est possible d'utiliser des tâches <tt>ant</tt>
+  plutôt que des commandes en ligne. Il y a une tâche pour chacune des étapes de construction de l'analyseur&nbsp;:</p>
+  <ul>
+   <li><tt>fr.umlv.tatoo.cc.lexer.main.LexerTask</tt> pour la construction de l'analyseur lexical&nbsp;;</li>
+   <li><tt>fr.umlv.tatoo.cc.parser.main.ParserTask</tt> pour la construction de l'analyseur syntaxique&nbsp;;</li>
+   <li><tt>fr.umlv.tatoo.cc.tools.main.ToolsTask</tt> pour la construction des classes de liens entre les analyseur
+   et le code utilisateur.</li>
+  </ul>
+  <h3>La tâche <tt>LexerTask</tt></h3>
+  <pre><![CDATA[<taskdef name="lexer" classname="fr.umlv.tatoo.cc.lexer.main.LexerTask" classpath="${tatoo.jar}"/>]]></pre>
+  <p>Cette tâche permet de contruire les classes de l'analyseur lexical. Ses attributs sont&nbsp;:</p>
+  <ul>
+   <li><tt>lexerFile</tt> qui précise le fichier <tt>.xlex</tt> à utiliser&nbsp;;</li>
+   <li><tt>destination</tt> qui précise le répertoire dans lequel placer les fichiers générés&nbsp;;</li>
+	  <li><tt>packagePrefix</tt> qui précise le prefixe à ajouter au paquetage <tt>lexer</tt> des fichiers générés&nbsp;;</li>
+   <li><tt>validating</tt> qui précise si l'analyseur XML doit valider le fichier <tt>.xlex</tt> en fonction
+   de sa DTD.</li>
+  </ul>
+  <h3>La tâche <tt>ParserTask</tt></h3>
+  <pre><![CDATA[<taskdef name="parser" classname="fr.umlv.tatoo.cc.parser.main.ParserTask" classpath="${tatoo.jar}"/>]]></pre>
+  <p>Cette tâche permet de contruire les classes de l'analyseur syntaxique Ses attributs sont&nbsp;:</p>
+  <ul>
+   <li><tt>parserFile</tt> qui précise le fichier <tt>.xpars</tt> à utiliser&nbsp;;</li>
+   <li><tt>parserType</tt> qui précise le type de la table construite (<tt>slr</tt>, <tt>lr</tt> ou <tt>lalr</tt>)</li>
+   <li><tt>destination</tt> qui précise le répertoire dans lequel placer les fichiers générés&nbsp;;</li>
+	  <li><tt>packagePrefix</tt> qui précise le prefixe à ajouter au paquetage <tt>parser</tt> des fichiers générés&nbsp;;</li>
+   <li><tt>validating</tt> qui précise si l'analyseur XML doit valider le fichier <tt>.xpars</tt> en fonction
+   de sa DTD&nbsp;;</li>
+   <li><tt>logFile</tt> qui précise un nom de fichier dans lequel placé une version lisible
+   des tables de l'analyseur syntaxique.</li>
+  </ul>
+  <h3>La tâche <tt>ToolsTask</tt></h3>
+  <pre><![CDATA[<taskdef name="tools" classname="fr.umlv.tatoo.cc.tools.main.ToolsTask" classpath="${tatoo.jar}"/>]]></pre>
+  <p>Cette tâche permet de contruire les classes de liaison. Ses attributs sont&nbsp;:</p>
+  <ul>
+   <li><tt>lexerFile</tt> qui précise le fichier <tt>.xlex</tt> à utiliser&nbsp;;</li>
+   <li><tt>parserFile</tt> qui précise le fichier <tt>.xpars</tt> à utiliser&nbsp;;</li>
+   <li><tt>toolsFile</tt> qui précise le fichier <tt>.xtls</tt> à utiliser&nbsp;;</li>
+   <li><tt>destination</tt> qui précise le répertoire dans lequel placer les fichiers générés&nbsp;;</li>
+	  <li><tt>packagePrefix</tt> qui précise le prefixe à ajouter aux paquetages <tt>lexer</tt>, <tt>parser</tt>
+     et <tt>tools</tt>  des fichiers générés&nbsp;;</li>
+   <li><tt>validating</tt> qui précise si l'analyseur XML doit valider le fichier <tt>.xlex</tt> en fonction
+   de sa DTD.</li>
+  </ul>
+  <h3>Les éléments internes</h3>
+  <p>Les éléments internes disponibles pour les différentes tâches sont&nbsp;:</p>
+  <ul>
+   <li><tt>package</tt> dont l'attribut&nbsp;:
+   <ul>
+				<li><tt>lexer</tt> permet de préciser le paquetage de l'analyseur lexical&nbsp;;</li>
+    <li><tt>parser</tt> permet de préciser le paquetage de l'analyseur synaxique&nbsp;;</li>
+    <li><tt>tools</tt> permet de préciser le paquetage des classes de lien.</li>    
+   </ul></li>
+   <li><tt>filealias</tt> qui permet de préciser un nom particulier pour une classe générée. 
+   L'attribut&nbsp;:
+   <ul>
+    <li><tt>type</tt> précise le nom par défaut à remplacer&nbsp;;</li>
+    <li><tt>name</tt> précise le nom à utiliser à la place du nom par défaut&nbsp;;</li>
+    <li><tt>generate</tt> précise si la classe doit être générée ou si elle l'est déjà.</li>
+   </ul></li>
+  </ul>
+  <h3>Tout ensemble&nbsp;!</h3>
+  <p>Le fichier <tt>build.xml</tt> suivant donne des exemples d'utilisation de ces tâches.</p>
+<pre><![CDATA[<?xml version="1.0"?>
+<project name="calc" default="all" basedir=".">
+
+ <property name="tatoo.dir" location="../.."/>
+ <property name="tatoo.jar" location="${tatoo.dir}/tatoo.jar"/>
+ <property name="tatoo-runtime.jar" location="${tatoo.dir}/tatoo-runtime.jar"/>
+	
+ <property name="src" value="src"/>
+ <property name="gen-src" value="gen-src"/>
+
+ <property name="lexer.file" value="calc.xlex"/>
+ <property name="parser.file" value="calc.xpars"/>
+ <property name="tools.file" value="calc.xtls"/> 
+
+ <property name="lexer.package" value="fr.umlv.tatoo.../samples.calc.lexer"/>
+ <property name="parser.package" value="fr.umlv.tatoo.../samples.calc.parser"/>
+ <property name="tools.package" value="fr.umlv.tatoo.../samples.calc.tools"/>
+ 
+ <property name="validating" value="true"/>
+ 
+ <taskdef name="lexer" classname="fr.umlv.tatoo.cc.lexer.main.LexerTask" classpath="${tatoo.jar}"/>
+ <taskdef name="parser" classname="fr.umlv.tatoo.cc.parser.main.ParserTask" classpath="${tatoo.jar}"/>
+ <taskdef name="tools" classname="fr.umlv.tatoo.cc.tools.main.ToolsTask" classpath="${tatoo.jar}"/>
+  
+ <target name="lexer">
+  <lexer destination="${gen-src}" lexerFile="${lexer.file}" validating="${validating}">
+   <package lexer="${lexer.package}"/>
+  </lexer>
+ </target>
+
+ <target name="parser">
+  <parser destination="${gen-src}" parserFile="${parser.file}" parsertype="lalr" validating="${validating}">
+   <package parser="${parser.package}"/>
+  </parser>
+ </target>
+	
+ <target name="tools">
+  <tools destination="${gen-src}" lexerFile="${lexer.file}" 
+         parserFile="${parser.file}" toolsFile="${tools.file}" validating="${validating}">
+   <filealias type="GrammarEvaluator" name="GrammarEvaluator" generate="true"/>
+   <package lexer="${lexer.package}"/>
+   <package parser="${parser.package}"/>
+   <package tools="${tools.package}"/>
+  </tools>
+ </target>
+
+ <target name="all" depends="lexer,parser,tools,tools-tree"/>
+
+</project>]]></pre>
+ </body>
+</html>

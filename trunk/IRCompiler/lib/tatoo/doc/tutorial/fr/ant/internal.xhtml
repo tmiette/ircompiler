@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+ "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../../../../tatoo.css" rel="stylesheet"/>
+  <title>Les éléments internes des tâches ant de Tatoo</title>
+ </head>
+ <body>  
+  <h1>Les éléments internes des tâches <tt>ant</tt> de Tatoo</h1>
+  <p>Les éléments internes communs aux différentes tâches de Tatoo sont&nbsp;:</p>
+  <ul>
+   <li><tt>package</tt> dont l'attribut&nbsp;:
+   <ul>
+				<li><tt>lexer</tt> permet de préciser le paquetage de l'analyseur lexical&nbsp;;</li>
+    <li><tt>parser</tt> permet de préciser le paquetage de l'analyseur syntaxique&nbsp;;</li>
+    <li><tt>tools</tt> permet de préciser le paquetage des classes de lien.</li>    
+   </ul></li>
+   <li><tt>filealias</tt> qui permet de préciser un nom particulier pour une classe générée. 
+   L'attribut&nbsp;:
+   <ul>
+    <li><tt>type</tt> précise le nom par défaut à remplacer&nbsp;;</li>
+    <li><tt>name</tt> précise le nom à utiliser à la place du nom par défaut&nbsp;;</li>
+    <li><tt>generate</tt> précise si la classe doit être générée ou si elle l'est déjà&nbsp;;</li>
+   </ul></li>
+   <li><tt>generated</tt> qui permet de préciser, au moyen de l'attribut booléen <tt>generateDefault</tt>,
+    un comportement pas défaut pour un ensemble de 
+    <tt>filealias</tt> qui sont précisés en éléments internes.</li>
+  </ul>
+ <p><a href = "javascript:history.back()">Back</a></p>
+ </body>
+</html>

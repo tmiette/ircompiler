@@ -1,0 +1,40 @@
+priorities:
+  inword=1 none
+  word=0 none
+  
+tokens:
+  $white='[\u0009\u000A\u000B\u000C\u000D\u001C\u001D\u001E\u001F\u0020]'
+  letter='.' [inword]
+  javaLetter='.'
+  jokerIn='"<[|"'
+  jokerOut='"|]>"'
+  javaJokerIn='"<![JAVA["'
+  javaJokerOut='"]]>"'
+  headJokerIn='"<![HEAD["'
+  headJokerOut='"]]>"'
+  imports='({white}*import[^;]*;)*'
+  paramkw='{white}*%param'
+  blank='{white}+'
+  name='[a-zA-Z_][a-zA-Z0-9_]*'
+  type='[^;]+'
+  colon=':'
+  semicolon=';'
+  
+starts:
+  start
+  
+productions:
+  start = head methodStart body {start} ;
+  methodStart = {methodStart};
+  head = 'headJokerIn' 'imports' params classDef javaWord 'headJokerOut' { head } | classDef {headClassDef} ;
+  params = params param {moreParam} | {paramsInit};
+  param = 'paramkw' 'blank' 'name' 'colon' 'type' 'semicolon' {paramDef};
+  classDef = {classDef};
+  body = body unit {unit} |  {begin}; 
+  unit = word [word] {wordOutput}
+       | 'jokerIn' startOut javaWord endOut 'jokerOut' {javaExprOuput}
+       | 'javaJokerIn' javaWord 'javaJokerOut' {javaCodeOutput};
+  startOut = {startOut} ;
+  endOut = {endOut} ;
+  word =  'letter' {firstLetter} | word 'letter' {moreLetter} ;
+  javaWord =  {startJavaWord} | javaWord 'javaLetter' {moreJavaLetter};

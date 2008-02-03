@@ -1,0 +1,1080 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr">
+<head>
+	<title>Parser Table</title>
+	<style type="text/css">
+		body {font-family: sans-serif; background:white}
+		h1 {border-style: solid;border-width: 1px;background: #E0E0FF;padding: 0.5cm;font: 180% sans-serif;text-align: center;}
+		h2 {font: 150% sans-serif;text-decoration: underline;}
+		h3 {font: 130% sans-serif;}td{background: #EEEEEE;}
+		td.g {background:white}
+		span.terminal { font-style:italic; color:#881122; }
+	</style>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1>Parser Table</h1>
+<h2>Grammar</h2>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="identifierSuffix">identifierSuffix</td> <td class="g" align="center">::=</td>
+<td class="g"><a href="#dollar_opt_optional0">dollar_opt_optional0</a>&#160;<span class="terminal">'number'</span>&#160;<a href="#range_opt_optional1">range_opt_optional1</a></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="dollar_opt_optional2">dollar_opt_optional2</td> <td class="g" align="center">::=</td>
+<td class="g">*empty*</td>
+<td class="g">all</td>
+</tr>
+<tr><td class="g"></td><td class="g" align="center">|</td>
+<td class="g"><span class="terminal">'dollar'</span></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="range_opt_optional1">range_opt_optional1</td> <td class="g" align="center">::=</td>
+<td class="g">*empty*</td>
+<td class="g">all</td>
+</tr>
+<tr><td class="g"></td><td class="g" align="center">|</td>
+<td class="g"><a href="#range">range</a></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="endPoint">endPoint</td> <td class="g" align="center">::=</td>
+<td class="g"><span class="terminal">'dollar'</span>&#160;<span class="terminal">'identifier'</span>&#160;<a href="#identifierSuffix">identifierSuffix</a></td>
+<td class="g">all</td>
+</tr>
+<tr><td class="g"></td><td class="g" align="center">|</td>
+<td class="g"><span class="terminal">'identifier'</span>&#160;<a href="#identifierOrFunction">identifierOrFunction</a></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="identifierOrFunction">identifierOrFunction</td> <td class="g" align="center">::=</td>
+<td class="g"><span class="terminal">'lpar'</span>&#160;<a href="#exprBranchPoint_star">exprBranchPoint_star</a>&#160;<span class="terminal">'rpar'</span></td>
+<td class="g">all</td>
+</tr>
+<tr><td class="g"></td><td class="g" align="center">|</td>
+<td class="g"><a href="#identifierSuffix">identifierSuffix</a></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="dollar_opt_optional3">dollar_opt_optional3</td> <td class="g" align="center">::=</td>
+<td class="g">*empty*</td>
+<td class="g">all</td>
+</tr>
+<tr><td class="g"></td><td class="g" align="center">|</td>
+<td class="g"><span class="terminal">'dollar'</span></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="+root+0">+root+0</td> <td class="g" align="center">::=</td>
+<td class="g"><a href="#endPoint">endPoint</a>&#160;<span class="terminal">'__eof__'</span></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="dollar_opt_optional0">dollar_opt_optional0</td> <td class="g" align="center">::=</td>
+<td class="g">*empty*</td>
+<td class="g">all</td>
+</tr>
+<tr><td class="g"></td><td class="g" align="center">|</td>
+<td class="g"><span class="terminal">'dollar'</span></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="range">range</td> <td class="g" align="center">::=</td>
+<td class="g"><span class="terminal">'colon'</span>&#160;<a href="#dollar_opt_optional2">dollar_opt_optional2</a>&#160;<span class="terminal">'identifier'</span>&#160;<a href="#dollar_opt_optional3">dollar_opt_optional3</a>&#160;<span class="terminal">'number'</span></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="exprBranchPoint_star">exprBranchPoint_star</td> <td class="g" align="center">::=</td>
+<td class="g">*empty*</td>
+<td class="g">all</td>
+</tr>
+<tr><td class="g"></td><td class="g" align="center">|</td>
+<td class="g"><a href="#exprBranchPoint_star_sub">exprBranchPoint_star_sub</a></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="+root+1">+root+1</td> <td class="g" align="center">::=</td>
+<td class="g"><a href="#start">start</a>&#160;<span class="terminal">'__eof__'</span></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="start">start</td> <td class="g" align="center">::=</td>
+<td class="g"><span class="terminal">'assign'</span>&#160;<span class="terminal">'exprBranchPoint'</span></td>
+<td class="g">all</td>
+</tr>
+</table>
+<table border="0" style="padding: 0.2cm">
+<tr>
+<td class="g" id="exprBranchPoint_star_sub">exprBranchPoint_star_sub</td> <td class="g" align="center">::=</td>
+<td class="g"><span class="terminal">'exprBranchPoint'</span></td>
+<td class="g">all</td>
+</tr>
+<tr><td class="g"></td><td class="g" align="center">|</td>
+<td class="g"><a href="#exprBranchPoint_star_sub">exprBranchPoint_star_sub</a>&#160;<span class="terminal">'comma'</span>&#160;<span class="terminal">'exprBranchPoint'</span></td>
+<td class="g">all</td>
+</tr>
+</table>
+
+
+<h2>Non Terminals</h2>
+<table border="1">
+<tr><th>Non terminal</th><th>Epsilon</th><th>First</th><th>Follow</th></tr>
+<tr><td>identifierSuffix</td><td>false</td>
+<td><table border="0">
+ <tr><td>'dollar'</td></tr>
+ <tr><td>'number'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'__eof__'</td></tr>
+</table></td>
+</tr>
+<tr><td>dollar_opt_optional2</td><td>true</td>
+<td><table border="0">
+ <tr><td>'dollar'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+</table></td>
+</tr>
+<tr><td>range_opt_optional1</td><td>true</td>
+<td><table border="0">
+ <tr><td>'colon'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'__eof__'</td></tr>
+</table></td>
+</tr>
+<tr><td>endPoint</td><td>false</td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+ <tr><td>'dollar'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'__eof__'</td></tr>
+</table></td>
+</tr>
+<tr><td>identifierOrFunction</td><td>false</td>
+<td><table border="0">
+ <tr><td>'dollar'</td></tr>
+ <tr><td>'lpar'</td></tr>
+ <tr><td>'number'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'__eof__'</td></tr>
+</table></td>
+</tr>
+<tr><td>dollar_opt_optional3</td><td>true</td>
+<td><table border="0">
+ <tr><td>'dollar'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'number'</td></tr>
+</table></td>
+</tr>
+<tr><td>+root+0</td><td>false</td>
+<td><table border="0">
+ <tr><td>'identifier'</td></tr>
+ <tr><td>'dollar'</td></tr>
+</table></td>
+</tr>
+<tr><td>dollar_opt_optional0</td><td>true</td>
+<td><table border="0">
+ <tr><td>'dollar'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'number'</td></tr>
+</table></td>
+</tr>
+<tr><td>range</td><td>false</td>
+<td><table border="0">
+ <tr><td>'colon'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'__eof__'</td></tr>
+</table></td>
+</tr>
+<tr><td>exprBranchPoint_star</td><td>true</td>
+<td><table border="0">
+ <tr><td>'exprBranchPoint'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'rpar'</td></tr>
+</table></td>
+</tr>
+<tr><td>+root+1</td><td>false</td>
+<td><table border="0">
+ <tr><td>'assign'</td></tr>
+</table></td>
+</tr>
+<tr><td>start</td><td>false</td>
+<td><table border="0">
+ <tr><td>'assign'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'__eof__'</td></tr>
+</table></td>
+</tr>
+<tr><td>exprBranchPoint_star_sub</td><td>false</td>
+<td><table border="0">
+ <tr><td>'exprBranchPoint'</td></tr>
+</table></td>
+<td><table border="0">
+ <tr><td>'comma'</td></tr>
+ <tr><td>'rpar'</td></tr>
+</table></td>
+</tr>
+</table>
+
+<h2>Start States</h2>
+<table border="1">
+<tr><th>Non terminal</th><th>Start State</th></tr>
+<tr><td>endPoint</td><td><a href="#state0">state0</a></td></tr>
+<tr><td>start</td><td><a href="#state28">state28</a></td></tr>
+</table>
+
+<h2>States</h2>
+<h3 id="state0">state0</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>+root+0&#160;::=&#160;&#8226;&#160;endPoint&#160;'__eof__'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>shift to <a href="#state1">state1</a>
+</td></tr>
+<tr>
+<td>dollar</td><td>:</td>
+<td>shift to <a href="#state23">state23</a>
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>endPoint</td><td>:</td><td>state26</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state1">state1</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>endPoint&#160;::=&#160;'identifier'&#160;&#8226;&#160;identifierOrFunction</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>dollar</td><td>:</td>
+<td>shift to <a href="#state2">state2</a>
+</td></tr>
+<tr>
+<td>lpar</td><td>:</td>
+<td>shift to <a href="#state3">state3</a>
+</td></tr>
+<tr>
+<td>number</td><td>:</td>
+<td>reduce by dollar_opt_optional0 ::= ɛ
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>dollar_opt_optional0</td><td>:</td><td>state10</td></tr>
+<tr><td>identifierSuffix</td><td>:</td><td>state21</td></tr>
+<tr><td>identifierOrFunction</td><td>:</td><td>state22</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state2">state2</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>dollar_opt_optional0&#160;::=&#160;'dollar'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>number</td><td>:</td>
+<td>reduce by dollar_opt_optional0 ::= 'dollar'
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state3">state3</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>identifierOrFunction&#160;::=&#160;'lpar'&#160;&#8226;&#160;exprBranchPoint_star&#160;'rpar'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>rpar</td><td>:</td>
+<td>reduce by exprBranchPoint_star ::= ɛ
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>enter exprBranchPoint
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>exprBranchPoint_star</td><td>:</td><td>state5</td></tr>
+<tr><td>exprBranchPoint_star_sub</td><td>:</td><td>state7</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state4">state4</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>exprBranchPoint_star_sub&#160;::=&#160;'exprBranchPoint'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>comma</td><td>:</td>
+<td>reduce by exprBranchPoint_star_sub ::= 'exprBranchPoint'
+</td></tr>
+<tr>
+<td>rpar</td><td>:</td>
+<td>reduce by exprBranchPoint_star_sub ::= 'exprBranchPoint'
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>enter exprBranchPoint
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state5">state5</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>identifierOrFunction&#160;::=&#160;'lpar'&#160;exprBranchPoint_star&#160;&#8226;&#160;'rpar'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>rpar</td><td>:</td>
+<td>shift to <a href="#state6">state6</a>
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>enter exprBranchPoint
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state6">state6</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>identifierOrFunction&#160;::=&#160;'lpar'&#160;exprBranchPoint_star&#160;'rpar'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by identifierOrFunction ::= 'lpar' exprBranchPoint_star 'rpar'
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by identifierOrFunction ::= 'lpar' exprBranchPoint_star 'rpar'
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state7">state7</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>exprBranchPoint_star_sub&#160;::=&#160;exprBranchPoint_star_sub&#160;&#8226;&#160;'comma'&#160;'exprBranchPoint'</b></td></tr>
+<tr><td><b>exprBranchPoint_star&#160;::=&#160;exprBranchPoint_star_sub&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>comma</td><td>:</td>
+<td>shift to <a href="#state8">state8</a>
+</td></tr>
+<tr>
+<td>rpar</td><td>:</td>
+<td>reduce by exprBranchPoint_star ::= exprBranchPoint_star_sub
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by identifierOrFunction ::= 'lpar' exprBranchPoint_star 'rpar'
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state8">state8</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>exprBranchPoint_star_sub&#160;::=&#160;exprBranchPoint_star_sub&#160;'comma'&#160;&#8226;&#160;'exprBranchPoint'</b></td></tr>
+</table></td>
+<td><table>
+<tr><td><i>branch</i></td><td>:</td>
+<td>enter exprBranchPoint
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state9">state9</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>exprBranchPoint_star_sub&#160;::=&#160;exprBranchPoint_star_sub&#160;'comma'&#160;'exprBranchPoint'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>comma</td><td>:</td>
+<td>reduce by exprBranchPoint_star_sub ::= exprBranchPoint_star_sub 'comma' 'exprBranchPoint'
+</td></tr>
+<tr>
+<td>rpar</td><td>:</td>
+<td>reduce by exprBranchPoint_star_sub ::= exprBranchPoint_star_sub 'comma' 'exprBranchPoint'
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>enter exprBranchPoint
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state10">state10</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>identifierSuffix&#160;::=&#160;dollar_opt_optional0&#160;&#8226;&#160;'number'&#160;range_opt_optional1</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>number</td><td>:</td>
+<td>shift to <a href="#state11">state11</a>
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>enter exprBranchPoint
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state11">state11</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>identifierSuffix&#160;::=&#160;dollar_opt_optional0&#160;'number'&#160;&#8226;&#160;range_opt_optional1</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>colon</td><td>:</td>
+<td>shift to <a href="#state12">state12</a>
+</td></tr>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by range_opt_optional1 ::= ɛ
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by range_opt_optional1 ::= ɛ
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>range</td><td>:</td><td>state19</td></tr>
+<tr><td>range_opt_optional1</td><td>:</td><td>state20</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state12">state12</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>range&#160;::=&#160;'colon'&#160;&#8226;&#160;dollar_opt_optional2&#160;'identifier'&#160;dollar_opt_optional3&#160;'number'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by dollar_opt_optional2 ::= ɛ
+</td></tr>
+<tr>
+<td>dollar</td><td>:</td>
+<td>shift to <a href="#state13">state13</a>
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by range_opt_optional1 ::= ɛ
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>dollar_opt_optional2</td><td>:</td><td>state14</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state13">state13</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>dollar_opt_optional2&#160;::=&#160;'dollar'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>reduce by dollar_opt_optional2 ::= 'dollar'
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by range_opt_optional1 ::= ɛ
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state14">state14</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>range&#160;::=&#160;'colon'&#160;dollar_opt_optional2&#160;&#8226;&#160;'identifier'&#160;dollar_opt_optional3&#160;'number'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>shift to <a href="#state15">state15</a>
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by range_opt_optional1 ::= ɛ
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state15">state15</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>range&#160;::=&#160;'colon'&#160;dollar_opt_optional2&#160;'identifier'&#160;&#8226;&#160;dollar_opt_optional3&#160;'number'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>dollar</td><td>:</td>
+<td>shift to <a href="#state16">state16</a>
+</td></tr>
+<tr>
+<td>number</td><td>:</td>
+<td>reduce by dollar_opt_optional3 ::= ɛ
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by range_opt_optional1 ::= ɛ
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>dollar_opt_optional3</td><td>:</td><td>state17</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state16">state16</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>dollar_opt_optional3&#160;::=&#160;'dollar'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>number</td><td>:</td>
+<td>reduce by dollar_opt_optional3 ::= 'dollar'
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by range_opt_optional1 ::= ɛ
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state17">state17</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>range&#160;::=&#160;'colon'&#160;dollar_opt_optional2&#160;'identifier'&#160;dollar_opt_optional3&#160;&#8226;&#160;'number'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>number</td><td>:</td>
+<td>shift to <a href="#state18">state18</a>
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by range_opt_optional1 ::= ɛ
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state18">state18</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>range&#160;::=&#160;'colon'&#160;dollar_opt_optional2&#160;'identifier'&#160;dollar_opt_optional3&#160;'number'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by range ::= 'colon' dollar_opt_optional2 'identifier' dollar_opt_optional3 'number'
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by range ::= 'colon' dollar_opt_optional2 'identifier' dollar_opt_optional3 'number'
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state19">state19</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>range_opt_optional1&#160;::=&#160;range&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by range_opt_optional1 ::= range
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by range_opt_optional1 ::= range
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state20">state20</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>identifierSuffix&#160;::=&#160;dollar_opt_optional0&#160;'number'&#160;range_opt_optional1&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by identifierSuffix ::= dollar_opt_optional0 'number' range_opt_optional1
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by identifierSuffix ::= dollar_opt_optional0 'number' range_opt_optional1
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state21">state21</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>identifierOrFunction&#160;::=&#160;identifierSuffix&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by identifierOrFunction ::= identifierSuffix
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by identifierOrFunction ::= identifierSuffix
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state22">state22</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>endPoint&#160;::=&#160;'identifier'&#160;identifierOrFunction&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by endPoint ::= 'identifier' identifierOrFunction
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by endPoint ::= 'identifier' identifierOrFunction
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state23">state23</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>endPoint&#160;::=&#160;'dollar'&#160;&#8226;&#160;'identifier'&#160;identifierSuffix</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>identifier</td><td>:</td>
+<td>shift to <a href="#state24">state24</a>
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by endPoint ::= 'identifier' identifierOrFunction
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state24">state24</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>endPoint&#160;::=&#160;'dollar'&#160;'identifier'&#160;&#8226;&#160;identifierSuffix</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>dollar</td><td>:</td>
+<td>shift to <a href="#state2">state2</a>
+</td></tr>
+<tr>
+<td>number</td><td>:</td>
+<td>reduce by dollar_opt_optional0 ::= ɛ
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by endPoint ::= 'identifier' identifierOrFunction
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>dollar_opt_optional0</td><td>:</td><td>state10</td></tr>
+<tr><td>identifierSuffix</td><td>:</td><td>state25</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state25">state25</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>endPoint&#160;::=&#160;'dollar'&#160;'identifier'&#160;identifierSuffix&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by endPoint ::= 'dollar' 'identifier' identifierSuffix
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by endPoint ::= 'dollar' 'identifier' identifierSuffix
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state26">state26</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>+root+0&#160;::=&#160;endPoint&#160;&#8226;&#160;'__eof__'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>accept
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>exit exit
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state27">state27</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>+root+0&#160;::=&#160;endPoint&#160;'__eof__'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>accept
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>exit exit
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state28">state28</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+<th>Gotoes</th></tr>
+<tr><td>
+<table border="0">
+<tr><td><b>+root+1&#160;::=&#160;&#8226;&#160;start&#160;'__eof__'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>assign</td><td>:</td>
+<td>shift to <a href="#state29">state29</a>
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>exit exit
+</td></tr>
+</table></td>
+<td><table border="0">
+<tr><td>start</td><td>:</td><td>state31</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state29">state29</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>start&#160;::=&#160;'assign'&#160;&#8226;&#160;'exprBranchPoint'</b></td></tr>
+</table></td>
+<td><table>
+<tr><td><i>branch</i></td><td>:</td>
+<td>enter exprBranchPoint
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state30">state30</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>start&#160;::=&#160;'assign'&#160;'exprBranchPoint'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>reduce by start ::= 'assign' 'exprBranchPoint'
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>reduce by start ::= 'assign' 'exprBranchPoint'
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state31">state31</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>+root+1&#160;::=&#160;start&#160;&#8226;&#160;'__eof__'</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>accept
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>exit exit
+</td></tr>
+</table></td>
+</tr>
+</table>
+<h3 id="state32">state32</h3>
+<p>Compatible versions :
+DEFAULT
+</p>
+
+<table border="1">
+<tr><th>Kernel items</th><th>Actions</th>
+</tr>
+<tr><td>
+<table border="0">
+<tr><td><b>+root+1&#160;::=&#160;start&#160;'__eof__'&#160;&#8226;</b></td></tr>
+</table></td>
+<td><table>
+<tr>
+<td>__eof__</td><td>:</td>
+<td>accept
+</td></tr>
+<tr><td><i>branch</i></td><td>:</td>
+<td>exit exit
+</td></tr>
+</table></td>
+</tr>
+</table>
+  <p>
+    <a href="http://validator.w3.org"><img
+        src="http://www.w3.org/Icons/valid-xhtml11"
+        alt="Valid XHTML 1.1" height="31" width="88" /></a>
+  </p>
+</body>
+</html>

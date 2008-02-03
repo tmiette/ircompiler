@@ -1,0 +1,62 @@
+Tatoo TODO
+
+Roadmap 2.0 :
+
+1) HTTP (Gilles)
+
+2) Production star   (Remi) 90% 
+    - support pour les regle recursive
+    - production list :
+      <production id="">
+        <lhs id=""/>
+        <rhs>
+         <list id="titi" element="" empty="true" separator="comma" assciativity="right"/>
+         <list id="toto" element="" empty="false"/>
+        </rhs>
+      </production>
+   
+3) Tutorial/en anglais (Gilles)
+
+5) EBNF (Remi) 90%
+
+Roadmap 3.0
+
+0) Decoupage en sous-jar (Remi)
+
+1) Faire un projet a part pour les samples 
+
+2) Passer sous subversion
+
+3) Permetre a une version d'avoir de multiple "implies" 
+
+3) Auto-creation de grammaire a base d'exemples ??
+
+4) Regle de scope et de typage automatique ??
+
+5) Integration LL ou LL(k)
+
+6) Plugins eclipse :
+   - definition de la grammaire a base d'EBNF
+   - choix de la version de la grammaire
+   - test de la grammaire sur des exemples
+     - creation de l'arbre de syntaxe automatique
+     - reprise sur erreur
+   
+   + scope etc... (cf 4) 
+
+7) Separer les digesters des informations qu'ils stokent pour
+   permettre leurs reutilisations. (penser aussi au dispatcher).
+   
+8) auto-numerotation des productions (a la JLS)
+
+9) changer la generation du TerminalAttributeEvaluator:
+    les methodes retournant void ne doivent pas etre generer sauf flag explicite.
+    et peut-etre renommer TerminalAttributeEvaluator en TerminalEvaluator.
+    
+10) emettre une erreur pour les attributs inconnus dans le XML (même sans validation ??) 
+
+11) AST
+    - tester que les terminaux/non terminaux et production ont des noms différent
+    - generer une javadoc automatiquement
+
+
