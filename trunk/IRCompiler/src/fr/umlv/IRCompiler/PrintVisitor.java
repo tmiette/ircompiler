@@ -8,7 +8,6 @@ import fr.umlv.IRCompiler.tatoo.tools.Another_Parameter_Star;
 import fr.umlv.IRCompiler.tatoo.tools.Args_List;
 import fr.umlv.IRCompiler.tatoo.tools.Boolean_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Boolean_Type;
-import fr.umlv.IRCompiler.tatoo.tools.Class_Name;
 import fr.umlv.IRCompiler.tatoo.tools.Class_Type;
 import fr.umlv.IRCompiler.tatoo.tools.Comment_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Conditional_Statement;
@@ -115,12 +114,6 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
   @Override
   public Void visit(Boolean_Type boolean_type, Void param) throws Throwable {
     System.out.print("bool");
-    return null;
-  }
-
-  @Override
-  public Void visit(Class_Name class_name, Void param) throws Throwable {
-    System.out.print(class_name.getIdentifier_());
     return null;
   }
 
@@ -322,7 +315,7 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
       throws Throwable {
     multiple_package_name.getPackage_name().accept(this, param);
     System.out.print(".");
-    multiple_package_name.getClass_name().accept(this, param);
+    System.out.print(multiple_package_name.getIdentifier_());
     return null;
   }
 
@@ -400,7 +393,7 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
   @Override
   public Void visit(Single_Package_Name single_package_name, Void param)
       throws Throwable {
-    single_package_name.getClass_name().accept(this, param);
+    System.out.print(single_package_name.getIdentifier_());
     return null;
   }
 
@@ -453,7 +446,7 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
     variable_declarator.getExpression().accept(this, param);
     return null;
   }
-  
+
   @Override
   public Void visit(Minus_Simple_Expression minus_simple_expression, Void param)
       throws Throwable {

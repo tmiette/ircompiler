@@ -4,6 +4,7 @@ import java.io.FileReader;
 
 import fr.umlv.IRCompiler.IRCompilerTerminalEvaluator;
 import fr.umlv.IRCompiler.PrintVisitor;
+import fr.umlv.IRCompiler.SemanticVisitor;
 import fr.umlv.IRCompiler.tatoo.parser.NonTerminalEnum;
 import fr.umlv.IRCompiler.tatoo.tools.ASTEvaluator;
 import fr.umlv.IRCompiler.tatoo.tools.Analyzer;
@@ -33,6 +34,10 @@ public class Main {
     // display code
     final PrintVisitor printVisitor = new PrintVisitor();
     start.accept(printVisitor, null);
+
+    // semantic
+    final SemanticVisitor semanticVisitor = new SemanticVisitor();
+    start.accept(semanticVisitor, null);
 
   }
 
