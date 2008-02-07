@@ -1,3 +1,0 @@
-1+2*3; // Premier calcul
-4/2+
-3; 3; // Fin des calculs

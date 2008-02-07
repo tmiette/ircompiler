@@ -1,8 +1,0 @@
-package ${versionEnum.packageName};
-
-/** 
- *  This class is generated - please do not edit it 
- */
-public enum ${versionEnum.simpleName} {
-  #foreach ($nt in $versions)#if($velocityCount!=1), #end${nt.id}#end;
-}
