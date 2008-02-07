@@ -1,4 +1,5 @@
-import Point;
+import java.awt.Point;
+import java.util.ArrayList;
 
 Point p = Point(1,2);
 int x = p.getX();
