@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<project name="IRCompiler" default="generateAST" basedir=".">
+
+	<property name="tatoo.dir" location="lib/tatoo/lib" />
+	<property name="tatoo.jar" location="${tatoo.dir}/tatoo.jar" />
+	<property name="tatoo-runtime.jar" location="${tatoo.dir}/tatoo-runtime.jar" />
+	<property name="src" value="src" />
+	<property name="classes" value="classes" />
+	<property name="ebnf.dir" value="ebnf" />
+	<property name="ebnf.file" value="${ebnf.dir}/${ant.project.name}.ebnf" />
+	<property name="gen-src" value="gen_src" />
+	<property name="package.prefix" value="fr.umlv.IRCompiler.tatoo" />
+
+	<target name="generate">
+		<taskdef name="ebnf" classname="fr.umlv.tatoo.cc.ebnf.main.EBNFTask" classpath="${tatoo.jar}" />
+		<ebnf destination="${gen-src}" parserType="slr" logfile="log.xml" loglevel="ALL" packagePrefix="${package.prefix}" generateast="false" validating="false">
+			<inputfiles unit="ebnf">
+				<inputfile file="${ebnf.file}" />
+			</inputfiles>
+		</ebnf>
+	</target>
+
+	<target name="generateAST">
+		<taskdef name="ebnf" classname="fr.umlv.tatoo.cc.ebnf.main.EBNFTask" classpath="${tatoo.jar}" />
+		<ebnf destination="${gen-src}" parserType="slr" logfile="log.xml" loglevel="ALL" packagePrefix="${package.prefix}" generateast="true" validating="false">
+			<inputfiles unit="ebnf">
+				<inputfile file="${ebnf.file}" />
+			</inputfiles>
+		</ebnf>
+	</target>
+
+	<target name="clean">
+		<delete dir="${classes}" />
+		<delete dir="${gen-src}" />
+		<!-- not to break eclipse source folders -->
+		<mkdir dir="${gen-src}" />
+	</target>
+
+</project>
