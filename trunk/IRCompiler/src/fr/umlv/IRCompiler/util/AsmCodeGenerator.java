@@ -17,6 +17,8 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
     classesOpCodes.put(int.class, "I");
     classesOpCodes.put(boolean.class, "Z");
     classesOpCodes.put(void.class, "V");
+    classesOpCodes.put(double.class, "D");
+    classesOpCodes.put(float.class, "F");
   }
 
   private static final String objectClassName = "java/lang/Object";
@@ -100,6 +102,16 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
   }
 
   @Override
+  public void visitDoubleValue(double value) {
+    mv.visitLdcInsn(new Double(value));
+  }
+
+  @Override
+  public void visitFloatValue(float value) {
+    mv.visitLdcInsn(new Float(value));
+  }
+
+  @Override
   public void visitPrintStart() {
     mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out",
         "Ljava/io/PrintStream;");
@@ -119,14 +131,15 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
   public void visitVariableDeclaration(String name, Variable var) {
     if (var.isGlobal()) {
       fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, name, getClassOpCode(var
-          .getClazz()), null, null);
+          .getDeclaredClass()), null, null);
       fv.visitEnd();
       mv.visitFieldInsn(PUTSTATIC, this.mainClassName, name, getClassOpCode(var
-          .getClazz()));
+          .getDeclaredClass()));
     } else {
       try {
         int code = getClass().getField(
-            getLoadStoreOpCode(var.getClazz()) + "STORE").getInt(getClass());
+            getLoadStoreOpCode(var.getDeclaredClass()) + "STORE").getInt(
+            getClass());
         mv.visitVarInsn(code, var.getRegister());
       } catch (SecurityException e) {
         throw new AssertionError("Opcode doesn't exist.");
@@ -142,11 +155,12 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
   public void visitVariableAssignment(String name, Variable var) {
     if (var.isGlobal()) {
       mv.visitFieldInsn(PUTSTATIC, this.mainClassName, name, getClassOpCode(var
-          .getClazz()));
+          .getDeclaredClass()));
     } else {
       try {
         int code = getClass().getField(
-            getLoadStoreOpCode(var.getClazz()) + "STORE").getInt(getClass());
+            getLoadStoreOpCode(var.getDeclaredClass()) + "STORE").getInt(
+            getClass());
         mv.visitVarInsn(code, var.getRegister());
       } catch (SecurityException e) {
         throw new AssertionError("Opcode doesn't exist.");
@@ -162,11 +176,12 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
   public void visitVariableUsage(String name, Variable var) {
     if (var.isGlobal()) {
       mv.visitFieldInsn(GETSTATIC, this.mainClassName, name, getClassOpCode(var
-          .getClazz()));
+          .getDeclaredClass()));
     } else {
       try {
         int code = getClass().getField(
-            getLoadStoreOpCode(var.getClazz()) + "LOAD").getInt(getClass());
+            getLoadStoreOpCode(var.getDeclaredClass()) + "LOAD").getInt(
+            getClass());
         mv.visitVarInsn(code, var.getRegister());
       } catch (SecurityException e) {
         throw new AssertionError("Opcode doesn't exist.");
@@ -221,6 +236,8 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
   @Override
   public void visitMethod(Class<?> type, String name, List<Class<?>> args,
       Class<?> returnType) {
+    System.out.println("Method " + name + " from " + getClassName(type)
+        + " with " + args);
     mv.visitMethodInsn(INVOKEVIRTUAL, getClassName(type), name, "("
         + getArgsOpCode(args) + ")" + getClassOpCode(returnType));
   }
@@ -362,6 +379,62 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
       opCode = "A";
     }
     return opCode;
+  }
+
+  @Override
+  public void visitPrimitiveCast(Class<?> cast, Class<?> toCast) {
+    try {
+      int code = getClass().getField(
+          getLoadStoreOpCode(toCast) + "2" + getLoadStoreOpCode(cast)).getInt(
+          getClass());
+      mv.visitInsn(code);
+    } catch (SecurityException e) {
+      throw new AssertionError("Opcode doesn't exist.");
+    } catch (NoSuchFieldException e) {
+      throw new AssertionError("Opcode doesn't exist.");
+    } catch (IllegalAccessException e) {
+      throw new AssertionError("Opcode doesn't exist.");
+    }
+  }
+
+  @Override
+  public void visitArgsCast(List<Class<?>> exceptedClasses,
+      List<Class<?>> classes, List<Integer> registers) {
+
+    for (int i = exceptedClasses.size() - 1; i >= 0; i--) {
+      Class<?> c = classes.get(i);
+      try {
+        int code = getClass().getField(getLoadStoreOpCode(c) + "STORE").getInt(
+            getClass());
+        mv.visitVarInsn(code, registers.get(i));
+      } catch (SecurityException e) {
+        throw new AssertionError("Opcode doesn't exist.");
+      } catch (NoSuchFieldException e) {
+        throw new AssertionError("Opcode doesn't exist.");
+      } catch (IllegalAccessException e) {
+        throw new AssertionError("Opcode doesn't exist.");
+      }
+    }
+
+    for (int i = 0; i < exceptedClasses.size(); i++) {
+      Class<?> c = classes.get(i);
+      Class<?> e = exceptedClasses.get(i);
+      try {
+        int code = getClass().getField(getLoadStoreOpCode(c) + "LOAD").getInt(
+            getClass());
+        mv.visitVarInsn(code, registers.get(i));
+        if (!e.equals(c)) {
+          visitPrimitiveCast(e, c);
+        }
+      } catch (SecurityException e1) {
+        throw new AssertionError("Opcode doesn't exist.");
+      } catch (NoSuchFieldException e1) {
+        throw new AssertionError("Opcode doesn't exist.");
+      } catch (IllegalAccessException e1) {
+        throw new AssertionError("Opcode doesn't exist.");
+      }
+    }
+
   }
 
 }

@@ -1,6 +1,7 @@
 package fr.umlv.IRCompiler.util;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +18,8 @@ import fr.umlv.IRCompiler.tatoo.tools.Class_Type;
 import fr.umlv.IRCompiler.tatoo.tools.Comment_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Conditional_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Div_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.Double_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.Double_Type;
 import fr.umlv.IRCompiler.tatoo.tools.Else_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Empty_Arg_List;
 import fr.umlv.IRCompiler.tatoo.tools.Empty_Else_Statement;
@@ -24,6 +27,10 @@ import fr.umlv.IRCompiler.tatoo.tools.Empty_Parameter_List;
 import fr.umlv.IRCompiler.tatoo.tools.Empty_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Equal_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Expression_Statement;
+import fr.umlv.IRCompiler.tatoo.tools.Float_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.Float_Type;
+import fr.umlv.IRCompiler.tatoo.tools.Foreach_Statement;
+import fr.umlv.IRCompiler.tatoo.tools.Foreach_Statement_With_Declaration;
 import fr.umlv.IRCompiler.tatoo.tools.Function_Call_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Function_Declaration;
 import fr.umlv.IRCompiler.tatoo.tools.IInstruction;
@@ -59,6 +66,7 @@ import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_With_Assignment;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_Without_Assignment;
 import fr.umlv.IRCompiler.tatoo.tools.Visitor;
+import fr.umlv.IRCompiler.tatoo.tools.Void_Type;
 
 public class CodeGeneratorVisitor extends
     Visitor<Class<?>, Void, Void, Throwable> {
@@ -181,6 +189,20 @@ public class CodeGeneratorVisitor extends
       throw new AssertionError("No more registers to allocate variables.");
     }
     return registers.remove(0);
+  }
+
+  private List<Integer> getNextFreeRegisters(int number) {
+    ArrayList<Integer> registers = new ArrayList<Integer>();
+    for (int i = 0; i < number; i++) {
+      registers.add(getNextFreeRegister());
+    }
+    return registers;
+  }
+
+  private void freeRegisters(List<Integer> registers) {
+    for (int i : registers) {
+      freeRegister(i);
+    }
   }
 
   private void doAllBufferedActions() {
@@ -501,7 +523,7 @@ public class CodeGeneratorVisitor extends
       });
     }
 
-    return v.getClazz();
+    return v.getDeclaredClass();
   }
 
   @Override
@@ -784,18 +806,24 @@ public class CodeGeneratorVisitor extends
     function_call_expression.getArg_list().accept(this, param);
 
     try {
+      
+      final List<Class<?>> realArgs = getArgs();
       final Function f = this.functions.validateFunctionCall(
           function_call_expression.getIdentifier_(), getArgs());
       removeArgsContext();
-
+      final List<Class<?>> exceptedArgs = f.getArgs();
+      final List<Integer> registers = getNextFreeRegisters(realArgs.size());
+      
       if (f.isConstructor()) {
         // submit the code generation
         if (this.currentFunction == null) {
+          this.generator.visitArgsCast(exceptedArgs, realArgs, registers);
           this.generator.visitConstructorEnd(f);
         } else {
           this.bufferedActions.add(new CodeGeneratorBufferedAction() {
             @Override
             public void doBufferedAction() {
+              generator.visitArgsCast(exceptedArgs, realArgs, registers);
               generator.visitConstructorEnd(f);
             }
           });
@@ -803,42 +831,52 @@ public class CodeGeneratorVisitor extends
       } else {
         // submit the code generation
         if (this.currentFunction == null) {
+          this.generator.visitArgsCast(exceptedArgs, realArgs, registers);
           this.generator.visitFunction(function_call_expression
               .getIdentifier_(), f);
         } else {
           this.bufferedActions.add(new CodeGeneratorBufferedAction() {
             @Override
             public void doBufferedAction() {
+              generator.visitArgsCast(exceptedArgs, realArgs, registers);
               generator.visitFunction(
                   function_call_expression.getIdentifier_(), f);
             }
           });
         }
       }
+      freeRegisters(registers);
       return f.getReturnType();
 
     } catch (UnknownSymbolException e) {
 
       Class<?> type = this.imports.getClass(function_call_expression
           .getIdentifier_());
+      final List<Class<?>> realArgs = getArgs();
       Constructor<?> cons = JavaClassResolver.validateConstructor(type,
-          getArgs());
+          realArgs);
+      final List<Class<?>> exceptedArgs = Arrays.asList(cons
+          .getParameterTypes());
       final Function f = this.functions.addFunction(function_call_expression
-          .getIdentifier_(), type, Arrays.asList(cons.getParameterTypes()));
+          .getIdentifier_(), type, exceptedArgs);
       f.setConstructor(true);
+      final List<Integer> registers = getNextFreeRegisters(realArgs.size());
 
       // submit the code generation
       if (this.currentFunction == null) {
+        this.generator.visitArgsCast(exceptedArgs, realArgs, registers);
         this.generator.visitConstructorEnd(f);
       } else {
         this.bufferedActions.add(new CodeGeneratorBufferedAction() {
           @Override
           public void doBufferedAction() {
+            generator.visitArgsCast(exceptedArgs, realArgs, registers);
             generator.visitConstructorEnd(f);
           }
         });
       }
 
+      freeRegisters(registers);
       removeArgsContext();
       return type;
 
@@ -897,25 +935,31 @@ public class CodeGeneratorVisitor extends
     }
 
     method_call_expression.getArg_list().accept(this, param);
-    final Class<?> returnType = JavaClassResolver.validateMethod(v.getClazz(),
+    final ArrayList<Class<?>> args = getArgs();
+    final Method m = JavaClassResolver.validateMethod(v.getDeclaredClass(),
         method_call_expression.getIdentifier_2(), getArgs());
+
+    final ArrayList<Class<?>> declaredArgs = new ArrayList<Class<?>>();
+    for (Class<?> arg : m.getParameterTypes()) {
+      declaredArgs.add(arg);
+    }
 
     // submit the code generation
     if (this.currentFunction == null) {
-      this.generator.visitMethod(v.getClazz(), method_call_expression
-          .getIdentifier_2(), getArgs(), returnType);
+      this.generator.visitMethod(v.getDeclaredClass(), method_call_expression
+          .getIdentifier_2(), declaredArgs, m.getReturnType());
     } else {
       this.bufferedActions.add(new CodeGeneratorBufferedAction() {
         @Override
         public void doBufferedAction() {
-          generator.visitMethod(v.getClazz(), method_call_expression
-              .getIdentifier_2(), getArgs(), returnType);
+          generator.visitMethod(v.getDeclaredClass(), method_call_expression
+              .getIdentifier_2(), declaredArgs, m.getReturnType());
         }
       });
     }
 
     removeArgsContext();
-    return returnType;
+    return m.getReturnType();
   }
 
   @Override
@@ -923,20 +967,27 @@ public class CodeGeneratorVisitor extends
       final Variable_Declaration_With_Assignment variable_declaration_with_assignment,
       Void param) throws Throwable {
 
-    Class<?> type1 = variable_declaration_with_assignment.getType().accept(
-        this, param);
-    variable_declaration_with_assignment.getExpression().accept(this, param);
+    final Class<?> type1 = variable_declaration_with_assignment.getType()
+        .accept(this, param);
+    final Class<?> type2 = variable_declaration_with_assignment.getExpression()
+        .accept(this, param);
     final Variable v = new Variable(type1);
     addSymbol(variable_declaration_with_assignment.getIdentifier_(), v);
 
     // submit the code generation
     if (this.currentFunction == null) {
+      if (!type1.equals(type2)) {
+        this.generator.visitPrimitiveCast(type1, type2);
+      }
       this.generator.visitVariableDeclaration(
           variable_declaration_with_assignment.getIdentifier_(), v);
     } else {
       this.bufferedActions.add(new CodeGeneratorBufferedAction() {
         @Override
         public void doBufferedAction() {
+          if (!type1.equals(type2)) {
+            generator.visitPrimitiveCast(type1, type2);
+          }
           generator.visitVariableDeclaration(
               variable_declaration_with_assignment.getIdentifier_(), v);
         }
@@ -989,24 +1040,32 @@ public class CodeGeneratorVisitor extends
 
     final Variable v = this.symbolsTable.get(variable_assignment
         .getIdentifier_());
-    Class<?> t = JavaClassResolver.validateExpression(Operator.AFF, v
-        .getClazz(), variable_assignment.getExpression().accept(this, param));
+    final Class<?> type2 = variable_assignment.getExpression().accept(this,
+        param);
+    final Class<?> type1 = JavaClassResolver.validateExpression(Operator.AFF, v
+        .getDeclaredClass(), type2);
 
     // submit the code generation
     if (this.currentFunction == null) {
+      if (!type1.equals(type2)) {
+        this.generator.visitPrimitiveCast(type1, type2);
+      }
       this.generator.visitVariableAssignment(variable_assignment
           .getIdentifier_(), v);
     } else {
       this.bufferedActions.add(new CodeGeneratorBufferedAction() {
         @Override
         public void doBufferedAction() {
+          if (!type1.equals(type2)) {
+            generator.visitPrimitiveCast(type1, type2);
+          }
           generator.visitVariableAssignment(variable_assignment
               .getIdentifier_(), v);
         }
       });
     }
 
-    return t;
+    return type1;
   }
 
   private void generateDefaultValue(Class<?> clazz) {
@@ -1014,9 +1073,102 @@ public class CodeGeneratorVisitor extends
       this.generator.visitIntegerValue(0);
     } else if (clazz.equals(boolean.class)) {
       this.generator.visitBooleanValue(false);
+    } else if (clazz.equals(double.class)) {
+      this.generator.visitDoubleValue(new Double(0));
+    } else if (clazz.equals(float.class)) {
+      this.generator.visitFloatValue(new Float(0));
     } else {
       this.generator.visitNullValue();
     }
+  }
+
+  @Override
+  public Class<?> visit(Void_Type void_type, Void param) throws Throwable {
+    return void.class;
+  }
+
+  @Override
+  public Class<?> visit(final Double_Expression double_expression, Void param)
+      throws Throwable {
+
+    // submit the code generation
+    if (this.currentFunction == null) {
+      this.generator.visitDoubleValue(double_expression.getDouble_());
+    } else {
+      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+        @Override
+        public void doBufferedAction() {
+          generator.visitDoubleValue(double_expression.getDouble_());
+        }
+      });
+    }
+
+    return double.class;
+  }
+
+  @Override
+  public Class<?> visit(Double_Type double_type, Void param) throws Throwable {
+    return double.class;
+  }
+
+  @Override
+  public Class<?> visit(final Float_Expression float_expression, Void param)
+      throws Throwable {
+
+    // submit the code generation
+    if (this.currentFunction == null) {
+      this.generator.visitFloatValue(float_expression.getFloat_());
+    } else {
+      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+        @Override
+        public void doBufferedAction() {
+          generator.visitFloatValue(float_expression.getFloat_());
+        }
+      });
+    }
+
+    return float.class;
+  }
+
+  @Override
+  public Class<?> visit(Float_Type float_type, Void param) throws Throwable {
+    return float.class;
+  }
+
+  @Override
+  public Class<?> visit(Foreach_Statement foreach_statement, Void param)
+      throws Throwable {
+    addNewContext();
+
+    Variable v = getSymbol(foreach_statement.getIdentifier_());
+    Class<?> t = foreach_statement.getExpression().accept(this, param);
+    JavaClassResolver.validateIterable(t);
+
+    foreach_statement.getMultiple_statement().accept(this, param);
+
+    removeContext();
+    return null;
+  }
+
+  @Override
+  public Class<?> visit(
+      Foreach_Statement_With_Declaration foreach_statement_with_declaration,
+      Void param) throws Throwable {
+    addNewContext();
+
+    Class<?> t1 = foreach_statement_with_declaration.getType().accept(this,
+        param);
+    addSymbol(foreach_statement_with_declaration.getIdentifier_(),
+        new Variable(t1));
+    Class<?> t2 = foreach_statement_with_declaration.getExpression().accept(
+        this, param);
+    JavaClassResolver.validateIterable(t2);
+
+    foreach_statement_with_declaration.getMultiple_statement().accept(this,
+        param);
+
+    removeContext();
+    return null;
   }
 
 }

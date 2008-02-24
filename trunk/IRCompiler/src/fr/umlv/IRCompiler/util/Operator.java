@@ -2,16 +2,21 @@ package fr.umlv.IRCompiler.util;
 
 public enum Operator {
 
-  ADD("+", OperatorType.BINARY, false, new Class<?>[] { int.class }),
-  SUB("-", OperatorType.BINARY, false, new Class<?>[] { int.class }),
-  MUL("*", OperatorType.BINARY, false, new Class<?>[] { int.class }),
-  DIV("/", OperatorType.BINARY, false, new Class<?>[] { int.class }),
-  MIN("-", OperatorType.UNARY, false, new Class<?>[] { int.class }),
+  ADD("+", OperatorType.BINARY, false, new Class<?>[] { int.class, float.class,
+      double.class }),
+  SUB("-", OperatorType.BINARY, false, new Class<?>[] { int.class, float.class,
+      double.class }),
+  MUL("*", OperatorType.BINARY, false, new Class<?>[] { int.class, float.class,
+      double.class }),
+  DIV("/", OperatorType.BINARY, false, new Class<?>[] { int.class, float.class,
+      double.class }),
+  MIN("-", OperatorType.UNARY, false, new Class<?>[] { int.class, float.class,
+      double.class }),
   NOT("not", OperatorType.UNARY, true, new Class<?>[] { boolean.class }),
-  EQU("==", OperatorType.BINARY, true, new Class<?>[] { int.class,
-      boolean.class }),
-  INE("!=", OperatorType.BINARY, true, new Class<?>[] { int.class,
-      boolean.class }),
+  EQU("==", OperatorType.BINARY, true, new Class<?>[] { int.class, float.class,
+      double.class, boolean.class }),
+  INE("!=", OperatorType.BINARY, true, new Class<?>[] { int.class, float.class,
+      double.class, boolean.class }),
   AFF("=", OperatorType.BINARY, false, new Class<?>[] { Object.class });
 
   public static enum OperatorType {

@@ -8,8 +8,9 @@ import java.util.List;
 
 public class JavaClassResolver {
 
-  public static Constructor<?> validateConstructor(Class<?> clazz, List<Class<?>> args)
-      throws UnknownSymbolException, SymbolAlreadyUsedException {
+  public static Constructor<?> validateConstructor(Class<?> clazz,
+      List<Class<?>> args) throws UnknownSymbolException,
+      SymbolAlreadyUsedException {
 
     ArrayList<Pair<Constructor<?>, Integer>> potentialConstructor = new ArrayList<Pair<Constructor<?>, Integer>>();
 
@@ -29,10 +30,10 @@ public class JavaClassResolver {
           continue;
         } else {
           try {
-            callArg.asSubclass(arg);
+            validateCast(arg, callArg);
             pair = new Pair<Constructor<?>, Integer>(pair.getFirstElement(),
                 pair.getSecondElement() + 1);
-          } catch (ClassCastException e) {
+          } catch (InvalidExpressionException e) {
             it.remove();
             break;
           }
@@ -57,7 +58,7 @@ public class JavaClassResolver {
 
   }
 
-  public static Class<?> validateMethod(Class<?> clazz, String name,
+  public static Method validateMethod(Class<?> clazz, String name,
       List<Class<?>> args) throws UnknownSymbolException {
 
     ArrayList<Pair<Method, Integer>> potentialMethods = new ArrayList<Pair<Method, Integer>>();
@@ -79,10 +80,10 @@ public class JavaClassResolver {
           continue;
         } else {
           try {
-            callArg.asSubclass(arg);
+            validateCast(arg, callArg);
             pair = new Pair<Method, Integer>(pair.getFirstElement(), pair
                 .getSecondElement() + 1);
-          } catch (ClassCastException e) {
+          } catch (InvalidExpressionException e) {
             it.remove();
             continue;
           }
@@ -99,7 +100,7 @@ public class JavaClassResolver {
           choice = potentialMethods.get(i).getFirstElement();
         }
       }
-      return choice.getReturnType();
+      return choice;
     } else {
       throw new UnknownSymbolException("Method " + name + " with arguments "
           + args + " cannot be resolved for the class " + clazz + ".");
@@ -122,15 +123,7 @@ public class JavaClassResolver {
       if (!op.acceptType(type1)) {
         throw InvalidExpressionException.throwNewException(op, type1, type2);
       }
-
-      if (!type1.equals(type2)) {
-        try {
-          type2.asSubclass(type1);
-        } catch (ClassCastException e) {
-          throw new InvalidExpressionException("Cannot convert " + type2
-              + " to type " + type1 + ".");
-        }
-      }
+      validateCast(type1, type2);
       break;
     }
 
@@ -140,5 +133,51 @@ public class JavaClassResolver {
       return type1;
     }
 
+  }
+
+  public static void validateIterable(Class<?> clazz)
+      throws InvalidExpressionException {
+
+    try {
+      clazz.asSubclass(Iterable.class);
+    } catch (ClassCastException e) {
+      throw new InvalidExpressionException("Type " + clazz
+          + " isn't iterable. Unable to perform a foreach instruction.");
+    }
+
+  }
+
+  public static void validateCast(Class<?> convert, Class<?> toConvert)
+      throws InvalidExpressionException {
+    if (!convert.equals(toConvert)) {
+      if (toConvert.isPrimitive()) {
+        if (!validatePrimitiveCast(convert, toConvert)) {
+          throw new InvalidExpressionException("Cannot convert " + toConvert
+              + " to type " + convert + ".");
+        }
+      } else {
+        try {
+          toConvert.asSubclass(convert);
+        } catch (ClassCastException e) {
+          throw new InvalidExpressionException("Cannot convert " + toConvert
+              + " to type " + convert + ".");
+        }
+      }
+    }
+  }
+
+  public static boolean validatePrimitiveCast(Class<?> convert,
+      Class<?> toConvert) {
+    if (toConvert.equals(int.class)) {
+      return !convert.equals(boolean.class);
+    } else if (toConvert.equals(float.class)) {
+      return toConvert.equals(double.class);
+    } else if (toConvert.equals(double.class)) {
+      return false;
+    } else if (toConvert.equals(boolean.class)) {
+      return false;
+    } else {
+      return false;
+    }
   }
 }

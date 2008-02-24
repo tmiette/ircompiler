@@ -51,10 +51,20 @@ public class FunctionCollection {
       throw new UnknownSymbolException("Function " + name + " isn't defined.");
     }
 
+    boolean correct = true;
     for (Function f : functions) {
-      if (f.getArgs().equals(args)) {
+      for (int i = 0; i < f.getArgsCount(); i++) {
+        try {
+          JavaClassResolver.validateCast(f.getArgAtIndex(i), args.get(i));
+        } catch (InvalidExpressionException e) {
+          correct = false;
+          break;
+        }
+      }
+      if (correct) {
         return f;
       }
+      correct = true;
     }
 
     throw new UnknownSymbolException("Function " + name
@@ -70,14 +80,6 @@ public class FunctionCollection {
           + f.getArgsCount() + " arguments (find " + args.size() + ").");
     }
 
-    int count = f.getArgsCount();
-    for (int i = 0; i < count; i++) {
-      if (!args.get(i).equals(f.getArgAtIndex(i))) {
-        throw new UnexpectedTypeException("The " + i + 1
-            + " argument of function " + name + " expects a"
-            + f.getArgAtIndex(i) + " (find " + args.get(i) + ").");
-      }
-    }
     return f;
   }
 

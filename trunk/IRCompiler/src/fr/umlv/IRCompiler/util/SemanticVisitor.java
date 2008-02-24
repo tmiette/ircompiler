@@ -1,9 +1,9 @@
 package fr.umlv.IRCompiler.util;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import fr.umlv.IRCompiler.tatoo.tools.Another_Arg;
@@ -17,6 +17,8 @@ import fr.umlv.IRCompiler.tatoo.tools.Class_Type;
 import fr.umlv.IRCompiler.tatoo.tools.Comment_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Conditional_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Div_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.Double_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.Double_Type;
 import fr.umlv.IRCompiler.tatoo.tools.Else_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Empty_Arg_List;
 import fr.umlv.IRCompiler.tatoo.tools.Empty_Else_Statement;
@@ -24,6 +26,10 @@ import fr.umlv.IRCompiler.tatoo.tools.Empty_Parameter_List;
 import fr.umlv.IRCompiler.tatoo.tools.Empty_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Equal_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Expression_Statement;
+import fr.umlv.IRCompiler.tatoo.tools.Float_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.Float_Type;
+import fr.umlv.IRCompiler.tatoo.tools.Foreach_Statement;
+import fr.umlv.IRCompiler.tatoo.tools.Foreach_Statement_With_Declaration;
 import fr.umlv.IRCompiler.tatoo.tools.Function_Call_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Function_Declaration;
 import fr.umlv.IRCompiler.tatoo.tools.IInstruction;
@@ -59,6 +65,7 @@ import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_With_Assignment;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_Without_Assignment;
 import fr.umlv.IRCompiler.tatoo.tools.Visitor;
+import fr.umlv.IRCompiler.tatoo.tools.Void_Type;
 
 public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
 
@@ -136,7 +143,7 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
   private Variable getSymbol(String symbol) throws UnknownSymbolException {
     return this.symbolsTable.get(symbol);
   }
-  
+
   public Import getImports() {
     return this.imports;
   }
@@ -316,7 +323,7 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
   public Class<?> visit(Identifier_Expression identifier_expression, Void param)
       throws Throwable {
     Variable v = getSymbol(identifier_expression.getIdentifier_());
-    return v.getClazz();
+    return v.getDeclaredClass();
   }
 
   @Override
@@ -482,8 +489,8 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
     addNewArgsContext();
     function_call_expression.getArg_list().accept(this, param);
     try {
-      Function f = this.functions.validateFunctionCall(
-          function_call_expression.getIdentifier_(), getArgs());
+      Function f = this.functions.validateFunctionCall(function_call_expression
+          .getIdentifier_(), getArgs());
       removeArgsContext();
       return f.getReturnType();
     } catch (UnknownSymbolException e) {
@@ -532,12 +539,11 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
       Void param) throws Throwable {
     addNewArgsContext();
     method_call_expression.getArg_list().accept(this, param);
-    Variable v = this.symbolsTable
-        .get(method_call_expression.getIdentifier_());
-    Class<?> returnType = JavaClassResolver.validateMethod(v.getClazz(),
+    Variable v = this.symbolsTable.get(method_call_expression.getIdentifier_());
+    Method m = JavaClassResolver.validateMethod(v.getDeclaredClass(),
         method_call_expression.getIdentifier_2(), getArgs());
     removeArgsContext();
-    return returnType;
+    return m.getReturnType();
   }
 
   @Override
@@ -577,8 +583,72 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
   public Class<?> visit(Variable_Assignment variable_assignment, Void param)
       throws Throwable {
     Variable v = this.symbolsTable.get(variable_assignment.getIdentifier_());
-    return JavaClassResolver.validateExpression(Operator.AFF, v.getClazz(),
-        variable_assignment.getExpression().accept(this, param));
+    return JavaClassResolver.validateExpression(Operator.AFF, v
+        .getDeclaredClass(), variable_assignment.getExpression().accept(this,
+        param));
+  }
+
+  @Override
+  public Class<?> visit(Void_Type void_type, Void param) throws Throwable {
+    return void.class;
+  }
+
+  @Override
+  public Class<?> visit(Double_Expression double_expression, Void param)
+      throws Throwable {
+    return double.class;
+  }
+
+  @Override
+  public Class<?> visit(Double_Type double_type, Void param) throws Throwable {
+    return double.class;
+  }
+
+  @Override
+  public Class<?> visit(Float_Expression float_expression, Void param)
+      throws Throwable {
+    return float.class;
+  }
+
+  @Override
+  public Class<?> visit(Float_Type float_type, Void param) throws Throwable {
+    return float.class;
+  }
+
+  @Override
+  public Class<?> visit(Foreach_Statement foreach_statement, Void param)
+      throws Throwable {
+    addVariableContext();
+
+    Variable v = getSymbol(foreach_statement.getIdentifier_());
+    Class<?> t = foreach_statement.getExpression().accept(this, param);
+    JavaClassResolver.validateIterable(t);
+
+    foreach_statement.getMultiple_statement().accept(this, param);
+
+    removeVariableContext();
+    return null;
+  }
+
+  @Override
+  public Class<?> visit(
+      Foreach_Statement_With_Declaration foreach_statement_with_declaration,
+      Void param) throws Throwable {
+    addVariableContext();
+
+    Class<?> t1 = foreach_statement_with_declaration.getType().accept(this,
+        param);
+    addSymbol(foreach_statement_with_declaration.getIdentifier_(),
+        new Variable(t1));
+    Class<?> t2 = foreach_statement_with_declaration.getExpression().accept(
+        this, param);
+    JavaClassResolver.validateIterable(t2);
+
+    foreach_statement_with_declaration.getMultiple_statement().accept(this,
+        param);
+
+    removeVariableContext();
+    return null;
   }
 
 }

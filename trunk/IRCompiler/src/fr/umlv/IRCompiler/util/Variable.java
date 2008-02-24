@@ -6,17 +6,16 @@ public class Variable {
 
   private final int id;
 
-  private final Class<?> clazz;
+  private final Class<?> declaredClass;
 
   private boolean isGlobal;
 
   private int register;
 
-  public Variable(Class<?> clazz) {
+  public Variable(Class<?> declaredClass) {
     this.id = variableIds++;
-    this.clazz = clazz;
+    this.declaredClass = declaredClass;
     this.isGlobal = false;
-    System.out.println("var " + register + " " + clazz);
   }
 
   public int getRegister() {
@@ -39,13 +38,13 @@ public class Variable {
     return this.id;
   }
 
-  public Class<?> getClazz() {
-    return this.clazz;
+  public Class<?> getDeclaredClass() {
+    return this.declaredClass;
   }
 
   @Override
   public String toString() {
-    return "name" + ":" + clazz;
+    return "name" + ":" + declaredClass;
   }
 
 }

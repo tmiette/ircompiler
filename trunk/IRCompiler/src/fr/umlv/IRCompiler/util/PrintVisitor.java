@@ -11,6 +11,8 @@ import fr.umlv.IRCompiler.tatoo.tools.Class_Type;
 import fr.umlv.IRCompiler.tatoo.tools.Comment_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Conditional_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Div_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.Double_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.Double_Type;
 import fr.umlv.IRCompiler.tatoo.tools.Else_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Empty_Arg_List;
 import fr.umlv.IRCompiler.tatoo.tools.Empty_Else_Statement;
@@ -18,6 +20,10 @@ import fr.umlv.IRCompiler.tatoo.tools.Empty_Parameter_List;
 import fr.umlv.IRCompiler.tatoo.tools.Empty_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Equal_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Expression_Statement;
+import fr.umlv.IRCompiler.tatoo.tools.Float_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.Float_Type;
+import fr.umlv.IRCompiler.tatoo.tools.Foreach_Statement;
+import fr.umlv.IRCompiler.tatoo.tools.Foreach_Statement_With_Declaration;
 import fr.umlv.IRCompiler.tatoo.tools.Function_Call_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Function_Declaration;
 import fr.umlv.IRCompiler.tatoo.tools.IInstruction;
@@ -53,6 +59,7 @@ import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_With_Assignment;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_Without_Assignment;
 import fr.umlv.IRCompiler.tatoo.tools.Visitor;
+import fr.umlv.IRCompiler.tatoo.tools.Void_Type;
 
 public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
 
@@ -466,6 +473,67 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
       throws Throwable {
     System.out.print("-");
     minus_simple_expression.getExpression().accept(this, param);
+    return null;
+  }
+
+  @Override
+  public Void visit(Void_Type void_type, Void param) throws Throwable {
+    System.out.println("void");
+    return null;
+  }
+
+  @Override
+  public Void visit(Double_Expression double_expression, Void param)
+      throws Throwable {
+    System.out.println(double_expression.getDouble_());
+    return null;
+  }
+
+  @Override
+  public Void visit(Double_Type double_type, Void param) throws Throwable {
+    System.out.println("double");
+    return null;
+  }
+
+  @Override
+  public Void visit(Float_Expression float_expression, Void param)
+      throws Throwable {
+    System.out.println(float_expression.getFloat_());
+    return null;
+  }
+
+  @Override
+  public Void visit(Float_Type float_type, Void param) throws Throwable {
+    System.out.println("float");
+    return null;
+  }
+
+  @Override
+  public Void visit(Foreach_Statement foreach_statement, Void param)
+      throws Throwable {
+    System.out.print("foreach ");
+    System.out.print(foreach_statement.getIdentifier_());
+    System.out.print(" in ");
+    foreach_statement.getExpression().accept(this, param);
+    System.out.println(" do");
+    foreach_statement.getMultiple_statement().accept(this, param);
+    System.out.println("done");
+    return null;
+  }
+
+  @Override
+  public Void visit(
+      Foreach_Statement_With_Declaration foreach_statement_with_declaration,
+      Void param) throws Throwable {
+    System.out.print("foreach ");
+    foreach_statement_with_declaration.getType().accept(this, param);
+    System.out.print(foreach_statement_with_declaration.getIdentifier_());
+    System.out.print(" in ");
+    foreach_statement_with_declaration.getExpression().accept(this, param);
+    System.out.println(" do");
+    foreach_statement_with_declaration.getMultiple_statement().accept(this,
+        param);
+    System.out.println("done");
     return null;
   }
 

@@ -2,6 +2,8 @@
 
 
 
+
+
 public class Point {
   public Point(int x, int y) {
     this.x = x;
@@ -35,6 +37,16 @@ public class Point {
   
   public String toString() {
     return "(" + x + "," + y + ")";
+  }
+  
+  public static Point plus(Point p1, Point p2){
+    System.out.println("plus de Point");
+    return new Point(33,33);
+  }
+  
+  public static Point minus(Point p1, Point p2){
+    System.out.println("minus de Point");
+    return new Point(44,44);
   }
 
   private final int x;

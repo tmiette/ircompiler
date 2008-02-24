@@ -20,4 +20,14 @@ public class IRCompilerTerminalEvaluator implements
     return Integer.parseInt(data.toString());
   }
 
+  @Override
+  public Double double_(CharSequence data) {
+    return Double.parseDouble(data.toString());
+  }
+
+  @Override
+  public Float float_(CharSequence data) {
+    return Float.parseFloat(data.toString());
+  }
+
 }
