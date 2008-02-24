@@ -1,9 +1,7 @@
-package fr.umlv.IRCompiler;
+package fr.umlv.IRCompiler.util;
 
 import java.util.HashMap;
 import java.util.Stack;
-
-
 
 public class IRCompilerSymbolTable<T> implements SymbolTable<T> {
 
@@ -14,17 +12,17 @@ public class IRCompilerSymbolTable<T> implements SymbolTable<T> {
   }
 
   @Override
-  public T get(String s) throws UnknownSymbolException {
-    Stack<T> stack = this.symbols.get(s);
+  public T get(String name) throws UnknownSymbolException {
+    Stack<T> stack = this.symbols.get(name);
     if (stack == null || stack.size() == 0) {
-      throw new UnknownSymbolException("");
+      throw new UnknownSymbolException("Symbol " + name + " is unknown.");
     }
     return stack.peek();
   }
 
   @Override
-  public T pop(String s) {
-    Stack<T> stack = this.symbols.get(s);
+  public T pop(String name) {
+    Stack<T> stack = this.symbols.get(name);
     if (stack == null) {
       return null;
     }
@@ -32,11 +30,11 @@ public class IRCompilerSymbolTable<T> implements SymbolTable<T> {
   }
 
   @Override
-  public void push(String s, T data) {
-    Stack<T> stack = this.symbols.get(s);
+  public void push(String name, T data) {
+    Stack<T> stack = this.symbols.get(name);
     if (stack == null) {
       stack = new Stack<T>();
-      this.symbols.put(s, stack);
+      this.symbols.put(name, stack);
     }
     stack.push(data);
   }

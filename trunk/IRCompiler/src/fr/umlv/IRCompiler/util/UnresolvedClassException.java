@@ -1,4 +1,4 @@
-package fr.umlv.IRCompiler;
+package fr.umlv.IRCompiler.util;
 
 public class UnresolvedClassException extends Exception {
 

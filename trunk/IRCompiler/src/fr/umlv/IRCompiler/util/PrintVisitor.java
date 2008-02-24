@@ -1,6 +1,5 @@
-package fr.umlv.IRCompiler;
+package fr.umlv.IRCompiler.util;
 
-import fr.umlv.IRCompiler.tatoo.tools.Affect_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Another_Arg;
 import fr.umlv.IRCompiler.tatoo.tools.Another_Arg_Star;
 import fr.umlv.IRCompiler.tatoo.tools.Another_Parameter;
@@ -48,19 +47,53 @@ import fr.umlv.IRCompiler.tatoo.tools.Single_Package_Name;
 import fr.umlv.IRCompiler.tatoo.tools.Start;
 import fr.umlv.IRCompiler.tatoo.tools.Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Statement_Star;
-import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration;
+import fr.umlv.IRCompiler.tatoo.tools.Variable_Assignment;
+import fr.umlv.IRCompiler.tatoo.tools.Variable_Assignment_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_Statement;
-import fr.umlv.IRCompiler.tatoo.tools.Variable_Declarator;
+import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_With_Assignment;
+import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_Without_Assignment;
 import fr.umlv.IRCompiler.tatoo.tools.Visitor;
 
 public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
 
   @Override
-  public Void visit(Affect_Expression affect_expression, Void param)
+  public Void visit(
+      Variable_Declaration_With_Assignment variable_declaration_with_assignment,
+      Void param) throws Throwable {
+    variable_declaration_with_assignment.getType().accept(this, param);
+    System.out.print(" ");
+    System.out.print(variable_declaration_with_assignment.getIdentifier_());
+    System.out.print(" = ");
+    variable_declaration_with_assignment.getExpression().accept(this, param);
+    System.out.println(";");
+    return null;
+  }
+
+  @Override
+  public Void visit(
+      Variable_Declaration_Without_Assignment variable_declaration_without_assignment,
+      Void param) throws Throwable {
+    variable_declaration_without_assignment.getType().accept(this, param);
+    System.out.print(" ");
+    System.out.print(variable_declaration_without_assignment.getIdentifier_());
+    System.out.println(";");
+    return null;
+  }
+
+  @Override
+  public Void visit(
+      Variable_Assignment_Statement variable_assignment_statement, Void param)
       throws Throwable {
-    affect_expression.getExpression().accept(this, param);
-    System.out.print(" == ");
-    affect_expression.getExpression2().accept(this, param);
+    variable_assignment_statement.getVariable_assignment().accept(this, param);
+    return null;
+  }
+
+  @Override
+  public Void visit(Variable_Assignment variable_assignment, Void param)
+      throws Throwable {
+    System.out.println(variable_assignment.getIdentifier_());
+    System.out.println(" = ");
+    variable_assignment.getExpression().accept(this, param);
     return null;
   }
 
@@ -420,30 +453,11 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
   }
 
   @Override
-  public Void visit(Variable_Declaration variable_declaration, Void param)
-      throws Throwable {
-    variable_declaration.getType().accept(this, param);
-    System.out.print(" ");
-    variable_declaration.getVariable_declarator().accept(this, param);
-    System.out.println(";");
-    return null;
-  }
-
-  @Override
   public Void visit(
       Variable_Declaration_Statement variable_declaration_statement, Void param)
       throws Throwable {
     variable_declaration_statement.getVariable_declaration()
         .accept(this, param);
-    return null;
-  }
-
-  @Override
-  public Void visit(Variable_Declarator variable_declarator, Void param)
-      throws Throwable {
-    System.out.print(variable_declarator.getIdentifier_());
-    System.out.print(" = ");
-    variable_declarator.getExpression().accept(this, param);
     return null;
   }
 
