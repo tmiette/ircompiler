@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import fr.umlv.IRCompiler.tatoo.tools.Another_Arg;
 import fr.umlv.IRCompiler.tatoo.tools.Another_Arg_Star;
@@ -53,8 +52,10 @@ import fr.umlv.IRCompiler.tatoo.tools.Par_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Parameter;
 import fr.umlv.IRCompiler.tatoo.tools.Parameter_List;
 import fr.umlv.IRCompiler.tatoo.tools.Plus_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.Pow_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Print_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Return_Statement;
+import fr.umlv.IRCompiler.tatoo.tools.Return_Statement_Empty;
 import fr.umlv.IRCompiler.tatoo.tools.Single_Package_Name;
 import fr.umlv.IRCompiler.tatoo.tools.Start;
 import fr.umlv.IRCompiler.tatoo.tools.Statement;
@@ -148,12 +149,25 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
     return this.imports;
   }
 
-  public List<Integer> getGlobalVariables() {
-    return this.globalVariables;
-  }
-
   public FunctionCollection getFunctions() {
     return this.functions;
+  }
+
+  private Class<?> manageExpression(Operator op, Class<?> type1, Class<?> type2)
+      throws InvalidExpressionException, UnknownSymbolException {
+    if (type1.isPrimitive()) {
+      if (!type2.isPrimitive()) {
+        throw new InvalidExpressionException("Cannot use the operator "
+            + op.getName() + " with the types " + type1 + ", " + type2);
+      }
+      return JavaClassResolver.validateExpression(op, type1, type2);
+    } else {
+      if (!type1.equals(type2)) {
+        throw new InvalidExpressionException("Cannot use the operator "
+            + op.getName() + " with the types " + type1 + ", " + type2);
+      }
+      return JavaClassResolver.validateOperationMethod(op, type1);
+    }
   }
 
   @Override
@@ -232,56 +246,34 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
   @Override
   public Class<?> visit(Div_Expression div_expression, Void param)
       throws Throwable {
-    return JavaClassResolver.validateExpression(Operator.DIV, div_expression
-        .getExpression().accept(this, param), div_expression.getExpression2()
-        .accept(this, param));
-  }
-
-  @Override
-  public Class<?> visit(Equal_Expression equal_expression, Void param)
-      throws Throwable {
-    return JavaClassResolver.validateExpression(Operator.EQU, equal_expression
-        .getExpression().accept(this, param), equal_expression.getExpression2()
-        .accept(this, param));
-  }
-
-  @Override
-  public Class<?> visit(Inequal_Expression inequal_expression, Void param)
-      throws Throwable {
-    return JavaClassResolver.validateExpression(Operator.INE,
-        inequal_expression.getExpression().accept(this, param),
-        inequal_expression.getExpression2().accept(this, param));
+    final Class<?> type1 = div_expression.getExpression().accept(this, param);
+    final Class<?> type2 = div_expression.getExpression2().accept(this, param);
+    return manageExpression(Operator.DIV, type1, type2);
   }
 
   @Override
   public Class<?> visit(Minus_Expression minus_expression, Void param)
       throws Throwable {
-    return JavaClassResolver.validateExpression(Operator.SUB, minus_expression
-        .getExpression().accept(this, param), minus_expression.getExpression2()
-        .accept(this, param));
+    final Class<?> type1 = minus_expression.getExpression().accept(this, param);
+    final Class<?> type2 = minus_expression.getExpression2()
+        .accept(this, param);
+    return manageExpression(Operator.SUB, type1, type2);
   }
 
   @Override
   public Class<?> visit(Mult_Expression mult_expression, Void param)
       throws Throwable {
-    return JavaClassResolver.validateExpression(Operator.MUL, mult_expression
-        .getExpression().accept(this, param), mult_expression.getExpression2()
-        .accept(this, param));
-  }
-
-  @Override
-  public Class<?> visit(Not_Expression not_expression, Void param)
-      throws Throwable {
-    return JavaClassResolver.validateExpression(Operator.NOT, not_expression
-        .getExpression().accept(this, param), null);
+    final Class<?> type1 = mult_expression.getExpression().accept(this, param);
+    final Class<?> type2 = mult_expression.getExpression2().accept(this, param);
+    return manageExpression(Operator.MUL, type1, type2);
   }
 
   @Override
   public Class<?> visit(Plus_Expression plus_expression, Void param)
       throws Throwable {
-    return JavaClassResolver.validateExpression(Operator.ADD, plus_expression
-        .getExpression().accept(this, param), plus_expression.getExpression2()
-        .accept(this, param));
+    final Class<?> type1 = plus_expression.getExpression().accept(this, param);
+    final Class<?> type2 = plus_expression.getExpression2().accept(this, param);
+    return manageExpression(Operator.ADD, type1, type2);
   }
 
   @Override
@@ -289,6 +281,35 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
       Void param) throws Throwable {
     return JavaClassResolver.validateExpression(Operator.MIN,
         minus_simple_expression.getExpression().accept(this, param), null);
+  }
+
+  @Override
+  public Class<?> visit(Equal_Expression equal_expression, Void param)
+      throws Throwable {
+    final Class<?> type1 = equal_expression.getExpression().accept(this, param);
+    final Class<?> type2 = equal_expression.getExpression2()
+        .accept(this, param);
+    manageExpression(Operator.EQU, type1, type2);
+    return boolean.class;
+  }
+
+  @Override
+  public Class<?> visit(Inequal_Expression inequal_expression, Void param)
+      throws Throwable {
+    final Class<?> type1 = inequal_expression.getExpression().accept(this,
+        param);
+    final Class<?> type2 = inequal_expression.getExpression2().accept(this,
+        param);
+    manageExpression(Operator.INE, type1, type2);
+    return boolean.class;
+  }
+
+  @Override
+  public Class<?> visit(Not_Expression not_expression, Void param)
+      throws Throwable {
+    JavaClassResolver.validateExpression(Operator.NOT, not_expression
+        .getExpression().accept(this, param), null);
+    return boolean.class;
   }
 
   @Override
@@ -322,7 +343,7 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
   @Override
   public Class<?> visit(Identifier_Expression identifier_expression, Void param)
       throws Throwable {
-    Variable v = getSymbol(identifier_expression.getIdentifier_());
+    final Variable v = getSymbol(identifier_expression.getIdentifier_());
     return v.getDeclaredClass();
   }
 
@@ -330,10 +351,10 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
   public Class<?> visit(Conditional_Statement conditional_statement, Void param)
       throws Throwable {
     addVariableContext();
-    if (!conditional_statement.getExpression().accept(this, param).equals(
-        Boolean.TYPE)) {
-      throw new InvalidExpressionException(
-          "Expression in conditional statement must return a boolean value.");
+    Class<?> type = conditional_statement.getExpression().accept(this, param);
+    if (!type.equals(boolean.class)) {
+      throw new InvalidExpressionException("Find " + type
+          + " in conditional statement. Expected boolean.");
     }
     conditional_statement.getMultiple_statement().accept(this, param);
     conditional_statement.getElse_statement().accept(this, param);
@@ -402,7 +423,10 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
   @Override
   public Class<?> visit(Print_Statement print_statement, Void param)
       throws Throwable {
-    print_statement.getExpression().accept(this, param);
+    Class<?> type = print_statement.getExpression().accept(this, param);
+    if (type.equals(void.class)) {
+      throw new UnexpectedTypeException("Cannot print a void expression.");
+    }
     return null;
   }
 
@@ -418,9 +442,11 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
     removeArgsContext();
     function_declaration.getMultiple_statement().accept(this, param);
     if (!lessOneReturn) {
-      throw new InvalidExpressionException("Function "
-          + function_declaration.getIdentifier_() + " must return a "
-          + this.currentFunction.getReturnType() + " value");
+      throw new InvalidExpressionException(
+          "Return statement missing in function "
+              + function_declaration.getIdentifier_()
+              + ". This function must return a "
+              + this.currentFunction.getReturnType() + " value.");
     }
     this.lessOneReturn = false;
     this.currentFunction = null;
@@ -472,12 +498,28 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
       throws Throwable {
     if (this.currentFunction == null) {
       throw new InvalidExpressionException(
-          "The return statement must be in a function body.");
+          "Return statement must be declared in a function body.");
     }
     Class<?> t = return_statement.getExpression().accept(this, param);
     if (!t.equals(this.currentFunction.getReturnType())) {
       throw new InvalidExpressionException(
-          "The return statement must return a value of type " + t);
+          "Return statement must return a value of type " + t + ".");
+    }
+    lessOneReturn = true;
+    return null;
+  }
+
+  @Override
+  public Class<?> visit(Return_Statement_Empty return_statement_empty,
+      Void param) throws Throwable {
+    if (this.currentFunction == null) {
+      throw new InvalidExpressionException(
+          "Return statement must be declared in a function body.");
+    }
+    if (!this.currentFunction.getReturnType().equals(void.class)) {
+      throw new InvalidExpressionException(
+          "Cannot return void type in function " + this.currentFunction
+              + ". Expected " + this.currentFunction.getReturnType() + ".");
     }
     lessOneReturn = true;
     return null;
@@ -552,9 +594,13 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
       Void param) throws Throwable {
     Class<?> type1 = variable_declaration_with_assignment.getType().accept(
         this, param);
+    if (type1.equals(void.class)) {
+      throw new UnexpectedTypeException(
+          "A variable cannot be declared with type void.");
+    }
     Class<?> type2 = variable_declaration_with_assignment.getExpression()
         .accept(this, param);
-    JavaClassResolver.validateExpression(Operator.AFF, type1, type2);
+    JavaClassResolver.validateCast(type1, type2);
     addSymbol(variable_declaration_with_assignment.getIdentifier_(),
         new Variable(type1));
     return null;
@@ -566,6 +612,10 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
       Void param) throws Throwable {
     Class<?> type1 = variable_declaration_without_assignment.getType().accept(
         this, param);
+    if (type1.equals(void.class)) {
+      throw new UnexpectedTypeException(
+          "A variable cannot be declared with type void.");
+    }
     addSymbol(variable_declaration_without_assignment.getIdentifier_(),
         new Variable(type1));
     return null;
@@ -583,9 +633,9 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
   public Class<?> visit(Variable_Assignment variable_assignment, Void param)
       throws Throwable {
     Variable v = this.symbolsTable.get(variable_assignment.getIdentifier_());
-    return JavaClassResolver.validateExpression(Operator.AFF, v
-        .getDeclaredClass(), variable_assignment.getExpression().accept(this,
-        param));
+    JavaClassResolver.validateCast(v.getDeclaredClass(), variable_assignment
+        .getExpression().accept(this, param));
+    return v.getDeclaredClass();
   }
 
   @Override
@@ -619,13 +669,10 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
   public Class<?> visit(Foreach_Statement foreach_statement, Void param)
       throws Throwable {
     addVariableContext();
-
-    Variable v = getSymbol(foreach_statement.getIdentifier_());
+    getSymbol(foreach_statement.getIdentifier_());
     Class<?> t = foreach_statement.getExpression().accept(this, param);
     JavaClassResolver.validateIterable(t);
-
     foreach_statement.getMultiple_statement().accept(this, param);
-
     removeVariableContext();
     return null;
   }
@@ -635,20 +682,25 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
       Foreach_Statement_With_Declaration foreach_statement_with_declaration,
       Void param) throws Throwable {
     addVariableContext();
-
-    Class<?> t1 = foreach_statement_with_declaration.getType().accept(this,
+    Class<?> type = foreach_statement_with_declaration.getType().accept(this,
         param);
     addSymbol(foreach_statement_with_declaration.getIdentifier_(),
-        new Variable(t1));
-    Class<?> t2 = foreach_statement_with_declaration.getExpression().accept(
+        new Variable(type));
+    Class<?> type2 = foreach_statement_with_declaration.getExpression().accept(
         this, param);
-    JavaClassResolver.validateIterable(t2);
-
+    JavaClassResolver.validateIterable(type2);
     foreach_statement_with_declaration.getMultiple_statement().accept(this,
         param);
-
     removeVariableContext();
     return null;
+  }
+
+  @Override
+  public Class<?> visit(Pow_Expression pow_expression, Void param)
+      throws Throwable {
+    final Class<?> type1 = pow_expression.getExpression().accept(this, param);
+    final Class<?> type2 = pow_expression.getExpression2().accept(this, param);
+    return manageExpression(Operator.POW, type1, type2);
   }
 
 }

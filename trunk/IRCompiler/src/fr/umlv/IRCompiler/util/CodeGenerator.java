@@ -47,6 +47,11 @@ public interface CodeGenerator {
   public void visitMethod(Class<?> type, String name, List<Class<?>> args,
       Class<?> returnType);
 
+  public void visitStaticMethod(Class<?> type, String name,
+      List<Class<?>> args, Class<?> returnType);
+
+  public void visitEqualsMethod(Class<?> type);
+
   public void visitFunctionStart(String name, Function funtion);
 
   public void visitReturn(Class<?> returnType);
@@ -59,5 +64,11 @@ public interface CodeGenerator {
 
   public void visitArgsCast(List<Class<?>> exceptedClasses,
       List<Class<?>> classes, List<Integer> registers);
+
+  public void visitLoopStart(Class<?> iterableClass, Class<?> iteratedClass,
+      int iteratorRegister, int iteratedRegister);
+
+  public void visitLoopEnd(Class<?> iterableClass, Class<?> iteratedClass,
+      int iteratorRegister, int iteratedRegister);
 
 }

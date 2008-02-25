@@ -108,52 +108,102 @@ public class JavaClassResolver {
 
   }
 
+  public static Class<?> validateOperationMethod(Operator op, Class<?> type)
+      throws UnknownSymbolException {
+
+    if (op.getMethodName().equals("equals")) {
+      return boolean.class;
+    }
+
+    ArrayList<Class<?>> args = new ArrayList<Class<?>>();
+    args.add(type);
+    args.add(type);
+
+    Method m = validateMethod(type, op.getMethodName(), args);
+
+    if (!m.getReturnType().equals(type)) {
+      throw new UnknownSymbolException("Method " + op.getMethodName()
+          + " with arguments " + args + " cannot be resolved for the class "
+          + type + ".");
+    }
+
+    return type;
+  }
+
   public static Class<?> validateExpression(Operator op, Class<?> type1,
       Class<?> type2) throws InvalidExpressionException {
+
+    Class<?> higherClass = null;
 
     switch (op.getType()) {
     case UNARY:
       // invalid operator type
       if (!op.acceptType(type1)) {
-        throw InvalidExpressionException.throwNewException(op, type1);
+        throw new InvalidExpressionException("Cannot use the operator "
+            + op.getName() + " with the type " + type1);
       }
+      higherClass = type1;
       break;
     case BINARY:
       // invalid operator type
       if (!op.acceptType(type1)) {
-        throw InvalidExpressionException.throwNewException(op, type1, type2);
+        throw new InvalidExpressionException("Cannot use the operator "
+            + op.getName() + " with the types " + type1 + ", " + type2);
       }
-      validateCast(type1, type2);
+
+      higherClass = getHigherType(type1, type2);
+      if (higherClass == null) {
+        throw new InvalidExpressionException("Cannot convert primitive type "
+            + type2 + " to type " + type1 + ".");
+      }
       break;
     }
 
-    if (op.isBooleanOperator()) {
-      return boolean.class;
-    } else {
-      return type1;
-    }
+    return higherClass;
 
+  }
+
+  public static Class<?> getHigherType(Class<?> type1, Class<?> type2) {
+    try {
+      validateCast(type1, type2);
+      return type1;
+    } catch (InvalidExpressionException e) {
+      try {
+        validateCast(type2, type1);
+        return type2;
+      } catch (InvalidExpressionException e1) {
+        return null;
+      }
+    }
   }
 
   public static void validateIterable(Class<?> clazz)
       throws InvalidExpressionException {
-
     try {
       clazz.asSubclass(Iterable.class);
     } catch (ClassCastException e) {
-      throw new InvalidExpressionException("Type " + clazz
+      throw new InvalidExpressionException("Class " + clazz
           + " isn't iterable. Unable to perform a foreach instruction.");
     }
-
   }
 
+  /**
+   * Tests if a class can be casted in another class.
+   * 
+   * @param convert
+   *            conversion type.
+   * @param toConvert
+   *            type to convert.
+   * @throws InvalidExpressionException
+   *             if the cast operation is forbidden.
+   */
   public static void validateCast(Class<?> convert, Class<?> toConvert)
       throws InvalidExpressionException {
     if (!convert.equals(toConvert)) {
       if (toConvert.isPrimitive()) {
         if (!validatePrimitiveCast(convert, toConvert)) {
-          throw new InvalidExpressionException("Cannot convert " + toConvert
-              + " to type " + convert + ".");
+          throw new InvalidExpressionException("Cannot convert primitive type "
+              + toConvert + " to type " + convert + ".");
         }
       } else {
         try {

@@ -9,20 +9,4 @@ public class InvalidExpressionException extends Exception {
     super(message);
   }
 
-  public static InvalidExpressionException throwNewException(Operator op,
-      Class<?>... types) {
-    StringBuilder sb = new StringBuilder();
-
-    sb.append("Cannot use the operator ");
-    sb.append(op.getName());
-    sb.append(" with type(s) : ");
-    for (Class<?> t : types) {
-      sb.append(t);
-      sb.append(" ");
-    }
-    sb.append(".");
-
-    return new InvalidExpressionException(sb.toString());
-  }
-
 }

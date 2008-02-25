@@ -24,6 +24,7 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
   private static final String objectClassName = "java/lang/Object";
 
   private final ArrayList<Label> conditionalJumps;
+  private final ArrayList<Label> loopJumps;
   private final String mainClassName;
   private final ClassWriter cw;
   private FieldVisitor fv;
@@ -33,6 +34,7 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
     this.mainClassName = outputFileName.substring(outputFileName
         .lastIndexOf("/") + 1, outputFileName.lastIndexOf('.'));
     this.conditionalJumps = new ArrayList<Label>();
+    this.loopJumps = new ArrayList<Label>();
     this.cw = new ClassWriter(1);
   }
 
@@ -236,10 +238,21 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
   @Override
   public void visitMethod(Class<?> type, String name, List<Class<?>> args,
       Class<?> returnType) {
-    System.out.println("Method " + name + " from " + getClassName(type)
-        + " with " + args);
     mv.visitMethodInsn(INVOKEVIRTUAL, getClassName(type), name, "("
         + getArgsOpCode(args) + ")" + getClassOpCode(returnType));
+  }
+
+  @Override
+  public void visitStaticMethod(Class<?> type, String name,
+      List<Class<?>> args, Class<?> returnType) {
+    mv.visitMethodInsn(INVOKESTATIC, getClassName(type), name, "("
+        + getArgsOpCode(args) + ")" + getClassOpCode(returnType));
+  }
+
+  @Override
+  public void visitEqualsMethod(Class<?> type) {
+    mv.visitMethodInsn(INVOKEVIRTUAL, getClassName(type), "equals",
+        "(Ljava/lang/Object;)Z");
   }
 
   @Override
@@ -259,16 +272,20 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
 
   @Override
   public void visitReturn(Class<?> returnType) {
-    try {
-      int code = getClass().getField(getLoadStoreOpCode(returnType) + "RETURN")
-          .getInt(getClass());
-      mv.visitInsn(code);
-    } catch (SecurityException e) {
-      throw new AssertionError("Opcode doesn't exist.");
-    } catch (NoSuchFieldException e) {
-      throw new AssertionError("Opcode doesn't exist.");
-    } catch (IllegalAccessException e) {
-      throw new AssertionError("Opcode doesn't exist.");
+    if (returnType.equals(void.class)) {
+      mv.visitInsn(RETURN);
+    } else {
+      try {
+        int code = getClass().getField(
+            getLoadStoreOpCode(returnType) + "RETURN").getInt(getClass());
+        mv.visitInsn(code);
+      } catch (SecurityException e) {
+        throw new AssertionError("Opcode doesn't exist.");
+      } catch (NoSuchFieldException e) {
+        throw new AssertionError("Opcode doesn't exist.");
+      } catch (IllegalAccessException e) {
+        throw new AssertionError("Opcode doesn't exist.");
+      }
     }
   }
 
@@ -276,6 +293,37 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
   public void visitFunctionEnd(String name, Function function) {
     mv.visitMaxs(0, 0);
     mv.visitEnd();
+  }
+
+  @Override
+  public void visitLoopStart(Class<?> iterableClass, Class<?> iteratedClass,
+      int iteratorRegister, int iteratedRegister) {
+    Label l0 = new Label();
+    Label l1 = new Label();
+    this.loopJumps.add(l1);
+    this.loopJumps.add(l0);
+    mv.visitMethodInsn(INVOKEVIRTUAL, getClassName(iterableClass), "iterator",
+        "()Ljava/util/Iterator;");
+    mv.visitVarInsn(ASTORE, iteratorRegister);
+    mv.visitJumpInsn(GOTO, l0);
+    mv.visitLabel(l1);
+    mv.visitFrame(Opcodes.F_FULL, 3, new Object[] { "[Ljava/lang/String;",
+        Opcodes.TOP, "java/util/Iterator" }, 0, new Object[] {});
+    mv.visitVarInsn(ALOAD, iteratorRegister);
+    mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Iterator", "next",
+        "()Ljava/lang/Object;");
+    mv.visitTypeInsn(CHECKCAST, getClassName(iteratedClass));
+
+  }
+
+  @Override
+  public void visitLoopEnd(Class<?> iterableClass, Class<?> iteratedClass,
+      int iteratorRegister, int iteratedRegister) {
+    mv.visitLabel(this.loopJumps.remove(this.loopJumps.size() - 1));
+    mv.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+    mv.visitVarInsn(ALOAD, iteratorRegister);
+    mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Iterator", "hasNext", "()Z");
+    mv.visitJumpInsn(IFNE, this.loopJumps.remove(this.loopJumps.size() - 1));
   }
 
   @Override
@@ -377,6 +425,9 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
     String opCode = classesOpCodes.get(clazz);
     if (opCode == null) {
       opCode = "A";
+    }
+    if (clazz.equals(boolean.class)) {
+      opCode = "I";
     }
     return opCode;
   }

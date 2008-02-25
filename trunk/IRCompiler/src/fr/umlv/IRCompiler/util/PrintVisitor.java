@@ -47,8 +47,10 @@ import fr.umlv.IRCompiler.tatoo.tools.Par_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Parameter;
 import fr.umlv.IRCompiler.tatoo.tools.Parameter_List;
 import fr.umlv.IRCompiler.tatoo.tools.Plus_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.Pow_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Print_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Return_Statement;
+import fr.umlv.IRCompiler.tatoo.tools.Return_Statement_Empty;
 import fr.umlv.IRCompiler.tatoo.tools.Single_Package_Name;
 import fr.umlv.IRCompiler.tatoo.tools.Start;
 import fr.umlv.IRCompiler.tatoo.tools.Statement;
@@ -61,48 +63,14 @@ import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_Without_Assignment;
 import fr.umlv.IRCompiler.tatoo.tools.Visitor;
 import fr.umlv.IRCompiler.tatoo.tools.Void_Type;
 
+/**
+ * This visitor print the code which will be interpreted by the compiler.
+ * 
+ * @author Tom MIETTE {tmiette@etudiant.univ-mlv.fr}
+ * @author Sebastien MOURET {smouret@etudiant.univ-mlv.fr}
+ * 
+ */
 public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
-
-  @Override
-  public Void visit(
-      Variable_Declaration_With_Assignment variable_declaration_with_assignment,
-      Void param) throws Throwable {
-    variable_declaration_with_assignment.getType().accept(this, param);
-    System.out.print(" ");
-    System.out.print(variable_declaration_with_assignment.getIdentifier_());
-    System.out.print(" = ");
-    variable_declaration_with_assignment.getExpression().accept(this, param);
-    System.out.println(";");
-    return null;
-  }
-
-  @Override
-  public Void visit(
-      Variable_Declaration_Without_Assignment variable_declaration_without_assignment,
-      Void param) throws Throwable {
-    variable_declaration_without_assignment.getType().accept(this, param);
-    System.out.print(" ");
-    System.out.print(variable_declaration_without_assignment.getIdentifier_());
-    System.out.println(";");
-    return null;
-  }
-
-  @Override
-  public Void visit(
-      Variable_Assignment_Statement variable_assignment_statement, Void param)
-      throws Throwable {
-    variable_assignment_statement.getVariable_assignment().accept(this, param);
-    return null;
-  }
-
-  @Override
-  public Void visit(Variable_Assignment variable_assignment, Void param)
-      throws Throwable {
-    System.out.println(variable_assignment.getIdentifier_());
-    System.out.println(" = ");
-    variable_assignment.getExpression().accept(this, param);
-    return null;
-  }
 
   @Override
   public Void visit(Another_Arg another_arg, Void param) throws Throwable {
@@ -190,6 +158,19 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
   }
 
   @Override
+  public Void visit(Double_Expression double_expression, Void param)
+      throws Throwable {
+    System.out.println(double_expression.getDouble_());
+    return null;
+  }
+
+  @Override
+  public Void visit(Double_Type double_type, Void param) throws Throwable {
+    System.out.println("double");
+    return null;
+  }
+
+  @Override
   public Void visit(Else_Statement else_statement, Void param) throws Throwable {
     System.out.println("else ");
     else_statement.getMultiple_statement().accept(this, param);
@@ -234,6 +215,48 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
       throws Throwable {
     expression_statement.getExpression().accept(this, param);
     System.out.println(";");
+    return null;
+  }
+
+  @Override
+  public Void visit(Float_Expression float_expression, Void param)
+      throws Throwable {
+    System.out.println(float_expression.getFloat_());
+    return null;
+  }
+
+  @Override
+  public Void visit(Float_Type float_type, Void param) throws Throwable {
+    System.out.println("float");
+    return null;
+  }
+
+  @Override
+  public Void visit(Foreach_Statement foreach_statement, Void param)
+      throws Throwable {
+    System.out.print("foreach ");
+    System.out.print(foreach_statement.getIdentifier_());
+    System.out.print(" in ");
+    foreach_statement.getExpression().accept(this, param);
+    System.out.println(" do");
+    foreach_statement.getMultiple_statement().accept(this, param);
+    System.out.println("done");
+    return null;
+  }
+
+  @Override
+  public Void visit(
+      Foreach_Statement_With_Declaration foreach_statement_with_declaration,
+      Void param) throws Throwable {
+    System.out.print("foreach ");
+    foreach_statement_with_declaration.getType().accept(this, param);
+    System.out.print(foreach_statement_with_declaration.getIdentifier_());
+    System.out.print(" in ");
+    foreach_statement_with_declaration.getExpression().accept(this, param);
+    System.out.println(" do");
+    foreach_statement_with_declaration.getMultiple_statement().accept(this,
+        param);
+    System.out.println("done");
     return null;
   }
 
@@ -342,6 +365,14 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
   }
 
   @Override
+  public Void visit(Minus_Simple_Expression minus_simple_expression, Void param)
+      throws Throwable {
+    System.out.print("-");
+    minus_simple_expression.getExpression().accept(this, param);
+    return null;
+  }
+
+  @Override
   public Void visit(Mult_Expression mult_expression, Void param)
       throws Throwable {
     mult_expression.getExpression().accept(this, param);
@@ -413,6 +444,14 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
   }
 
   @Override
+  public Void visit(Pow_Expression pow_expression, Void param) throws Throwable {
+    pow_expression.getExpression().accept(this, param);
+    System.out.print(" ^ ");
+    pow_expression.getExpression2().accept(this, param);
+    return null;
+  }
+
+  @Override
   public Void visit(Print_Statement print_statement, Void param)
       throws Throwable {
     System.out.print("print ");
@@ -427,6 +466,13 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
     System.out.print("return ");
     return_statement.getExpression().accept(this, param);
     System.out.println(";");
+    return null;
+  }
+
+  @Override
+  public Void visit(Return_Statement_Empty return_statement_empty, Void param)
+      throws Throwable {
+    System.out.println("return;");
     return null;
   }
 
@@ -460,6 +506,23 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
   }
 
   @Override
+  public Void visit(Variable_Assignment variable_assignment, Void param)
+      throws Throwable {
+    System.out.println(variable_assignment.getIdentifier_());
+    System.out.println(" = ");
+    variable_assignment.getExpression().accept(this, param);
+    return null;
+  }
+
+  @Override
+  public Void visit(
+      Variable_Assignment_Statement variable_assignment_statement, Void param)
+      throws Throwable {
+    variable_assignment_statement.getVariable_assignment().accept(this, param);
+    return null;
+  }
+
+  @Override
   public Void visit(
       Variable_Declaration_Statement variable_declaration_statement, Void param)
       throws Throwable {
@@ -469,71 +532,32 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
   }
 
   @Override
-  public Void visit(Minus_Simple_Expression minus_simple_expression, Void param)
-      throws Throwable {
-    System.out.print("-");
-    minus_simple_expression.getExpression().accept(this, param);
+  public Void visit(
+      Variable_Declaration_With_Assignment variable_declaration_with_assignment,
+      Void param) throws Throwable {
+    variable_declaration_with_assignment.getType().accept(this, param);
+    System.out.print(" ");
+    System.out.print(variable_declaration_with_assignment.getIdentifier_());
+    System.out.print(" = ");
+    variable_declaration_with_assignment.getExpression().accept(this, param);
+    System.out.println(";");
+    return null;
+  }
+
+  @Override
+  public Void visit(
+      Variable_Declaration_Without_Assignment variable_declaration_without_assignment,
+      Void param) throws Throwable {
+    variable_declaration_without_assignment.getType().accept(this, param);
+    System.out.print(" ");
+    System.out.print(variable_declaration_without_assignment.getIdentifier_());
+    System.out.println(";");
     return null;
   }
 
   @Override
   public Void visit(Void_Type void_type, Void param) throws Throwable {
     System.out.println("void");
-    return null;
-  }
-
-  @Override
-  public Void visit(Double_Expression double_expression, Void param)
-      throws Throwable {
-    System.out.println(double_expression.getDouble_());
-    return null;
-  }
-
-  @Override
-  public Void visit(Double_Type double_type, Void param) throws Throwable {
-    System.out.println("double");
-    return null;
-  }
-
-  @Override
-  public Void visit(Float_Expression float_expression, Void param)
-      throws Throwable {
-    System.out.println(float_expression.getFloat_());
-    return null;
-  }
-
-  @Override
-  public Void visit(Float_Type float_type, Void param) throws Throwable {
-    System.out.println("float");
-    return null;
-  }
-
-  @Override
-  public Void visit(Foreach_Statement foreach_statement, Void param)
-      throws Throwable {
-    System.out.print("foreach ");
-    System.out.print(foreach_statement.getIdentifier_());
-    System.out.print(" in ");
-    foreach_statement.getExpression().accept(this, param);
-    System.out.println(" do");
-    foreach_statement.getMultiple_statement().accept(this, param);
-    System.out.println("done");
-    return null;
-  }
-
-  @Override
-  public Void visit(
-      Foreach_Statement_With_Declaration foreach_statement_with_declaration,
-      Void param) throws Throwable {
-    System.out.print("foreach ");
-    foreach_statement_with_declaration.getType().accept(this, param);
-    System.out.print(foreach_statement_with_declaration.getIdentifier_());
-    System.out.print(" in ");
-    foreach_statement_with_declaration.getExpression().accept(this, param);
-    System.out.println(" do");
-    foreach_statement_with_declaration.getMultiple_statement().accept(this,
-        param);
-    System.out.println("done");
     return null;
   }
 

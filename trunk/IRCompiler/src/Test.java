@@ -1,12 +1,14 @@
 
+import java.util.ArrayList;
+
 public class Test {
 
-  static float f;
-  static int i;
+  public static int a;
+  public static int b;
 
   public static void main(String[] args) {
 
-    System.out.println(new Complexe(i, f));
+   String s = new String("tom");
 
   }
 

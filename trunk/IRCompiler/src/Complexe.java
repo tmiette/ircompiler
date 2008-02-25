@@ -1,5 +1,4 @@
 
-
 public class Complexe {
 
   public Complexe(float x, float y) {
@@ -17,6 +16,16 @@ public class Complexe {
   public static Complexe minus(Complexe x, Complexe y) {
     return new Complexe(x.getReel() - y.getReel(), x.getImaginaire()
         - y.getImaginaire());
+  }
+
+  public static Complexe div(Complexe x, Complexe y) {
+    System.out.println("DIV");
+    return null;
+  }
+
+  public static Complexe exp(Complexe x, Complexe y) {
+    System.out.println("EXP");
+    return new Complexe(10, 10);
   }
 
   public String toString() {

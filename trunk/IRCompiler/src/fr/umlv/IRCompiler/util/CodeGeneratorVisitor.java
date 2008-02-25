@@ -54,8 +54,10 @@ import fr.umlv.IRCompiler.tatoo.tools.Par_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Parameter;
 import fr.umlv.IRCompiler.tatoo.tools.Parameter_List;
 import fr.umlv.IRCompiler.tatoo.tools.Plus_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.Pow_Expression;
 import fr.umlv.IRCompiler.tatoo.tools.Print_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Return_Statement;
+import fr.umlv.IRCompiler.tatoo.tools.Return_Statement_Empty;
 import fr.umlv.IRCompiler.tatoo.tools.Single_Package_Name;
 import fr.umlv.IRCompiler.tatoo.tools.Start;
 import fr.umlv.IRCompiler.tatoo.tools.Statement;
@@ -139,11 +141,6 @@ public class CodeGeneratorVisitor extends
 
   private void addSymbol(String symbol, Variable variable)
       throws SymbolAlreadyDefinedException {
-    if (this.usedVariables.get(this.usedVariables.size() - 1).contains(symbol)) {
-      throw new SymbolAlreadyDefinedException("Symbol " + symbol
-          + " is already defined.");
-    }
-
     variable.setRegister(getNextFreeRegister());
 
     if (this.usedVariables.size() == 1) {
@@ -211,6 +208,20 @@ public class CodeGeneratorVisitor extends
     }
   }
 
+  private ArrayList<Class<?>> getStackTypeList(Class<?> type1, Class<?> type2) {
+    ArrayList<Class<?>> l = new ArrayList<Class<?>>();
+    l.add(type1);
+    l.add(type2);
+    return l;
+  }
+
+  private ArrayList<Class<?>> getHigherTypeList(Class<?> higher) {
+    ArrayList<Class<?>> l = new ArrayList<Class<?>>();
+    l.add(higher);
+    l.add(higher);
+    return l;
+  }
+
   @Override
   public Class<?> visit(Start start, Void param) throws Throwable {
     this.generator.visitStart();
@@ -276,178 +287,180 @@ public class CodeGeneratorVisitor extends
     return null;
   }
 
+  private void visitOperation(final Operator op, final Class<?> type1,
+      final Class<?> type2, final Class<?> higher)
+      throws InvalidExpressionException {
+
+    List<Integer> registers = null;
+    if (!type1.equals(type2)) {
+      registers = getNextFreeRegisters(2);
+    }
+    final List<Integer> finalRegisters = registers;
+
+    // submit the code generation
+    if (this.currentFunction == null) {
+      if (!type1.equals(type2)) {
+        this.generator.visitArgsCast(getHigherTypeList(higher),
+            getStackTypeList(type1, type2), finalRegisters);
+      }
+      this.generator.visitOperation(op, higher);
+    } else {
+      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+        @Override
+        public void doBufferedAction() {
+          if (!type1.equals(type2)) {
+            generator.visitArgsCast(getHigherTypeList(higher),
+                getStackTypeList(type1, type2), finalRegisters);
+          }
+          generator.visitOperation(op, higher);
+        }
+      });
+    }
+
+    if (!type1.equals(type2)) {
+      freeRegisters(finalRegisters);
+    }
+  }
+
+  private Class<?> manageExpression(final Operator op, final Class<?> type1,
+      final Class<?> type2) throws InvalidExpressionException,
+      UnknownSymbolException {
+    if (type1.isPrimitive()) {
+      Class<?> t = JavaClassResolver.getHigherType(type1, type2);
+      visitOperation(op, type1, type2, t);
+      return t;
+    } else {
+      if (op.getMethodName().equals("equals")) {
+
+        // submit the code generation
+        if (this.currentFunction == null) {
+          this.generator.visitEqualsMethod(type1);
+        } else {
+          this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+            @Override
+            public void doBufferedAction() {
+              generator.visitEqualsMethod(type1);
+            }
+          });
+        }
+
+        return boolean.class;
+      } else {
+
+        // submit the code generation
+        if (this.currentFunction == null) {
+          this.generator.visitStaticMethod(type1, op.getMethodName(),
+              getHigherTypeList(type1), type1);
+        } else {
+          this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+            @Override
+            public void doBufferedAction() {
+              generator.visitStaticMethod(type1, op.getMethodName(),
+                  getHigherTypeList(type1), type1);
+            }
+          });
+        }
+
+        return type1;
+      }
+    }
+  }
+
   @Override
   public Class<?> visit(Div_Expression div_expression, Void param)
       throws Throwable {
-    final Class<?> t = JavaClassResolver.validateExpression(Operator.DIV,
-        div_expression.getExpression().accept(this, param), div_expression
-            .getExpression2().accept(this, param));
-
-    // submit the code generation
-    if (this.currentFunction == null) {
-      this.generator.visitOperation(Operator.DIV, t);
-    } else {
-      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
-        @Override
-        public void doBufferedAction() {
-          generator.visitOperation(Operator.DIV, t);
-        }
-      });
-    }
-
-    return t;
-  }
-
-  @Override
-  public Class<?> visit(Equal_Expression equal_expression, Void param)
-      throws Throwable {
-    final Class<?> t = JavaClassResolver.validateExpression(Operator.EQU,
-        equal_expression.getExpression().accept(this, param), equal_expression
-            .getExpression2().accept(this, param));
-
-    // submit the code generation
-    if (this.currentFunction == null) {
-      this.generator.visitOperation(Operator.EQU, t);
-    } else {
-      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
-        @Override
-        public void doBufferedAction() {
-          generator.visitOperation(Operator.EQU, t);
-        }
-      });
-    }
-
-    return t;
-  }
-
-  @Override
-  public Class<?> visit(Inequal_Expression inequal_expression, Void param)
-      throws Throwable {
-    final Class<?> t = JavaClassResolver.validateExpression(Operator.INE,
-        inequal_expression.getExpression().accept(this, param),
-        inequal_expression.getExpression2().accept(this, param));
-
-    // submit the code generation
-    if (this.currentFunction == null) {
-      this.generator.visitOperation(Operator.INE, t);
-    } else {
-      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
-        @Override
-        public void doBufferedAction() {
-          generator.visitOperation(Operator.INE, t);
-        }
-      });
-    }
-
-    return t;
-  }
-
-  @Override
-  public Class<?> visit(Minus_Expression minus_expression, Void param)
-      throws Throwable {
-    final Class<?> t = JavaClassResolver.validateExpression(Operator.SUB,
-        minus_expression.getExpression().accept(this, param), minus_expression
-            .getExpression2().accept(this, param));
-
-    // submit the code generation
-    if (this.currentFunction == null) {
-      this.generator.visitOperation(Operator.SUB, t);
-    } else {
-      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
-        @Override
-        public void doBufferedAction() {
-          generator.visitOperation(Operator.SUB, t);
-        }
-      });
-    }
-
-    return t;
+    final Class<?> type1 = div_expression.getExpression().accept(this, param);
+    final Class<?> type2 = div_expression.getExpression2().accept(this, param);
+    return manageExpression(Operator.DIV, type1, type2);
   }
 
   @Override
   public Class<?> visit(Mult_Expression mult_expression, Void param)
       throws Throwable {
-    final Class<?> t = JavaClassResolver.validateExpression(Operator.MUL,
-        mult_expression.getExpression().accept(this, param), mult_expression
-            .getExpression2().accept(this, param));
-
-    // submit the code generation
-    if (this.currentFunction == null) {
-      this.generator.visitOperation(Operator.MUL, t);
-    } else {
-      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
-        @Override
-        public void doBufferedAction() {
-          generator.visitOperation(Operator.MUL, t);
-        }
-      });
-    }
-
-    return t;
+    final Class<?> type1 = mult_expression.getExpression().accept(this, param);
+    final Class<?> type2 = mult_expression.getExpression2().accept(this, param);
+    return manageExpression(Operator.MUL, type1, type2);
   }
 
   @Override
-  public Class<?> visit(Not_Expression not_expression, Void param)
+  public Class<?> visit(Minus_Expression minus_expression, Void param)
       throws Throwable {
-    final Class<?> t = JavaClassResolver.validateExpression(Operator.NOT,
-        not_expression.getExpression().accept(this, param), null);
-
-    // submit the code generation
-    if (this.currentFunction == null) {
-      this.generator.visitOperation(Operator.NOT, t);
-    } else {
-      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
-        @Override
-        public void doBufferedAction() {
-          generator.visitOperation(Operator.NOT, t);
-        }
-      });
-    }
-
-    return t;
+    final Class<?> type1 = minus_expression.getExpression().accept(this, param);
+    final Class<?> type2 = minus_expression.getExpression2()
+        .accept(this, param);
+    return manageExpression(Operator.SUB, type1, type2);
   }
 
   @Override
   public Class<?> visit(Plus_Expression plus_expression, Void param)
       throws Throwable {
-    final Class<?> t = JavaClassResolver.validateExpression(Operator.ADD,
-        plus_expression.getExpression().accept(this, param), plus_expression
-            .getExpression2().accept(this, param));
-
-    // submit the code generation
-    if (this.currentFunction == null) {
-      this.generator.visitOperation(Operator.ADD, t);
-    } else {
-      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
-        @Override
-        public void doBufferedAction() {
-          generator.visitOperation(Operator.ADD, t);
-        }
-      });
-    }
-
-    return t;
+    final Class<?> type1 = plus_expression.getExpression().accept(this, param);
+    final Class<?> type2 = plus_expression.getExpression2().accept(this, param);
+    return manageExpression(Operator.ADD, type1, type2);
   }
 
   @Override
   public Class<?> visit(Minus_Simple_Expression minus_simple_expression,
       Void param) throws Throwable {
-    final Class<?> t = JavaClassResolver.validateExpression(Operator.MIN,
+
+    final Class<?> type1 = JavaClassResolver.validateExpression(Operator.MIN,
         minus_simple_expression.getExpression().accept(this, param), null);
 
     // submit the code generation
     if (this.currentFunction == null) {
-      this.generator.visitOperation(Operator.MIN, t);
+      this.generator.visitOperation(Operator.MIN, type1);
     } else {
       this.bufferedActions.add(new CodeGeneratorBufferedAction() {
         @Override
         public void doBufferedAction() {
-          generator.visitOperation(Operator.MIN, t);
+          generator.visitOperation(Operator.MIN, type1);
         }
       });
     }
 
-    return t;
+    return type1;
+  }
+
+  @Override
+  public Class<?> visit(Equal_Expression equal_expression, Void param)
+      throws Throwable {
+    final Class<?> type1 = equal_expression.getExpression().accept(this, param);
+    final Class<?> type2 = equal_expression.getExpression2()
+        .accept(this, param);
+    manageExpression(Operator.EQU, type1, type2);
+    return boolean.class;
+  }
+
+  @Override
+  public Class<?> visit(Inequal_Expression inequal_expression, Void param)
+      throws Throwable {
+    final Class<?> type1 = inequal_expression.getExpression().accept(this,
+        param);
+    final Class<?> type2 = inequal_expression.getExpression2().accept(this,
+        param);
+    manageExpression(Operator.INE, type1, type2);
+    return boolean.class;
+  }
+
+  @Override
+  public Class<?> visit(Not_Expression not_expression, Void param)
+      throws Throwable {
+    final Class<?> type = JavaClassResolver.validateExpression(Operator.NOT,
+        not_expression.getExpression().accept(this, param), null);
+
+    // submit the code generation
+    if (this.currentFunction == null) {
+      this.generator.visitOperation(Operator.NOT, type);
+    } else {
+      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+        @Override
+        public void doBufferedAction() {
+          generator.visitOperation(Operator.NOT, type);
+        }
+      });
+    }
+
+    return boolean.class;
   }
 
   @Override
@@ -779,6 +792,25 @@ public class CodeGeneratorVisitor extends
   }
 
   @Override
+  public Class<?> visit(Return_Statement_Empty return_statement_empty,
+      Void param) throws Throwable {
+
+    // submit the code generation
+    if (this.currentFunction == null) {
+      this.generator.visitReturn(void.class);
+    } else {
+      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+        @Override
+        public void doBufferedAction() {
+          generator.visitReturn(void.class);
+        }
+      });
+    }
+
+    return null;
+  }
+
+  @Override
   public Class<?> visit(
       final Function_Call_Expression function_call_expression, Void param)
       throws Throwable {
@@ -806,14 +838,14 @@ public class CodeGeneratorVisitor extends
     function_call_expression.getArg_list().accept(this, param);
 
     try {
-      
+
       final List<Class<?>> realArgs = getArgs();
       final Function f = this.functions.validateFunctionCall(
           function_call_expression.getIdentifier_(), getArgs());
       removeArgsContext();
       final List<Class<?>> exceptedArgs = f.getArgs();
       final List<Integer> registers = getNextFreeRegisters(realArgs.size());
-      
+
       if (f.isConstructor()) {
         // submit the code generation
         if (this.currentFunction == null) {
@@ -976,7 +1008,7 @@ public class CodeGeneratorVisitor extends
 
     // submit the code generation
     if (this.currentFunction == null) {
-      if (!type1.equals(type2)) {
+      if (type1.isPrimitive() && !type1.equals(type2)) {
         this.generator.visitPrimitiveCast(type1, type2);
       }
       this.generator.visitVariableDeclaration(
@@ -985,7 +1017,7 @@ public class CodeGeneratorVisitor extends
       this.bufferedActions.add(new CodeGeneratorBufferedAction() {
         @Override
         public void doBufferedAction() {
-          if (!type1.equals(type2)) {
+          if (type1.isPrimitive() && !type1.equals(type2)) {
             generator.visitPrimitiveCast(type1, type2);
           }
           generator.visitVariableDeclaration(
@@ -1040,10 +1072,9 @@ public class CodeGeneratorVisitor extends
 
     final Variable v = this.symbolsTable.get(variable_assignment
         .getIdentifier_());
+    final Class<?> type1 = v.getDeclaredClass();
     final Class<?> type2 = variable_assignment.getExpression().accept(this,
         param);
-    final Class<?> type1 = JavaClassResolver.validateExpression(Operator.AFF, v
-        .getDeclaredClass(), type2);
 
     // submit the code generation
     if (this.currentFunction == null) {
@@ -1136,15 +1167,48 @@ public class CodeGeneratorVisitor extends
   }
 
   @Override
-  public Class<?> visit(Foreach_Statement foreach_statement, Void param)
+  public Class<?> visit(final Foreach_Statement foreach_statement, Void param)
       throws Throwable {
     addNewContext();
 
-    Variable v = getSymbol(foreach_statement.getIdentifier_());
-    Class<?> t = foreach_statement.getExpression().accept(this, param);
-    JavaClassResolver.validateIterable(t);
+    final Variable v = getSymbol(foreach_statement.getIdentifier_());
+    final Class<?> iterable = foreach_statement.getExpression().accept(this,
+        param);
+    final int iteratorRegister = getNextFreeRegister();
+
+    // submit the code generation
+    if (this.currentFunction == null) {
+      this.generator.visitLoopStart(iterable, v.getDeclaredClass(),
+          iteratorRegister, v.getRegister());
+      this.generator.visitVariableAssignment(
+          foreach_statement.getIdentifier_(), v);
+    } else {
+      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+        @Override
+        public void doBufferedAction() {
+          generator.visitLoopStart(iterable, v.getDeclaredClass(),
+              iteratorRegister, v.getRegister());
+          generator.visitVariableAssignment(foreach_statement.getIdentifier_(),
+              v);
+        }
+      });
+    }
 
     foreach_statement.getMultiple_statement().accept(this, param);
+
+    // submit the code generation
+    if (this.currentFunction == null) {
+      this.generator.visitLoopEnd(iterable, v.getDeclaredClass(),
+          iteratorRegister, v.getRegister());
+    } else {
+      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+        @Override
+        public void doBufferedAction() {
+          generator.visitLoopEnd(iterable, v.getDeclaredClass(),
+              iteratorRegister, v.getRegister());
+        }
+      });
+    }
 
     removeContext();
     return null;
@@ -1152,23 +1216,63 @@ public class CodeGeneratorVisitor extends
 
   @Override
   public Class<?> visit(
-      Foreach_Statement_With_Declaration foreach_statement_with_declaration,
+      final Foreach_Statement_With_Declaration foreach_statement_with_declaration,
       Void param) throws Throwable {
     addNewContext();
 
-    Class<?> t1 = foreach_statement_with_declaration.getType().accept(this,
-        param);
-    addSymbol(foreach_statement_with_declaration.getIdentifier_(),
-        new Variable(t1));
-    Class<?> t2 = foreach_statement_with_declaration.getExpression().accept(
+    final Class<?> type = foreach_statement_with_declaration.getType().accept(
         this, param);
-    JavaClassResolver.validateIterable(t2);
+    final Variable v = new Variable(type);
+    addSymbol(foreach_statement_with_declaration.getIdentifier_(), v);
+    final Class<?> iterable = foreach_statement_with_declaration
+        .getExpression().accept(this, param);
+    final int iteratorRegister = getNextFreeRegister();
+
+    // submit the code generation
+    if (this.currentFunction == null) {
+      this.generator.visitLoopStart(iterable, v.getDeclaredClass(),
+          iteratorRegister, v.getRegister());
+      this.generator.visitVariableAssignment(foreach_statement_with_declaration
+          .getIdentifier_(), v);
+    } else {
+      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+        @Override
+        public void doBufferedAction() {
+          generator.visitLoopStart(iterable, v.getDeclaredClass(),
+              iteratorRegister, v.getRegister());
+          generator.visitVariableAssignment(foreach_statement_with_declaration
+              .getIdentifier_(), v);
+        }
+      });
+    }
 
     foreach_statement_with_declaration.getMultiple_statement().accept(this,
         param);
 
+    // submit the code generation
+    if (this.currentFunction == null) {
+      this.generator.visitLoopEnd(iterable, v.getDeclaredClass(),
+          iteratorRegister, v.getRegister());
+    } else {
+      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+        @Override
+        public void doBufferedAction() {
+          generator.visitLoopEnd(iterable, v.getDeclaredClass(),
+              iteratorRegister, v.getRegister());
+        }
+      });
+    }
+
     removeContext();
     return null;
+  }
+
+  @Override
+  public Class<?> visit(Pow_Expression pow_expression, Void param)
+      throws Throwable {
+    final Class<?> type1 = pow_expression.getExpression().accept(this, param);
+    final Class<?> type2 = pow_expression.getExpression2().accept(this, param);
+    return manageExpression(Operator.POW, type1, type2);
   }
 
 }
