@@ -1,4 +1,4 @@
-package fr.umlv.IRCompiler.util;
+package fr.umlv.IRCompiler.main;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -216,7 +216,15 @@ public class JavaClassResolver {
     }
   }
 
-  public static boolean validatePrimitiveCast(Class<?> convert,
+  public static void validateStringExpression(Operator op, Class<?> type1,
+      Class<?> type2) throws InvalidExpressionException {
+    if (!op.acceptType(String.class)) {
+      throw new InvalidExpressionException("Cannot use the operator "
+          + op.getName() + " with the type " + type1 + " and " + type2 + ".");
+    }
+  }
+
+  private static boolean validatePrimitiveCast(Class<?> convert,
       Class<?> toConvert) {
     if (toConvert.equals(int.class)) {
       return !convert.equals(boolean.class);

@@ -1,4 +1,4 @@
-package fr.umlv.IRCompiler.util;
+package fr.umlv.IRCompiler.main;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -60,6 +60,8 @@ import fr.umlv.IRCompiler.tatoo.tools.Single_Package_Name;
 import fr.umlv.IRCompiler.tatoo.tools.Start;
 import fr.umlv.IRCompiler.tatoo.tools.Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Statement_Star;
+import fr.umlv.IRCompiler.tatoo.tools.String_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.String_Type;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Assignment;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Assignment_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_Statement;
@@ -155,18 +157,24 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
 
   private Class<?> manageExpression(Operator op, Class<?> type1, Class<?> type2)
       throws InvalidExpressionException, UnknownSymbolException {
-    if (type1.isPrimitive()) {
-      if (!type2.isPrimitive()) {
-        throw new InvalidExpressionException("Cannot use the operator "
-            + op.getName() + " with the types " + type1 + ", " + type2);
-      }
-      return JavaClassResolver.validateExpression(op, type1, type2);
+
+    if (type1.equals(String.class) || type2.equals(String.class)) {
+      JavaClassResolver.validateStringExpression(op, type1, type2);
+      return String.class;
     } else {
-      if (!type1.equals(type2)) {
-        throw new InvalidExpressionException("Cannot use the operator "
-            + op.getName() + " with the types " + type1 + ", " + type2);
+      if (type1.isPrimitive()) {
+        if (!type2.isPrimitive()) {
+          throw new InvalidExpressionException("Cannot use the operator "
+              + op.getName() + " with the types " + type1 + ", " + type2);
+        }
+        return JavaClassResolver.validateExpression(op, type1, type2);
+      } else {
+        if (!type1.equals(type2)) {
+          throw new InvalidExpressionException("Cannot use the operator "
+              + op.getName() + " with the types " + type1 + ", " + type2);
+        }
+        return JavaClassResolver.validateOperationMethod(op, type1);
       }
-      return JavaClassResolver.validateOperationMethod(op, type1);
     }
   }
 
@@ -701,6 +709,17 @@ public class SemanticVisitor extends Visitor<Class<?>, Void, Void, Throwable> {
     final Class<?> type1 = pow_expression.getExpression().accept(this, param);
     final Class<?> type2 = pow_expression.getExpression2().accept(this, param);
     return manageExpression(Operator.POW, type1, type2);
+  }
+
+  @Override
+  public Class<?> visit(String_Expression string_expression, Void param)
+      throws Throwable {
+    return String.class;
+  }
+
+  @Override
+  public Class<?> visit(String_Type string_type, Void param) throws Throwable {
+    return String.class;
   }
 
 }

@@ -1,4 +1,4 @@
-package fr.umlv.IRCompiler.util;
+package fr.umlv.IRCompiler.main;
 
 import java.util.ArrayList;
 import java.util.List;

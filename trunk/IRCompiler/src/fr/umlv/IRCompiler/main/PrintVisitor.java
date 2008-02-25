@@ -1,4 +1,4 @@
-package fr.umlv.IRCompiler.util;
+package fr.umlv.IRCompiler.main;
 
 import fr.umlv.IRCompiler.tatoo.tools.Another_Arg;
 import fr.umlv.IRCompiler.tatoo.tools.Another_Arg_Star;
@@ -55,6 +55,8 @@ import fr.umlv.IRCompiler.tatoo.tools.Single_Package_Name;
 import fr.umlv.IRCompiler.tatoo.tools.Start;
 import fr.umlv.IRCompiler.tatoo.tools.Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Statement_Star;
+import fr.umlv.IRCompiler.tatoo.tools.String_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.String_Type;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Assignment;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Assignment_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_Statement;
@@ -558,6 +560,19 @@ public class PrintVisitor extends Visitor<Void, Void, Void, Throwable> {
   @Override
   public Void visit(Void_Type void_type, Void param) throws Throwable {
     System.out.println("void");
+    return null;
+  }
+
+  @Override
+  public Void visit(String_Expression string_expression, Void param)
+      throws Throwable {
+    System.out.print(string_expression.getString_());
+    return null;
+  }
+
+  @Override
+  public Void visit(String_Type string_type, Void param) throws Throwable {
+    System.out.print("string");
     return null;
   }
 

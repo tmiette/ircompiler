@@ -1,4 +1,4 @@
-package fr.umlv.IRCompiler.util;
+package fr.umlv.IRCompiler.main;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -62,6 +62,8 @@ import fr.umlv.IRCompiler.tatoo.tools.Single_Package_Name;
 import fr.umlv.IRCompiler.tatoo.tools.Start;
 import fr.umlv.IRCompiler.tatoo.tools.Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Statement_Star;
+import fr.umlv.IRCompiler.tatoo.tools.String_Expression;
+import fr.umlv.IRCompiler.tatoo.tools.String_Type;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Assignment;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Assignment_Statement;
 import fr.umlv.IRCompiler.tatoo.tools.Variable_Declaration_Statement;
@@ -325,45 +327,64 @@ public class CodeGeneratorVisitor extends
   private Class<?> manageExpression(final Operator op, final Class<?> type1,
       final Class<?> type2) throws InvalidExpressionException,
       UnknownSymbolException {
-    if (type1.isPrimitive()) {
-      Class<?> t = JavaClassResolver.getHigherType(type1, type2);
-      visitOperation(op, type1, type2, t);
-      return t;
+
+    if (type1.equals(String.class) || type2.equals(String.class)) {
+      this.manageStringExpression(op, type1, type2);
+      return String.class;
     } else {
-      if (op.getMethodName().equals("equals")) {
-
-        // submit the code generation
-        if (this.currentFunction == null) {
-          this.generator.visitEqualsMethod(type1);
-        } else {
-          this.bufferedActions.add(new CodeGeneratorBufferedAction() {
-            @Override
-            public void doBufferedAction() {
-              generator.visitEqualsMethod(type1);
-            }
-          });
-        }
-
-        return boolean.class;
+      if (type1.isPrimitive()) {
+        Class<?> t = JavaClassResolver.getHigherType(type1, type2);
+        visitOperation(op, type1, type2, t);
+        return t;
       } else {
+        if (op.getMethodName().equals("equals")) {
 
-        // submit the code generation
-        if (this.currentFunction == null) {
-          this.generator.visitStaticMethod(type1, op.getMethodName(),
-              getHigherTypeList(type1), type1);
+          // submit the code generation
+          if (this.currentFunction == null) {
+            this.generator.visitEqualsMethod(type1);
+          } else {
+            this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+              @Override
+              public void doBufferedAction() {
+                generator.visitEqualsMethod(type1);
+              }
+            });
+          }
+
+          return boolean.class;
         } else {
-          this.bufferedActions.add(new CodeGeneratorBufferedAction() {
-            @Override
-            public void doBufferedAction() {
-              generator.visitStaticMethod(type1, op.getMethodName(),
-                  getHigherTypeList(type1), type1);
-            }
-          });
-        }
 
-        return type1;
+          // submit the code generation
+          if (this.currentFunction == null) {
+            this.generator.visitStaticMethod(type1, op.getMethodName(),
+                getHigherTypeList(type1), type1);
+          } else {
+            this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+              @Override
+              public void doBufferedAction() {
+                generator.visitStaticMethod(type1, op.getMethodName(),
+                    getHigherTypeList(type1), type1);
+              }
+            });
+          }
+
+          return type1;
+        }
       }
     }
+  }
+
+  private void manageStringExpression(final Operator op, final Class<?> type1,
+      final Class<?> type2) {
+
+    if (op.equals(Operator.ADD)) {
+      final List<Integer> registers = getNextFreeRegisters(2);
+      this.generator.visitStringConcatenation(getStackTypeList(type1,
+          type2), registers);
+      
+      freeRegisters(registers);
+    }
+
   }
 
   @Override
@@ -969,7 +990,7 @@ public class CodeGeneratorVisitor extends
     method_call_expression.getArg_list().accept(this, param);
     final ArrayList<Class<?>> args = getArgs();
     final Method m = JavaClassResolver.validateMethod(v.getDeclaredClass(),
-        method_call_expression.getIdentifier_2(), getArgs());
+        method_call_expression.getIdentifier_2(), args);
 
     final ArrayList<Class<?>> declaredArgs = new ArrayList<Class<?>>();
     for (Class<?> arg : m.getParameterTypes()) {
@@ -1273,6 +1294,33 @@ public class CodeGeneratorVisitor extends
     final Class<?> type1 = pow_expression.getExpression().accept(this, param);
     final Class<?> type2 = pow_expression.getExpression2().accept(this, param);
     return manageExpression(Operator.POW, type1, type2);
+  }
+
+  @Override
+  public Class<?> visit(final String_Expression string_expression, Void param)
+      throws Throwable {
+
+    final String subString = string_expression.getString_().substring(1,
+        string_expression.getString_().length() - 1);
+
+    // submit the code generation
+    if (this.currentFunction == null) {
+      this.generator.visitStringValue(subString);
+    } else {
+      this.bufferedActions.add(new CodeGeneratorBufferedAction() {
+        @Override
+        public void doBufferedAction() {
+          generator.visitStringValue(subString);
+        }
+      });
+    }
+
+    return String.class;
+  }
+
+  @Override
+  public Class<?> visit(String_Type string_type, Void param) throws Throwable {
+    return String.class;
   }
 
 }

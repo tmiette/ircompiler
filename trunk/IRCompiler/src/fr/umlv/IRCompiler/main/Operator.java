@@ -1,9 +1,9 @@
-package fr.umlv.IRCompiler.util;
+package fr.umlv.IRCompiler.main;
 
 public enum Operator {
 
   ADD("add(+)", "plus", OperatorType.BINARY, false, new Class<?>[] { int.class,
-      float.class, double.class }),
+      float.class, double.class, String.class }),
   SUB("sub(-)", "minus", OperatorType.BINARY, false, new Class<?>[] {
       int.class, float.class, double.class }),
   MUL("mult(*)", "mult", OperatorType.BINARY, false, new Class<?>[] {

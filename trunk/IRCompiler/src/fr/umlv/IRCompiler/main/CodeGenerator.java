@@ -1,4 +1,4 @@
-package fr.umlv.IRCompiler.util;
+package fr.umlv.IRCompiler.main;
 
 import java.util.List;
 
@@ -25,6 +25,8 @@ public interface CodeGenerator {
   public void visitFloatValue(float value);
 
   public void visitDoubleValue(double value);
+  
+  public void visitStringValue(String value);
 
   public void visitNullValue();
 
@@ -70,5 +72,7 @@ public interface CodeGenerator {
 
   public void visitLoopEnd(Class<?> iterableClass, Class<?> iteratedClass,
       int iteratorRegister, int iteratedRegister);
+  
+  public void visitStringConcatenation(List<Class<?>> classes,  List<Integer> registers);
 
 }

@@ -1,4 +1,4 @@
-package fr.umlv.IRCompiler.util;
+package fr.umlv.IRCompiler.main;
 
 import fr.umlv.IRCompiler.tatoo.tools.TerminalEvaluator;
 
@@ -28,6 +28,11 @@ public class IRCompilerTerminalEvaluator implements
   @Override
   public Float float_(CharSequence data) {
     return Float.parseFloat(data.toString());
+  }
+  
+  @Override
+  public String string_(CharSequence data) {
+    return new String(data.toString());
   }
 
 }

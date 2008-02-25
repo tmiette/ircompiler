@@ -1,4 +1,4 @@
-package fr.umlv.IRCompiler.util;
+package fr.umlv.IRCompiler.main;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,6 +111,88 @@ public class AsmCodeGenerator implements CodeGenerator, Opcodes {
   @Override
   public void visitFloatValue(float value) {
     mv.visitLdcInsn(new Float(value));
+  }
+
+  @Override
+  public void visitStringValue(String value) {
+    mv.visitTypeInsn(NEW, "java/lang/String");
+    mv.visitInsn(DUP);
+    mv.visitLdcInsn(value);
+    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/String", "<init>",
+        "(Ljava/lang/String;)V");
+  }
+
+  @Override
+  public void visitStringConcatenation(List<Class<?>> classes,
+      List<Integer> registers) {
+
+    for (int i = classes.size() - 1; i >= 0; i--) {
+      Class<?> c = classes.get(i);
+      try {
+        int code = getClass().getField(getLoadStoreOpCode(c) + "STORE").getInt(
+            getClass());
+        mv.visitVarInsn(code, registers.get(i));
+      } catch (SecurityException e) {
+        throw new AssertionError("Opcode doesn't exist.");
+      } catch (NoSuchFieldException e) {
+        throw new AssertionError("Opcode doesn't exist.");
+      } catch (IllegalAccessException e) {
+        throw new AssertionError("Opcode doesn't exist.");
+      }
+    }
+
+    mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
+    mv.visitInsn(DUP);
+
+    Class<?> c = classes.get(0);
+    try {
+      int code = getClass().getField(getLoadStoreOpCode(c) + "LOAD").getInt(
+          getClass());
+      mv.visitVarInsn(code, registers.get(0));
+    } catch (SecurityException e1) {
+      throw new AssertionError("Opcode doesn't exist.");
+    } catch (NoSuchFieldException e1) {
+      throw new AssertionError("Opcode doesn't exist.");
+    } catch (IllegalAccessException e1) {
+      throw new AssertionError("Opcode doesn't exist.");
+    }
+
+    if (getLoadStoreOpCode(c) == "A") {
+      mv.visitMethodInsn(INVOKESTATIC, "java/lang/String", "valueOf",
+          "(Ljava/lang/Object;)Ljava/lang/String;");
+    } else {
+      mv.visitMethodInsn(INVOKESTATIC, "java/lang/String", "valueOf", "("
+          + getLoadStoreOpCode(c) + ")Ljava/lang/String;");
+    }
+
+    mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>",
+        "(Ljava/lang/String;)V");
+
+    c = classes.get(1);
+    try {
+      int code = getClass().getField(getLoadStoreOpCode(c) + "LOAD").getInt(
+          getClass());
+      mv.visitVarInsn(code, registers.get(1));
+    } catch (SecurityException e1) {
+      throw new AssertionError("Opcode doesn't exist.");
+    } catch (NoSuchFieldException e1) {
+      throw new AssertionError("Opcode doesn't exist.");
+    } catch (IllegalAccessException e1) {
+      throw new AssertionError("Opcode doesn't exist.");
+    }
+
+    if (getLoadStoreOpCode(c) == "A") {
+      mv.visitMethodInsn(INVOKESTATIC, "java/lang/String", "valueOf",
+          "(Ljava/lang/Object;)Ljava/lang/String;");
+    } else {
+      mv.visitMethodInsn(INVOKESTATIC, "java/lang/String", "valueOf", "("
+          + getLoadStoreOpCode(c) + ")Ljava/lang/String;");
+    }
+
+    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
+        "(Ljava/lang/Object;)Ljava/lang/StringBuilder;");
+    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString",
+        "()Ljava/lang/String;");
   }
 
   @Override
