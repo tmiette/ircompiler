@@ -21,6 +21,7 @@ tokens:
   equal_ = '==' [equal]
   inequal_ = '!=' [equal]
   affect_ = '=' [equal]
+  pow_ = '\^' [star_slash]
   
   import_ = 'import'
   function_ = 'function'
@@ -32,14 +33,26 @@ tokens:
   return_ = 'return'
   not_ = 'not' [not]
   print_ = 'print'
+  foreach_ = 'foreach'
+  in_ = 'in'
+  do_ = 'do'
+  done_ = 'done'
   
+  void_type_ = 'void'
   integer_type_ = 'int'
   boolean_type_ = 'bool'
+  float_type_ = 'float'
+  double_type_ = 'double'
+  string_type_ = 'string'
   comment_ = '#[^\n\r]*\r?\n'
   
-  identifier_:String = '[a-zA-Z$_][a-zA-Z0-9$_]*'
-  number_:Integer = '[0-9]+'
   boolean_:Boolean = 'true|false'
+  number_:Integer = '[0-9]+'
+  float_:Float = '[0-9]+\.[0-9]+f'
+  double_:Double = '[0-9]+\.[0-9]+'
+  identifier_:String = '[a-zA-Z$_][a-zA-Z0-9$_]*'
+  string_:String = '"[^"]"'
+  
 
 blanks:
   blk_ = "{white}"
@@ -89,11 +102,15 @@ productions:
   
   statement = 
   		variable_declaration {variable_declaration_statement}
+  		| variable_assignment {variable_assignment_statement}
   		| 'comment_' {comment_statement}
   		| 'print_' expression 'semicolon_' {print_statement}
   		| expression 'semicolon_' {expression_statement}
   		| 'return_' expression 'semicolon_' {return_statement}
+  		| 'return_' 'semicolon_' {return_statement_empty}
   		| 'if_' expression 'then_' multiple_statement else_statement 'fi_' {conditional_statement}
+  		| 'foreach_' 'identifier_' 'in_' expression 'do_' multiple_statement 'done_' {foreach_statement}
+  		| 'foreach_' type 'identifier_' 'in_' expression 'do_' multiple_statement 'done_' {foreach_statement_with_declaration}
   		| 'semicolon_' {empty_statement}
 		;
 		
@@ -103,11 +120,12 @@ productions:
   		;
 		
   variable_declaration =
-  		type variable_declarator 'semicolon_' {variable_declaration}
+  		type 'identifier_' 'affect_' expression 'semicolon_' [equal] {variable_declaration_with_assignment}
+  		| type 'identifier_' 'semicolon_' {variable_declaration_without_assignment}
   		;
-  
-  variable_declarator =
-  		'identifier_' 'affect_' expression {variable_declarator}
+  		
+  variable_assignment =
+  		'identifier_' 'affect_' expression 'semicolon_' [equal] {variable_assignment}
   		;
 		
   expression =
@@ -115,16 +133,19 @@ productions:
   		| expression 'minus_' expression [plus_minus] {minus_expression}
   		| expression 'mult_' expression [star_slash] {mult_expression}
   		| expression 'div_' expression [star_slash] {div_expression}
+  		| expression 'pow_' expression [star_slash] {pow_expression}
   		| 'not_' expression [not] {not_expression}
   		| 'minus_' expression [plus_minus] {minus_simple_expression}
   		| expression 'equal_' expression [equal] {equal_expression}
   		| expression 'inequal_' expression [equal] {inequal_expression}
-  		| expression 'affect_' expression [equal] {affect_expression}
 		| 'lpar_' expression 'rpar_' {par_expression}
 		| 'identifier_' 'lpar_' arg_list 'rpar_' {function_call_expression}
   		| 'identifier_' 'dot_' 'identifier_' 'lpar_' arg_list 'rpar_' {method_call_expression}
   		| 'identifier_' {identifier_expression}
   		| 'number_' {number_expression}
+  		| 'float_' {float_expression}
+  		| 'double_' {double_expression}
+  		| 'string_' {string_expression}
   		| 'boolean_' {boolean_expression}
   		;
   		
@@ -139,6 +160,10 @@ productions:
   
   type = 
   		'integer_type_' {integer_type}
+  		| 'float_type_' {float_type}
+  		| 'double_type_' {double_type}
   		| 'boolean_type_' {boolean_type}
+  		| 'string_type_' {string_type}
+  		| 'void_type_' {void_type}
   		| 'identifier_' {class_type}
   		;
