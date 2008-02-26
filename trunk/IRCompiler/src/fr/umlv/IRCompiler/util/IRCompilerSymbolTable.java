@@ -12,6 +12,7 @@ import fr.umlv.IRCompiler.exception.UnknownSymbolException;
  * @author Sebastien MOURET {smouret@etudiant.univ-mlv.fr}
  * 
  * @param <T>
+ *            symbol table data.
  */
 public class IRCompilerSymbolTable<T> implements SymbolTable<T> {
 
