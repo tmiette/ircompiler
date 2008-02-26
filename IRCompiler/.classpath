@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="gen_src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/asm-all-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/tatoo/lib/tatoo.jar"/>
+	<classpathentry kind="lib" path="lib/tatoo/lib/tatoo-runtime.jar"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>

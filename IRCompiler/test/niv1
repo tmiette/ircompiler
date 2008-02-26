@@ -1,0 +1,18 @@
+import imports.Point;
+
+Point p = Point(1,2);
+int x = p.getX();
+int y = p.getY();
+bool b = true;
+
+function int diff(int x, int y)
+   int z = x + y;
+   return z * y;
+end
+    
+			
+if diff(x,y) == 0 then
+   print not b; 
+else
+   print p; # on affiche le point
+fi		

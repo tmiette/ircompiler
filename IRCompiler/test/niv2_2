@@ -1,0 +1,14 @@
+import imports.Complexe;
+import java.util.ArrayList;
+
+function ArrayList liste()
+  ArrayList list = ArrayList();
+  list.add(Complexe(8,8));
+  list.add(Complexe(10,10));
+  return list;
+end
+
+Complexe y;
+foreach y in liste() do
+  print y;
+done

@@ -1,0 +1,14 @@
+# Exemple de conversion des types primitifs
+
+int i; # initialisation par defaut à 0
+float f = 1.0f;
+double d = 2.0;
+bool b; # initialisation par defaut à false
+
+print "float : " + f + ", double : " + d + ", integer : " + i + ", boolean : " + b; 
+
+f = i;
+d = i;
+d = f;
+
+print "float : " + f + ", double : " + d + ", integer : " + i + ", boolean : " + b;;

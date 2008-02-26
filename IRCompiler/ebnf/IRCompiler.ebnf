@@ -1,0 +1,169 @@
+imports:
+
+priorities:
+  not = 3 nonassoc
+  star_slash = 2 left
+  plus_minus = 1 left
+  equal = 0 nonassoc
+  
+tokens: 
+  $white = '[ \t\n\r]'
+
+  dot_ = '\.'
+  semicolon_ = ';'
+  lpar_ = '\('
+  rpar_ = '\)'
+  comma_ = ','
+  plus_ = '\+' [plus_minus]
+  minus_ = '-' [plus_minus]
+  mult_ = '\*' [star_slash]
+  div_ = '\/' [star_slash]
+  equal_ = '==' [equal]
+  inequal_ = '!=' [equal]
+  affect_ = '=' [equal]
+  pow_ = '\^' [star_slash]
+  
+  import_ = 'import'
+  function_ = 'function'
+  end_function_ = 'end'
+  if_ = 'if'
+  then_ = 'then'
+  else_ = 'else'
+  fi_ = 'fi'
+  return_ = 'return'
+  not_ = 'not' [not]
+  print_ = 'print'
+  foreach_ = 'foreach'
+  in_ = 'in'
+  do_ = 'do'
+  done_ = 'done'
+  
+  void_type_ = 'void'
+  integer_type_ = 'int'
+  boolean_type_ = 'bool'
+  float_type_ = 'float'
+  double_type_ = 'double'
+  string_type_ = 'string'
+  comment_ = '#[^\n\r]*\r?\n'
+  
+  boolean_:Boolean = 'true|false'
+  number_:Integer = '[0-9]+'
+  float_:Float = '[0-9]+\.[0-9]+f'
+  double_:Double = '[0-9]+\.[0-9]+'
+  identifier_:String = '[a-zA-Z$_][a-zA-Z0-9$_]*'
+  string_:String = '\"[^"]*\"'
+  
+
+blanks:
+  blk_ = "{white}"
+
+starts:
+  start
+
+productions:
+  start = 
+  		import_statement* instruction* {start}
+        ;
+        
+  import_statement = 
+  		'import_' package_name 'semicolon_' {import_statement}
+  		;
+  		
+  package_name = 
+  		'identifier_' {single_package_name}
+  		| package_name 'dot_' 'identifier_' {multiple_package_name}
+  		;
+  
+  instruction = 
+		function_declaration {instruction}
+		| statement {statement}
+  		;
+  		
+  function_declaration = 
+  		'function_' type 'identifier_' 'lpar_' parameter_list 'rpar_' multiple_statement 'end_function_' {function_declaration}
+  		;
+  
+  parameter_list = 
+  		{empty_parameter_list}
+  		| parameter another_parameter* {parameter_list}
+		;
+
+  parameter = 
+		type 'identifier_' {parameter}
+  		;
+  
+  another_parameter = 
+  		'comma_' parameter {another_parameter}
+  		;
+  
+  multiple_statement =
+  		statement* {multiple_statement}
+  		;
+  
+  statement = 
+  		variable_declaration {variable_declaration_statement}
+  		| variable_assignment {variable_assignment_statement}
+  		| 'comment_' {comment_statement}
+  		| 'print_' expression 'semicolon_' {print_statement}
+  		| expression 'semicolon_' {expression_statement}
+  		| 'return_' expression 'semicolon_' {return_statement}
+  		| 'return_' 'semicolon_' {return_statement_empty}
+  		| 'if_' expression 'then_' multiple_statement else_statement 'fi_' {conditional_statement}
+  		| 'foreach_' 'identifier_' 'in_' expression 'do_' multiple_statement 'done_' {foreach_statement}
+  		| 'foreach_' type 'identifier_' 'in_' expression 'do_' multiple_statement 'done_' {foreach_statement_with_declaration}
+  		| 'semicolon_' {empty_statement}
+		;
+		
+  else_statement =
+  		{empty_else_statement}
+  		| 'else_' multiple_statement {else_statement}
+  		;
+		
+  variable_declaration =
+  		type 'identifier_' 'affect_' expression 'semicolon_' [equal] {variable_declaration_with_assignment}
+  		| type 'identifier_' 'semicolon_' {variable_declaration_without_assignment}
+  		;
+  		
+  variable_assignment =
+  		'identifier_' 'affect_' expression 'semicolon_' [equal] {variable_assignment}
+  		;
+		
+  expression =
+  		expression 'plus_' expression [plus_minus] {plus_expression}
+  		| expression 'minus_' expression [plus_minus] {minus_expression}
+  		| expression 'mult_' expression [star_slash] {mult_expression}
+  		| expression 'div_' expression [star_slash] {div_expression}
+  		| expression 'pow_' expression [star_slash] {pow_expression}
+  		| 'not_' expression [not] {not_expression}
+  		| 'minus_' expression [plus_minus] {minus_simple_expression}
+  		| expression 'equal_' expression [equal] {equal_expression}
+  		| expression 'inequal_' expression [equal] {inequal_expression}
+		| 'lpar_' expression 'rpar_' {par_expression}
+		| 'identifier_' 'lpar_' arg_list 'rpar_' {function_call_expression}
+  		| 'identifier_' 'dot_' 'identifier_' 'lpar_' arg_list 'rpar_' {method_call_expression}
+  		| 'identifier_' {identifier_expression}
+  		| 'number_' {number_expression}
+  		| 'float_' {float_expression}
+  		| 'double_' {double_expression}
+  		| 'string_' {string_expression}
+  		| 'boolean_' {boolean_expression}
+  		;
+  		
+  arg_list =
+  		{empty_arg_list}
+		| expression another_arg* {args_list}
+		;
+  
+  another_arg =
+  		'comma_' expression {another_arg}
+  		;
+  
+  type = 
+  		'integer_type_' {integer_type}
+  		| 'float_type_' {float_type}
+  		| 'double_type_' {double_type}
+  		| 'boolean_type_' {boolean_type}
+  		| 'string_type_' {string_type}
+  		| 'void_type_' {void_type}
+  		| 'identifier_' {class_type}
+  		;
