@@ -1,0 +1,33 @@
+import imports.Methods;
+import java.util.ArrayList;
+import java.lang.Object;
+import java.util.List;
+
+# Methods possede les methodes suivantes
+# m(int i, int j)
+# m(float i, int j)
+# m(float i, float j)
+
+int i = 10;
+float f = 20; # conversion de int en float
+
+ArrayList a = ArrayList();
+Object o = Object();
+
+Methods m = Methods();
+
+m.m(i,i);
+
+m.m(i,f); # appele m(float,float)
+
+m.m(f,i);
+
+m.m(f,f);
+
+m.m2(a);
+
+List l = a;
+
+m.m2(l);
+
+m.m2(o);

@@ -1,0 +1,14 @@
+import imports.Point;
+import imports.Point3D;
+
+# Exemple de surtypage de classes
+# note : Point3D extends Point
+
+Point p = Point(1,2);
+Point3D p3d = Point3D(p.getX(),p.getY(),3);
+
+print "Points : " + p + " - " + p3d;
+
+Point p2 = p3d; # surtypage de Point3D en Point
+
+print "Point : " + p2; # appele toString de Point3D

@@ -1,0 +1,9 @@
+import imports.Complexe;
+
+Complexe c1 = Complexe(1.0f,2.0f);
+Complexe c2 = Complexe(1.0f,3.7f);
+Complexe c3 = c1 - c2; # appelle la méthode statique minus de Complexe
+
+if c3 == c2 then
+   print c3;
+fi

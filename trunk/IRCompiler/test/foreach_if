@@ -1,0 +1,22 @@
+import java.util.ArrayList;
+import java.util.List;
+import imports.Point;
+
+# Exemple de boucle foreach et test conditionnel
+
+function ArrayList list(ArrayList l)
+  l.add(Point(0,0));
+  l.add(Point(1,1));
+  l.add(Point(2,2));
+  l.add(Point(3,3));
+  return l;
+end
+
+foreach Point p in list(ArrayList()) do
+  if(p.getX() + p.getY() == 0) then
+    print "Point null " + p;
+  else
+    Point p = Point(p.getX() * 2, p.getY() * 2);
+    print p;
+  fi
+done

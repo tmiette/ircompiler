@@ -1,0 +1,21 @@
+import imports.Matrix;
+import imports.Complexe;
+
+# redéfinition des opérateur entre objets
+
+Matrix m1 = Matrix();
+Matrix m2 = Matrix();
+
+Complexe c1 = Complexe(1.0f,2.0f);
+Complexe c2 = Complexe(1.0f,3.7f);
+
+m1 + m2;
+m1 - m2;
+m1 * m2;
+m1 / m2;
+m1 ^ m2;
+
+print c1 + c2;
+
+Complexe c3 = c1 - c2;
+print c3;
