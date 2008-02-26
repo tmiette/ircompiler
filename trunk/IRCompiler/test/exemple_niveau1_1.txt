@@ -1,0 +1,19 @@
+import imports.Point;
+			
+Point p = Point(1,2);
+int x = p.getX();
+int y = p.getY();
+int W = 2 * (x + y);
+bool b = true;
+
+function int fonction(int x, int y)
+   int z = x + y;
+   return W * y * z;
+end
+
+if not (fonction(x,y) == 0) then
+   print W;
+   print not b; 
+else
+   print p; # on affiche le point
+fi
