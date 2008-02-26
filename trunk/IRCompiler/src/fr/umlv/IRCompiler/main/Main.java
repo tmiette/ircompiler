@@ -5,25 +5,58 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.OutputStream;
 
+import fr.umlv.IRCompiler.codegenerator.AsmCodeGenerator;
+import fr.umlv.IRCompiler.codegenerator.CodeGenerator;
 import fr.umlv.IRCompiler.tatoo.parser.NonTerminalEnum;
 import fr.umlv.IRCompiler.tatoo.tools.ASTEvaluator;
 import fr.umlv.IRCompiler.tatoo.tools.Analyzer;
 import fr.umlv.IRCompiler.tatoo.tools.Start;
 import fr.umlv.IRCompiler.tatoo.tools.TerminalEvaluator;
+import fr.umlv.IRCompiler.util.IRCompilerTerminalEvaluator;
+import fr.umlv.IRCompiler.visitor.CodeGeneratorVisitor;
+import fr.umlv.IRCompiler.visitor.PrintVisitor;
+import fr.umlv.IRCompiler.visitor.SemanticVisitor;
 import fr.umlv.tatoo.runtime.buffer.impl.LocationTracker;
 import fr.umlv.tatoo.runtime.buffer.impl.ReaderWrapper;
 
+/**
+ * This class is the main class which lauches the compilation.
+ * 
+ * @author Tom MIETTE {tmiette@etudiant.univ-mlv.fr}
+ * @author Sebastien MOURET {smouret@etudiant.univ-mlv.fr}
+ * 
+ */
 public class Main {
 
+  /**
+   * Main method.
+   * 
+   * @param args
+   *            command line arguments.
+   * @throws Throwable
+   *             any compilation exception.
+   */
   public static void main(String[] args) throws Throwable {
 
+    int printCode = 0;
     final ReaderWrapper reader;
+
+    // files arguments
     if (args.length < 2) {
       reader = null;
-      System.out.println("Usage : <input file> <output file>");
-      System.exit(1);
+      printUsage();
     } else {
       reader = new ReaderWrapper(new FileReader(args[0]), new LocationTracker());
+    }
+
+    // print argument
+    if (args.length > 2) {
+      try {
+        printCode = Integer.parseInt(args[2]);
+      } catch (NumberFormatException e) {
+        System.err.println("Wrong argument for print code.");
+        printUsage();
+      }
     }
 
     final TerminalEvaluator<CharSequence> attributeEvaluator = new IRCompilerTerminalEvaluator();
@@ -32,8 +65,10 @@ public class Main {
 
     final Start start = ast.getStart();
 
-    final PrintVisitor printVisitor = new PrintVisitor();
-    // start.accept(printVisitor, null);
+    if (printCode == 1) {
+      final PrintVisitor printVisitor = new PrintVisitor();
+      start.accept(printVisitor, null);
+    }
 
     final SemanticVisitor semanticVisitor2 = new SemanticVisitor();
     start.accept(semanticVisitor2, null);
@@ -44,10 +79,18 @@ public class Main {
             .getFunctions());
     start.accept(codeVisitor, null);
 
-    OutputStream o = new FileOutputStream(new File(args[1]));
+    final OutputStream o = new FileOutputStream(new File(args[1]));
     o.write(codeGenerator.getByteArray());
     o.close();
 
   }
 
+  /**
+   * Prints the program's usage.
+   */
+  private static void printUsage() {
+    System.err
+        .println("Usage : <input file> <output file> <print code (optional, 1 or 0)>");
+    System.exit(1);
+  }
 }
