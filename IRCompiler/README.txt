@@ -22,11 +22,17 @@ Project directories
 The project root directory is divided into six main directories.
 
 	1. "bin" which contains the executable jar archive.
-	2. "classes" which contains java binaries files (class files).
+	2. "classes" which contains java binaries files (class files) 
+	and custom classes used in the custom language.
 	3. "docs" which contains the project documentation.
 	4. "docs/api" which contains the java documentation (javadoc format).
-	5. "lib" which contains java external libraries.
-	6. "src" which contains java source files (java files).
+	5. "ebnf" which contains the ebnf file (grammar specification) to
+	generate tatoo sources files.
+	6. "gen_src" which contains tatoo sources files.
+	7. "lib" which contains java external libraries.
+	8. "src" which contains java source files (java files).
+	9. "test" which contains some examples of custom language
+	code.
 
 Building jar archive
 --------------------
@@ -52,6 +58,13 @@ To run the program, you can use the java command to launch the jar archive :
 	
 	3. <print code> is an optional option to print (1) or 
 	not (0) the custom code.
+	
+After generating the class file with IRCompiler, you can launch this program
+with the simple java command (make sure that your are in the same directory
+than the class file) :
+
+	$ java <myfile.class>
+	
 
 Others ant tasks
 ----------------
